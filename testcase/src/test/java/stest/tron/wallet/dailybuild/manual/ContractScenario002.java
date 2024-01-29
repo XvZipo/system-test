@@ -166,6 +166,11 @@ public class ContractScenario002 {
    */
   @Test(enabled = true, description = "Get transaction by id from solidity")
   public void test03GetTransactionByIdFromSolidity() {
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
     Assert.assertFalse(PublicMethed.getTransactionById(txid, blockingStubSolidity)
         .get().getSignature(0).isEmpty());
     Assert.assertEquals(PublicMethed.getTransactionById(txid, blockingStubFull),
@@ -177,6 +182,10 @@ public class ContractScenario002 {
    */
   @Test(enabled = true, description = "Get transaction by id from PBFT")
   public void test04GetTransactionByIdFromPbft() {
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertFalse(PublicMethed.getTransactionById(txid, blockingStubPbft)
         .get().getSignature(0).isEmpty());
     Assert.assertEquals(PublicMethed.getTransactionById(txid, blockingStubSoliInFull),
@@ -204,6 +213,10 @@ public class ContractScenario002 {
    */
   @Test(enabled = true, description = "Get transaction by id from PBFT")
   public void test06GetTransactionInfoByIdFromPbft() {
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     long energyUsage = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get()
         .getReceipt()
         .getEnergyUsage();

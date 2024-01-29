@@ -80,7 +80,7 @@ public class TriggerConstant014 {
   @Test(enabled = true, description = "TriggerContract a non-constant function created by create2")
   public void test01TriggerContract() {
     Assert.assertTrue(PublicMethed
-        .sendcoin(contractExcAddress, 1000000000L, testNetAccountAddress, testNetAccountKey,
+        .sendcoin(contractExcAddress, 10000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/ClearAbi005.sol";
@@ -196,6 +196,7 @@ public class TriggerConstant014 {
   @Test(enabled = true, description = "TriggerConstantContract a non-constant function "
       + "created by create2")
   public void test16TriggerConstantContract() {
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
@@ -216,6 +217,7 @@ public class TriggerConstant014 {
   @Test(enabled = true, description = "TriggerConstantContract a non-constant function "
       + "created by create2 on solidity")
   public void test16TriggerConstantContractOnSolidity() {
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubRealSolidity);
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
     TransactionExtention transactionExtention = PublicMethed
@@ -235,6 +237,7 @@ public class TriggerConstant014 {
   @Test(enabled = true, description = "TriggerConstantContract a non-constant function "
       + "created by create2 on real solidity")
   public void test16TriggerConstantContractOnRealSolidity() {
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubRealSolidity);
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
     TransactionExtention transactionExtention = PublicMethed

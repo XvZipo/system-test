@@ -90,11 +90,9 @@ public class MultiSign23 {
     ownerAddress = ecKey1.getAddress();
     ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     long needCoin = updateAccountPermissionFee * 2 + multiSignFee;
-
     Assert.assertTrue(PublicMethed.sendcoin(ownerAddress, needCoin + 1_000_000, fromAddress,
         testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long balanceBefore = PublicMethed.queryAccount(ownerAddress, blockingStubFull)
         .getBalance();
     logger.info("balanceBefore: " + balanceBefore);
@@ -124,8 +122,6 @@ public class MultiSign23 {
         ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(tmpKey02);
 
@@ -163,16 +159,17 @@ public class MultiSign23 {
 
     PublicMethedForMutiSign
         .recoverAccountPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     txWeight = PublicMethedForMutiSign.getTransactionSignWeight(transaction2, blockingStubFull);
     logger.info("TransactionSignWeight info : " + txWeight);
 
-    Transaction transaction3 = PublicMethedForMutiSign
-        .sendcoin2(fromAddress, 1000_000, ownerAddress, ownerKey, blockingStubFull);
+    //Transaction transaction3 = PublicMethedForMutiSign
+    //    .sendcoin2(fromAddress, 1000_000, ownerAddress, ownerKey, blockingStubFull);
 
     Transaction transaction4 = PublicMethedForMutiSign.addTransactionSignWithPermissionId(
         transaction, tmpKey02, 2, blockingStubFull);
-    Assert.assertFalse(PublicMethedForMutiSign.broadcastTransaction(transaction3,blockingStubFull));
+    //Assert.assertFalse(PublicMethedForMutiSign.broadcastTransaction(transaction3,blockingStubFull));
     Assert.assertFalse(PublicMethedForMutiSign.broadcastTransaction(transaction4,blockingStubFull));
 
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)

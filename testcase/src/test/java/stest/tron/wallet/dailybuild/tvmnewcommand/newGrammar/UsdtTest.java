@@ -91,11 +91,11 @@ public class UsdtTest {
   public void test01() {
 
     Assert.assertTrue(PublicMethed
-        .sendcoin(callerddress, 10000000L, testNetAccountAddress, testNetAccountKey,
+        .sendcoin(callerddress, 1000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed
-        .sendcoin(testNetAccountAddress, 10000000L, callerddress, callerKey, blockingStubFull));
+        .sendcoin(testNetAccountAddress, 1000000000L, callerddress, callerKey, blockingStubFull));
     String methedStr = "transfer(address,uint256)";
     String argsStr = "\"" + callerAddress58 + "\",100";
     String txid = PublicMethed.triggerContract(usdtAddress, methedStr, argsStr,

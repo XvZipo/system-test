@@ -146,7 +146,7 @@ public class HttpTestFreezeV2001 {
     Assert.assertTrue(!unfrozenV2.contains("type"));
 
     int retryTimes = 0;
-    while (System.currentTimeMillis() < unfreezeExpireTime && retryTimes++ <= 100) {
+    while (System.currentTimeMillis() < unfreezeExpireTime && retryTimes++ <= 2) {
       HttpMethed.waitToProduceOneBlock(httpnode);
     }
 
@@ -399,7 +399,7 @@ public class HttpTestFreezeV2001 {
     JSONArray unfrozenV2 = responseContent.getJSONArray("unfrozenV2");
     Long unfreezeExpireTime = unfrozenV2.getJSONObject(0).getLong("unfreeze_expire_time");
     int retryTimes = 0;
-    while (System.currentTimeMillis() < unfreezeExpireTime && retryTimes++ <= 100) {
+    while (System.currentTimeMillis() < unfreezeExpireTime && retryTimes++ <= 3) {
       HttpMethed.waitToProduceOneBlock(httpnode);
     }
 

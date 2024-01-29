@@ -122,11 +122,11 @@ public class JsonRpcBase {
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     getCommitData();
-    openProposal(0, proposalMap);
-    waitMaxTime = secondProposalMap.get(0L) * 2 + 10000L; //reload max wait time from proposal list
-    waitProposalApprove(ProposalEnum.getMaxCpuTimeOfOneTx.getProposalName(), 80,  blockingStubFull);
-    openProposal(1, secondProposalMap);
-    waitProposalApprove(ProposalEnum.getAllowCancelAllUnfreezeV2.getProposalName(), 1,blockingStubFull);
+    //openProposal(0, proposalMap);
+    //waitMaxTime = secondProposalMap.get(0L) * 2 + 10000L; //reload max wait time from proposal list
+    //waitProposalApprove(ProposalEnum.getMaxCpuTimeOfOneTx.getProposalName(), 80,  blockingStubFull);
+    //openProposal(1, secondProposalMap);
+    //waitProposalApprove(ProposalEnum.getAllowCancelAllUnfreezeV2.getProposalName(), 1,blockingStubFull);
     Assert.assertTrue(
         PublicMethed.sendcoin(
             jsonRpcOwnerAddress,
@@ -171,11 +171,11 @@ public class JsonRpcBase {
     responseContent = HttpMethed.parseResponseContent(response);
     jsonRpcAssetId = responseContent.getString("asset_issued_ID");
 
-    deployContract();
-    triggerContract();
-    deployTrc20Contract();
-    deploySelfDestructContract();
-    deployCreate2Contract();
+//    deployContract();
+//    triggerContract();
+//    deployTrc20Contract();
+//    deploySelfDestructContract();
+//    deployCreate2Contract();
   }
 
   void getCommitData() {

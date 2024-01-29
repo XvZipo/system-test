@@ -60,10 +60,10 @@ public class CallValueGasPureTest {
   @Test(enabled = true, description = "call.value.gas be pure")
   public void test01DeployContract() {
     Assert.assertTrue(PublicMethed
-        .sendcoin(testAddress001, 1000_000_000L, foundationAddress001, foundationKey001,
+        .sendcoin(testAddress001, 10000_000_000L, foundationAddress001, foundationKey001,
             blockingStubFull));
     Assert.assertTrue(PublicMethed
-        .freezeBalanceForReceiver(foundationAddress001, 100_000_000L, 0, 0,
+        .freezeBalanceForReceiver(foundationAddress001, 1000_000_000L, 0, 0,
             ByteString.copyFrom(testAddress001), foundationKey001, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 

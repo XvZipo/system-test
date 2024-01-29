@@ -34,7 +34,7 @@ public class Create2Test020 {
   byte[] contractExcAddress = ecKey1.getAddress();
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+      .getLong("defaultParameter.maxFeeLimit")*10L;
   private ManagedChannel channelSolidity = null;
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -77,6 +77,7 @@ public class Create2Test020 {
     Assert.assertTrue(PublicMethed
         .sendcoin(contractExcAddress, 500000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
+    PublicMethed.freezeBalanceV2(contractExcAddress, 2000000000, 1, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/create2contract22.sol";
     String contractName = "Factory";

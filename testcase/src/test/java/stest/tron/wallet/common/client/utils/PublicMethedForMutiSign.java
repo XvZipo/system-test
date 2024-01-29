@@ -3766,6 +3766,7 @@ public class PublicMethedForMutiSign {
             ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Assert.assertEquals(1, getActivePermissionKeyCount(
         PublicMethed.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));

@@ -76,16 +76,16 @@ public class ExtCodeHashTest001 {
 
   @Test(enabled = true, description = "Deploy extcodehash contract")
   public void test01DeployExtCodeHashContract() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 10000_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 10000_000_000L, fromAddress,
         testKey002, blockingStubFull));
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
         PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 170000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 1000_000_000L,
         0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -578,16 +578,16 @@ public class ExtCodeHashTest001 {
   @Test(enabled = true, description = "Get the EXTCODEHASH of an account created "
       + "in the current transaction")
   public void test07DeployExtCodeHashContract() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 10000_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 10000_000_000L, fromAddress,
         testKey002, blockingStubFull));
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
         PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 170000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 1000_000_000L,
         0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);

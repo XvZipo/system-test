@@ -23,7 +23,7 @@ public class WalletTestAssetIssue015 {
 
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
-  private static final long sendAmount = 10000000000L;
+  private static final long sendAmount = 20000000000L;
   private static final long netCostMeasure = 200L;
   private static String name = "AssetIssue015_" + Long.toString(now);
   private final String testKey002 = Configuration.getByPath("testng.conf")
@@ -148,7 +148,7 @@ public class WalletTestAssetIssue015 {
     Assert.assertTrue(assetTransferNet.getFreeNetUsed() >= 1300);
 
     Assert.assertTrue(PublicMethed.sendcoin(transferAssetAddress,
-        20000000, fromAddress, testKey002, blockingStubFull));
+        20000000000L, fromAddress, testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Account transferAccount = PublicMethed.queryAccount(transferAssetCreateKey, blockingStubFull);
@@ -167,8 +167,8 @@ public class WalletTestAssetIssue015 {
 
   @Test(enabled = true, description = "Transfer asset use bandwidth when freeze balance")
   public void ctestWhenFreezeBalanceUseNet() {
-    Assert.assertTrue(PublicMethed.freezeBalance(transferAssetAddress, 5000000,
-        3, transferAssetCreateKey, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(transferAssetAddress, 1000000000,
+        0, transferAssetCreateKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     AccountNetMessage assetTransferNet = PublicMethed
         .getAccountNet(transferAssetAddress, blockingStubFull);

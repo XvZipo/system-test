@@ -72,18 +72,21 @@ public class ContractTrcToken002 {
   @Test(enabled = true, description = "TriggerContract with correct tokenValue and tokenId")
   public void deployTransferTokenContract() {
 
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 3100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 31000_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 300_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 3000_000_000L, fromAddress,
         testKey002, blockingStubFull));
 
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
         PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 70000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
-        0, 0, ByteString.copyFrom(dev001Address),
-        testKey002, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 1000_000_000L,
+//        0, 0, ByteString.copyFrom(dev001Address),
+//        testKey002, blockingStubFull));
+    PublicMethed.freezeBalanceV2(dev001Address, 1000_000000L, 1,dev001Key,blockingStubFull);
+
+    PublicMethed.freezeBalanceV2(user001Address, 1000_000000L, 0,user001Key,blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     long start = System.currentTimeMillis() + 2000;

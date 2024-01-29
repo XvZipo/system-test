@@ -99,7 +99,7 @@ public class WalletTestAssetIssue010 {
         .sendcoin(asset010Address, sendAmount, fromAddress, testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed
-        .freezeBalance(asset010Address, 200000000L, 0, testKeyForAssetIssue010,
+        .freezeBalance(asset010Address, 2000000000L, 0, testKeyForAssetIssue010,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long start = System.currentTimeMillis() + 2000;

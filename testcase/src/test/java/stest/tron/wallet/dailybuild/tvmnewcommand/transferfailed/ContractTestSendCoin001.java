@@ -81,7 +81,7 @@ public class ContractTestSendCoin001 {
       + "then selfdestruct")
   public void testSendCoinAndTransferAssetContract001() {
     Assert.assertTrue(PublicMethed
-        .sendcoin(dev001Address, 3100_000_000L, fromAddress, testKey002, blockingStubFull));
+        .sendcoin(dev001Address, 31000_000_000L, fromAddress, testKey002, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -89,7 +89,7 @@ public class ContractTestSendCoin001 {
         PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 130000L, blockingStubFull), 0,
         1, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L, 0, 0,
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10000_000_000L, 0, 0,
         ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);

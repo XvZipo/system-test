@@ -56,7 +56,7 @@ public class pedersenHash001 {
     channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
     txid = PublicMethed
-        .sendcoinGetTransactionId(contractExcAddress, 10000000000L, testNetAccountAddress,
+        .sendcoinGetTransactionId(contractExcAddress, 300000000000L, testNetAccountAddress,
             testNetAccountKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/pedersenHash001.sol";
@@ -65,7 +65,7 @@ public class pedersenHash001 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
     contractAddress = PublicMethed
-        .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
+        .deployContract(contractName, abi, code, "", maxFeeLimit * 10, 0L, 100, null, contractExcKey,
             contractExcAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
@@ -96,7 +96,7 @@ public class pedersenHash001 {
     String argsStr1 = "\"0000000000000000000000000000000000000000000000000000000000000001"
         + "0000000000000000000000000000000000000000000000000000000000000002\"";
     Optional<TransactionInfo> infoById = null;
-    txid = PublicMethed.triggerContract(contractAddress, method, argsStr1, false, 0, maxFeeLimit,
+    txid = PublicMethed.triggerContract(contractAddress, method, argsStr1, false, 0, maxFeeLimit * 10,
         contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed

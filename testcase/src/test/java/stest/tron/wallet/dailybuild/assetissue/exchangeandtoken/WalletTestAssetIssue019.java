@@ -69,9 +69,9 @@ public class WalletTestAssetIssue019 {
     asset019SecondKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
     PublicMethed.printAddress(asset019SecondKey);
 
-    Assert.assertTrue(PublicMethed.sendcoin(asset019Address, 2048000000, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(asset019Address, 20480000000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(asset019SecondAddress, 2048000000, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(asset019SecondAddress, 20480000000L, fromAddress,
         testKey002, blockingStubFull));
 
     //Can create 32 char token name.
@@ -120,9 +120,9 @@ public class WalletTestAssetIssue019 {
 
   @Test(enabled = true)
   public void testGetAssetLastOperationTimeAndAssetIssueFreeNetUsed() {
-    Assert.assertTrue(PublicMethed.freezeBalance(asset019Address, 100000000L, 3,
+    Assert.assertTrue(PublicMethed.freezeBalance(asset019Address, 1000000000L, 3,
         asset019Key, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalance(asset019SecondAddress, 100000000L, 3,
+    Assert.assertTrue(PublicMethed.freezeBalance(asset019SecondAddress, 1000000000L, 3,
         asset019SecondKey, blockingStubFull));
     Account getAssetIdFromThisAccount;
     getAssetIdFromThisAccount = PublicMethed.queryAccount(asset019Address, blockingStubFull);

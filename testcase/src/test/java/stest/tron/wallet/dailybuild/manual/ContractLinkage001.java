@@ -100,6 +100,7 @@ public class ContractLinkage001 {
         payableCode, "", maxFeeLimit, accountBalance, 100, null,
         linkage001Key, linkage001Address, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);

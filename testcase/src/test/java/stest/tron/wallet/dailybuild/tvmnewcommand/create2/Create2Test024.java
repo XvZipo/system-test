@@ -78,6 +78,9 @@ public class Create2Test024 {
         testKey002, blockingStubFull));
     Assert.assertTrue(PublicMethed.sendcoin(user001Address, 10000_000_000L, fromAddress,
         testKey002, blockingStubFull));
+    PublicMethed.freezeBalanceV2(dev001Address, 5000_000000L, 1, dev001Key, blockingStubFull);
+    PublicMethed.freezeBalanceV2(user001Address, 5000_000000L, 1, user001Key, blockingStubFull);
+
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     //before deploy, check account resource
@@ -166,7 +169,7 @@ public class Create2Test024 {
 
     String triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
         "deploy(bytes,uint256)", param, false, callValue,
-        1000000000L, "0", 0, user001Address, user001Key,
+        1500000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -219,7 +222,7 @@ public class Create2Test024 {
 
     triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
         "deploy2(bytes,uint256)", param, false, callValue,
-        1000000000L, "0", 0, user001Address, user001Key,
+        1500000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed

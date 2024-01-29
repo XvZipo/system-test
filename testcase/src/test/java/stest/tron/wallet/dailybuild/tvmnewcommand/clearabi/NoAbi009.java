@@ -180,6 +180,8 @@ public class NoAbi009 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+
     transactionExtention = PublicMethed
         .triggerConstantContractForExtentionOnSolidity(contractAddress, "testTrigger()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
@@ -318,6 +320,8 @@ public class NoAbi009 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+
     transactionExtention = PublicMethed
         .triggerConstantContractForExtentionOnSolidity(testNoABiContractAddress, "plusOne()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
