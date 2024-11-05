@@ -64,6 +64,10 @@ public class MainnetReplayQueryTest {
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("replayQueryNode.ip.list").get(0);
 
+  //main net freeze_v2
+  private static byte[] contractAddress = PublicMethed.decode58Check("TYKLNq9mCTApMZQP7c3fbvyxMBQrDtmXBm");
+
+
   AtomicLong atomicLong = new AtomicLong();
 
   private static Long replayTimes = 10000000L;
@@ -102,16 +106,16 @@ public class MainnetReplayQueryTest {
         .build();
     WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     Integer threadId = Integer.valueOf(Thread.currentThread().getName().split("-")[2]);
-    threadId = getQueryIndex(threadId);
+//    threadId = getQueryIndex(threadId);
 
     switch (threadId) {
-      case 0:
-      //GetTransactionInfoByBlockNum,getTransactionInfoByid
-        getTransactionInfo(blockingStubFull);
-      case 1:
-      //Get account
-        getAccountBalance(blockingStubFull);
-        break;
+//      case 0 :
+//      //GetTransactionInfoByBlockNum,getTransactionInfoByid
+//        getTransactionInfo(blockingStubFull);
+//      case 1:
+//      //Get account
+//        getAccountBalance(blockingStubFull);
+//        break;
       case 2:
       //Get trc10 balance
         getAccountTrc10Balance(blockingStubFull);
@@ -144,14 +148,25 @@ public class MainnetReplayQueryTest {
         //Get NodeInfo
         getNodeInfo(blockingStubFull);
         break;
+      case 10:
+      case 11:
+      case 12:
+      case 13:
+      case 14:
+      case 15:
+        //checkUnDelegateResource
+        checkUnDelegateResource(blockingStubFull);
+        break;
       default:
       //Trc20 balanceOf
         queryTrc20ContractBalanceOf(blockingStubFull);
+        getTransactionInfo(blockingStubFull);
+        getAccountBalance(blockingStubFull);
         break;
     }
 
 
-
+    channelFull.shutdown();
 
 
 
@@ -349,6 +364,31 @@ public class MainnetReplayQueryTest {
   public static void getNodeInfo(WalletGrpc.WalletBlockingStub blockingStubFull) {
     for(int index = 0; index < replayTimes; index++) {
       blockingStubFull.getNodeInfo(EmptyMessage.newBuilder().build());
+    }
+  }
+
+  public static void checkUnDelegateResource(WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+    java.util.Random random1 = new  java.util.Random();
+    int  index;
+    String[] add = {
+                "TZBtvgAxQ4rw5UHkE1G7jdGFrS5ru5Xs1f",
+                "TTTU7epiomWB2CUKxwsEYRQSafffffffff",
+                "TDJaUmLeUzsur9mKeBsNGWSTME7SwsCDVm",
+                "TRNspRcx5Ez6NUqLg4FaU9ZKDyeya4qMSs",
+                "TMCma855tHgXPVdqSPK3a589kZdzQuuu66",
+                "TMpD8Yd7Jhh4gSwjNMwTnK4Q9tQ2puKkUN",
+                "TNHVbnChAbF9eBo6KEH1rEnKDHu7ubYUno",
+                "TKSd32fKyhfVgPrdbtNBqmxAYbzGZnaG99"
+    };
+    String methedStr = "checkUnDelegateResource(address,uint256,uint256)";
+    String argsStr ;
+    for (int i = 0; i < replayTimes * 6; i++) {
+      index = random1.nextInt(8);
+      argsStr = "\"" + add[index] + "\"," + 100000000 + "," + 1;
+      PublicMethed.triggerConstantContractForExtention(
+              contractAddress, methedStr, argsStr, false, 0, 0,
+              "#", 0, foundationAccountAddress, foundationAccountKey, blockingStubFull);
     }
   }
 
