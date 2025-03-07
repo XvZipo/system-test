@@ -91,7 +91,7 @@ public class MultiSign23 {
     ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     long needCoin = updateAccountPermissionFee * 2 + multiSignFee;
 
-    Assert.assertTrue(PublicMethed.sendcoin(ownerAddress, needCoin + 1_000_000, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(ownerAddress, needCoin + 2_000_000, fromAddress,
         testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 //    PublicMethed.waitProduceNextBlock(blockingStubFull);
