@@ -55,7 +55,7 @@ public class BlobTest {
 
     String filePath = "src/test/resources/soliditycode/blob.sol";
     String contractName = "C";
-    String compileParam = "--via-ir";
+    String compileParam = "--experimental--via-ir";
     HashMap retMap = PublicMethed.getBycodeAbiWithParam(filePath, contractName, compileParam);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();

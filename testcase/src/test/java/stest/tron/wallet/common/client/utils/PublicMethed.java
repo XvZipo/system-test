@@ -5683,7 +5683,7 @@ public class PublicMethed {
     logger.debug("outputPath: " + outputPath);
     String cmd =
         compile
-            + " --bin --abi --overwrite "
+            + " --bin --abi --experimental--via-ir --overwrite "
             + absolutePath
             + "/"
             + solFile
@@ -5740,7 +5740,7 @@ public class PublicMethed {
     logger.debug("outputPath: " + outputPath);
     String cmd =
         compile
-            + " --optimize  --evm-version cancun --bin --abi --overwrite "
+            + " --optimize --experimental--via-ir --bin --abi --overwrite "
             + absolutePath
             + "/"
             + solFile
@@ -5798,7 +5798,7 @@ public class PublicMethed {
     logger.debug("outputPath: " + outputPath);
     String cmd =
             compile
-                    + " --optimize " + param +" --evm-version cancun --bin --abi --overwrite "
+                    + " --optimize " + param +" --bin --abi --overwrite "
                     + absolutePath
                     + "/"
                     + solFile
