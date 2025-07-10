@@ -636,6 +636,7 @@ public class NewFreezeContractTest {
     String witnessTB4 = "TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes";
     String args = "[\"" + witnessTT1 + "\",\"" + witnessTB4 + "\"],[200,200]";
     voteWitness(contractAddress, args);
+    withdrawReward(contractAddress);
     String methedStr = "unfreezeBalanceV2(uint256,uint256)";
     String argsStr = "10000000,0";
     String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
@@ -803,6 +804,21 @@ public class NewFreezeContractTest {
         transactionInfo.getReceipt().getResult());
     Assert.assertEquals("voteWitness", transactionInfo.getInternalTransactions(0).getNote().toStringUtf8());
     logger.info("transactionInfo:  " + transactionInfo.toString());
+  }
+
+  public void withdrawReward(byte[] con) {
+    String methodStr = "withdrawReward()";
+
+    String triggerTxid = PublicMethed.triggerContract(con, methodStr, "#", false,
+            0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    TransactionInfo transactionInfo = PublicMethed
+            .getTransactionInfoById(triggerTxid, blockingStubFull).get();
+    Assert.assertEquals(0, transactionInfo.getResultValue());
+    Assert.assertEquals(contractResult.SUCCESS,
+            transactionInfo.getReceipt().getResult());
+
   }
 
 
