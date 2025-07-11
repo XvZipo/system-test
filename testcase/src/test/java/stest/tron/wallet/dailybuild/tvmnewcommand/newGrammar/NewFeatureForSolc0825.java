@@ -83,7 +83,6 @@ public class NewFeatureForSolc0825 {
     Assert.assertEquals(Protocol.TransactionInfo.code.SUCESS, info.getResult());
     String out = ByteArray.toHexString(info.getContractResult(0).toByteArray()).substring(128);
     Assert.assertEquals("6161616161000000000000000000000000000000000000000000000000000000", out);
-//            out.equalsIgnoreCase("6161616161000000000000000000000000000000000000000000000000000000")
   }
 
   @Test(enabled = true, description = "Code Generator: Use ``MCOPY`` instead of ``MLOAD``/``MSTORE`` loop " +
