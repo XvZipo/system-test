@@ -248,12 +248,31 @@ public class Opcode {
 
   @Test(enabled = true, description = "test opcode swap14-16,solidity cannot use optimize")
   public void test08Swap() {
-    GrpcAPI.TransactionExtention transactionExtention = PublicMethed
-        .triggerConstantContractForExtention(mapKeyContract,
-            "ssswap()", "#", true,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
-    Protocol.Transaction transaction = transactionExtention.getTransaction();
-    int trueRes = ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray());
+      GrpcAPI.TransactionExtention transactionExtention = PublicMethed
+              .triggerConstantContractForExtention(mapKeyContract,
+                      "ssswap14()", "#", false,
+                      0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+      Protocol.Transaction transaction = transactionExtention.getTransaction();
+      int trueRes = ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray());
+      logger.info("truerRes: " + trueRes + "   message:" + transaction.getRet(0).getRet());
+      Assert.assertEquals("SUCESS", transaction.getRet(0).getRet().toString());
+      Assert.assertEquals(1, trueRes);
+    transactionExtention = PublicMethed
+            .triggerConstantContractForExtention(mapKeyContract,
+                    "ssswap15()", "#", false,
+                    0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    transaction = transactionExtention.getTransaction();
+    trueRes = ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray());
+    logger.info("truerRes: " + trueRes + "   message:" + transaction.getRet(0).getRet());
+    Assert.assertEquals("SUCESS", transaction.getRet(0).getRet().toString());
+    Assert.assertEquals(1, trueRes);
+
+    transactionExtention = PublicMethed
+            .triggerConstantContractForExtention(mapKeyContract,
+                    "ssswap16()", "#", false,
+                    0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    transaction = transactionExtention.getTransaction();
+    trueRes = ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray());
     logger.info("truerRes: " + trueRes + "   message:" + transaction.getRet(0).getRet());
     Assert.assertEquals("SUCESS", transaction.getRet(0).getRet().toString());
     Assert.assertEquals(1, trueRes);

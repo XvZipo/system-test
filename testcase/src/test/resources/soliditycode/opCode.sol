@@ -49,7 +49,7 @@ contract A {
 //        }
 //    }
 
-    function ssswap() public returns (int a) {
+    function ssswap14() public returns (int a) {
         int a=1;
         int b=2;
         int c=3;
@@ -62,9 +62,44 @@ contract A {
         int b1=2;
         int c1=3;
         int d1=3;
-        int e1=3;  //swap 14
-        int f1=3;  //swap 15
-        int g1=3;  //swap 16
+        int e1=3;
+        return (a);
+    }
+
+    function ssswap15() public returns (int a) {
+        int a=1;
+        int b=2;
+        int c=3;
+        int d=3;
+        int e=3;
+        int f=3;
+        int g=3;
+        int h=3;
+        int a1=1;
+        int b1=2;
+        int c1=3;
+        int d1=3;
+        int e1=3;
+        int f1=3;
+        return (a);
+    }
+
+    function ssswap16() public returns (int a) {
+        int a=1;
+        int b=2;
+        int c=3;
+        int d=3;
+        int e=3;
+        int f=3;
+        int g=3;
+        int h=3;
+        int a1=1;
+        int b1=2;
+        int c1=3;
+        int d1=3;
+        int e1=3;
+        int f1=3;
+        int g1=3;
         return (a);
     }
 
