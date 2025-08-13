@@ -5740,7 +5740,7 @@ public class PublicMethed {
     logger.debug("outputPath: " + outputPath);
     String cmd =
         compile
-            + " --optimize --experimental-via-ir --bin --abi --overwrite "
+            + " --optimize --bin --abi --overwrite "
             + absolutePath
             + "/"
             + solFile
