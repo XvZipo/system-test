@@ -164,7 +164,7 @@ public class EnergyAdjustmentTest {
     logger.info("sucideToActiveAcount02 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals(27283, info.getReceipt().getEnergyUsageTotal());
+    Assert.assertEquals(26993, info.getReceipt().getEnergyUsageTotal());
     String contractC = PublicMethed.queryAccount(contractAddressC, blockingStubFull).toString();
     System.out.println("contractC  ccc: " + contractC);
     Assert.assertEquals("", contractC);
@@ -198,7 +198,7 @@ public class EnergyAdjustmentTest {
     logger.info("sucideToActiveAcount03 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals(52283, info.getReceipt().getEnergyUsageTotal());
+    Assert.assertEquals(51993, info.getReceipt().getEnergyUsageTotal());
     String contractC = PublicMethed.queryAccount(contractAddressC, blockingStubFull).toString();
     System.out.println("contractC  ccc: " + contractC);
     Assert.assertEquals("", contractC);
