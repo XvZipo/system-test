@@ -73,7 +73,7 @@ public class NewFeatureForSolc0825 {
 
   @Test(enabled = true, description = "Code Generator: Use ``MCOPY`` instead of ``MLOAD``/``MSTORE`` loop " +
           "when copying byte arrays.")
-  public void test001CopyBytes() {
+  public void test001McopyCopyBytes() {
     String txid = PublicMethed
             .triggerContract(contractC,"copyBytes()", "#", false,
                     0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -87,7 +87,7 @@ public class NewFeatureForSolc0825 {
 
   @Test(enabled = true, description = "Code Generator: Use ``MCOPY`` instead of ``MLOAD``/``MSTORE`` loop " +
           "when copying byte arrays.")
-  public void test002CopyString() {
+  public void test002McopyCopyString() {
     String txid = PublicMethed
             .triggerContract(contractC, "copyString()", "#", false,
                     0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
