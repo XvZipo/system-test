@@ -772,8 +772,24 @@ public class verifyTransferProof001 {
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(0, infoById.get().getResultValue());
-    Assert.assertTrue(
-        ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()).length() > 10000);
+//    Assert.assertTrue(
+//        ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()).length() > 10000);
+    String result = ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray());
+    String offset = result.substring(0,64);
+    String length = result.substring(64,128);
+    String data1 = result.substring(128,192);
+    String data2 = result.substring(192,256);
+    String data3 = result.substring(256,320);
+    String data4 = result.substring(320,384);
+    String data5 = result.substring(384,448);
+    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000020", offset);
+    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000005", length);
+    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000001", data1);
+    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000002", data2);
+    Assert.assertEquals("83a36b13f04fa5302213ae219b2bc77dd58deece0c2aa6311bce815a761c3f3b", data3);
+    Assert.assertEquals("94d22bf13665a04532f94d9822f79317670ade963b70feb2053755c5f36e1450", data4);
+    Assert.assertEquals("ae12ac48beebcaccbb395d4f532944cfead09a4c0ee09c1cb49742b7b6188669", data5);
+
   }
 
   @AfterClass

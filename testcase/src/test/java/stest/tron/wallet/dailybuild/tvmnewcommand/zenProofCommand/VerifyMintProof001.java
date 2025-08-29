@@ -443,10 +443,20 @@ public class VerifyMintProof001 {
     logger.info("infoById : " + infoById);
 
     Assert.assertEquals(0, infoById.get().getResultValue());
-    String contractResult = ByteArray.toHexString(infoById.get()
-        .getContractResult(0).toByteArray());
+    String contractResult = ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray());
 
-    Assert.assertTrue(contractResult.length() > 1000);
+//    Assert.assertTrue(contractResult.length() > 1000);
+    String offset = contractResult.substring(0,64);
+    String length = contractResult.substring(64,128);
+    //data1: 1:success
+    String data1 = contractResult.substring(128,192);
+    String data2 = contractResult.substring(192,256);
+    String data3 = contractResult.substring(256,320);
+    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000020", offset);
+    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000003", length);
+    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000001", data1);
+    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000000", data2);
+    Assert.assertEquals("39e261b362110781a20878cc19f480cb50df5e6b896ed9a1fea8b8a9a4239a17", data3);
 
   }
 
