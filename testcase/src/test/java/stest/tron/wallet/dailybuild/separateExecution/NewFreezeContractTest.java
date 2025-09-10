@@ -506,7 +506,6 @@ public class NewFreezeContractTest {
     String argsStr = "\"" + Base58.encode58Check(testAddress002) + "\"";
     String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
         false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("kill me revert WithDelegate txid: " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
@@ -683,7 +682,6 @@ public class NewFreezeContractTest {
     String argsStr = "\"" + Base58.encode58Check(testAddress002) + "\"";
     String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
         false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("kill me revert WithUnfreeze txid: " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
