@@ -67,6 +67,9 @@ public class JsonRpcBase {
   public String fullnode =
       Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
 
+  public String solidityNode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(1);
+
   public static long maxFeeLimit = 0L;
   public static String trc20AddressByteString;
   public static String trc20AddressHex;
@@ -113,6 +116,10 @@ public class JsonRpcBase {
     // Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+
+    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
+    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+
     freezeBeforeAllTest();
     Assert.assertTrue(
         PublicMethed.sendcoin(
