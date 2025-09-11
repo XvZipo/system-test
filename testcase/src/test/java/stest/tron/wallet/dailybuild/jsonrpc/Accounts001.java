@@ -4,11 +4,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannelBuilder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -18,11 +17,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
+import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Block;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.JsonRpcBase;
+import org.tron.protos.contract.SmartContractOuterClass;
+import stest.tron.wallet.common.client.utils.*;
 import stest.tron.wallet.common.client.utils.services.Util;
+
+import static org.tron.protos.Protocol.Transaction.Contract.ContractType.CreateSmartContract;
 
 @Slf4j
 public class Accounts001 extends JsonRpcBase {
@@ -1553,6 +1554,87 @@ public class Accounts001 extends JsonRpcBase {
     System.out.println(responseContent.toJSONString());
 //    Assert.assertEquals(trans1, trans2);
   }
+
+  @Test(enabled = true, description = "Json rpc api of eth_getBlockReceipts test")
+  public void test57JsonRpcApiTestForEthGetBlockReceipts() throws Exception {
+    String selector = "transfer(address,uint256)";
+    String addressParam =
+        "000000000000000000000000"
+            + ByteArray.toHexString(foundationAccountAddress).substring(2); // [0,3)
+    String transferValueParam = "0000000000000000000000000000000000000000000000000000000000000001";
+    String paramString = addressParam + transferValueParam;
+
+    long startBlockNum = blockingStubFull.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build())
+        .getBlockHeader().getRawData().getNumber();
+    int count = 10;
+    while (count-->0){
+      Random r = new Random();
+      int randomValue = r.nextInt(9);
+      transferValueParam.replace("1", String.valueOf(randomValue));
+      String txId =
+          PublicMethed.triggerContract(
+              Base58.decode58CheckForShield("TMeSGNXiz3f8PGhWdFV76o5efKFBtdaJGq"),
+              selector,
+              paramString,
+              true,
+              0,
+              maxFeeLimit,
+              "0",
+              0,
+              jsonRpcOwnerAddress,
+              jsonRpcOwnerKey,
+              blockingStubFull);
+    }
+    long endBlockNum = blockingStubFull.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build())
+        .getBlockHeader().getRawData().getNumber();
+    Assert.assertTrue(endBlockNum > startBlockNum);
+    long targetBlockNum = 0L;
+    while (startBlockNum < endBlockNum){
+      int trxCount = PublicMethed.getBlock(startBlockNum, blockingStubFull).getTransactionsCount();
+      if(trxCount>=2){
+        targetBlockNum = startBlockNum;
+      }
+      startBlockNum += 1;
+    }
+    Assert.assertTrue(targetBlockNum > 0);
+    String blockNumHex = "0x" + Long.toHexString(targetBlockNum);
+    JsonArray params = new JsonArray();
+    params.add(blockNumHex);
+    JsonObject requestBody = getJsonRpcBody("eth_getBlockReceipts", params);
+    response = getJsonRpc(jsonRpcNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    Assert.assertNotNull(responseContent);
+    JSONArray trxArray = responseContent.getJSONArray("result");
+    Assert.assertNotNull(trxArray);
+    GrpcAPI.BlockExtention targetBlock = PublicMethed.getBlock2(targetBlockNum, blockingStubFull);
+    int trxCount = targetBlock.getTransactionsCount();
+    Assert.assertEquals(trxCount, trxArray.size());
+    for(int i = 0; i < trxCount; i++){
+      JSONObject receipt = trxArray.getJSONObject(i);
+      String txId = receipt.getString("transactionHash");
+      JsonArray param = new JsonArray();
+      params.add(txId);
+      JsonObject res = getJsonRpcBody("eth_getBlockReceipts", param);
+      response = getJsonRpc(jsonRpcNode, res);
+      responseContent = HttpMethed.parseResponseContent(response);
+      JSONObject trxReceipt = responseContent.getJSONObject("result");
+      logger.info("trxReceipt: " + trxReceipt.toJSONString());
+      logger.info("receipt: " + receipt.toJSONString());
+      Assert.assertEquals(trxReceipt.toJSONString(), receipt.toJSONString());
+    }
+
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+    JsonObject requestBodySolidity = getJsonRpcBody("eth_getBlockReceipts", params);
+    response = getJsonRpc(jsonRpcNodeForSolidity, requestBodySolidity);
+    responseContent = HttpMethed.parseResponseContent(response);
+    JSONArray trxArraySolidity = responseContent.getJSONArray("result");
+    logger.info("trxArraySolidity: " + trxArraySolidity.toJSONString());
+    logger.info("trxArray: " + trxArraySolidity.toJSONString());
+    Assert.assertEquals(trxArraySolidity.toJSONString(), trxArray.toJSONString());
+  }
+
+
+
 
 
   /** constructor. */
