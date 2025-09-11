@@ -1582,11 +1582,9 @@ public class Accounts001 extends JsonRpcBase {
               jsonRpcOwnerKey,
               blockingStubFull);
     }
-    long endBlockNum = blockingStubFull.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build())
-        .getBlockHeader().getRawData().getNumber();
-    Assert.assertTrue(endBlockNum > startBlockNum);
+    count = 10;
     long targetBlockNum = 0L;
-    while (startBlockNum < endBlockNum){
+    while (count -- > 0){
       int trxCount = PublicMethed.getBlock(startBlockNum, blockingStubFull).getTransactionsCount();
       if(trxCount>=2){
         targetBlockNum = startBlockNum;
@@ -1610,8 +1608,8 @@ public class Accounts001 extends JsonRpcBase {
       JSONObject receipt = trxArray.getJSONObject(i);
       String txId = receipt.getString("transactionHash");
       JsonArray param = new JsonArray();
-      params.add(txId);
-      JsonObject res = getJsonRpcBody("eth_getBlockReceipts", param);
+      param.add(txId);
+      JsonObject res = getJsonRpcBody("eth_getTransactionReceipt", param);
       response = getJsonRpc(jsonRpcNode, res);
       responseContent = HttpMethed.parseResponseContent(response);
       JSONObject trxReceipt = responseContent.getJSONObject("result");
