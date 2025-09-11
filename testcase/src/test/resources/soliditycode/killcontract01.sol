@@ -182,18 +182,6 @@ contract D {
         return predictedAddress;
     }
 
-    function complexCreateKill1(bytes32 salt, address payable target, address payable delegate_receiver) public {
-        address[] memory srList;
-        srList[0] = 0x0Be88A918D74D0DfD71Dc84bD4abf036d0562991;
-        srList[1] = 0xBAFB56091591790e00aA05eADdCC7DC1474B5D4B;
-
-        uint256[] memory tpList;
-        tpList[0] = 100;
-        tpList[1] = 100;
-
-//        NewFreezeV2 newFreeze = new NewFreezeV2{salt: salt}();
-    }
-
     address[] public srList;
     uint256[] public tpList;
     function complexCreateKill(bytes32 salt, address payable target, address payable delegate_receiver) public {
