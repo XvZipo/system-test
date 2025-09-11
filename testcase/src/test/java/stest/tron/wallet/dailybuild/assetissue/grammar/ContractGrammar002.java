@@ -19,6 +19,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 
 @Slf4j
 public class ContractGrammar002 {
@@ -309,9 +310,16 @@ public class ContractGrammar002 {
         "getCount()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(txid4 == null);
-
-
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
+            blockingStubFull) == 1) {
+      infoById4 = PublicMethed.getTransactionInfoById(txid4, blockingStubFull);
+      Assert.assertTrue(infoById4.get().getResultValue() == 0);
+      returnnumber1 = ByteArray.toLong(ByteArray
+              .fromHexString(ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray())));
+      Assert.assertTrue(returnnumber1 == 10);
+    }else {
+      Assert.assertTrue(txid4 == null);
+    }
   }
 
   /**

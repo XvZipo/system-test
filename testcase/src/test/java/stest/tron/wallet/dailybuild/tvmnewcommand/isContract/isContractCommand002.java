@@ -20,6 +20,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 
 @Slf4j
 public class isContractCommand002 {
@@ -126,18 +127,27 @@ public class isContractCommand002 {
         0, maxFeeLimit, selfdestructContractExcAddress, selfdestructContractKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
-    Assert.assertEquals(0, ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray()));
     logger.info(infoById1.toString());
-
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
+            blockingStubFull) == 1) {
+      Assert.assertEquals(1, ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray()));
+    }else {
+      Assert.assertEquals(0, ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray()));
+    }
     transactionExtention = PublicMethed
         .triggerConstantContractForExtention(selfdestructContractAddress,
             "testIsContractView(address)", num, false,
             0, 0, "0", 0, selfdestructContractExcAddress, selfdestructContractKey,
             blockingStubFull);
     logger.info("transactionExtention:" + transactionExtention.toString());
-    Assert.assertEquals("SUCCESS", transactionExtention.getResult().getCode().toString());
-    Assert
-        .assertEquals(0, ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray()));
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
+            blockingStubFull) == 1) {
+      Assert.assertEquals("SUCCESS", transactionExtention.getResult().getCode().toString());
+      Assert.assertEquals(1, ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray()));
+    }else {
+      Assert.assertEquals("SUCCESS", transactionExtention.getResult().getCode().toString());
+      Assert.assertEquals(0, ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray()));
+    }
   }
 
   @Test(enabled = true, description = "No constructor test isContract Command")

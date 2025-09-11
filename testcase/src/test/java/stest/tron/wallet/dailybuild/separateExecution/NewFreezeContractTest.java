@@ -598,8 +598,16 @@ public class NewFreezeContractTest {
     List<Protocol.Vote> li = receiverAccount.getVotesList();
     Assert.assertEquals(0, li.size());
 
-    String str = PublicMethed.queryAccount(create2AddBytes, blockingStubFull).toString();
-    Assert.assertEquals("", str);
+    Account killCreate2 = PublicMethed.queryAccount(create2AddBytes, blockingStubFull);
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+      Assert.assertEquals(0L, killCreate2.getBalance());
+      Assert.assertEquals(0L, killCreate2.getFrozenV2(0).getAmount());
+      Assert.assertEquals(0L, killCreate2.getFrozenV2(1).getAmount());
+      Assert.assertEquals(0L, killCreate2.getFrozenV2(2).getAmount());
+    }else {
+      String str = killCreate2.toString();
+      Assert.assertEquals("", str);
+    }
     Assert.assertEquals(frozenAmountCreate2 * 2, receiverAccount.getFrozenV2(0).getAmount());
     Assert.assertEquals(frozenAmountCreate2 * 2, receiverAccount.getFrozenV2(1).getAmount());
     Assert.assertTrue(receiverAccount.getNetUsage() > 0);

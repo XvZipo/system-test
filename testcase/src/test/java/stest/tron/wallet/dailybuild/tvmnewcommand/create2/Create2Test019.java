@@ -27,6 +27,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 @Slf4j
 public class Create2Test019 {
 
@@ -239,13 +240,16 @@ public class Create2Test019 {
         .triggerContractForExtention(returnAddressBytes,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert
-        .assertThat(transactionExtention.getResult().getCode().toString(),
-            containsString("CONTRACT_VALIDATE_ERROR"));
-    Assert
-        .assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
-            containsString("Contract validate error : No contract or not a valid smart contract"));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    System.out.println(transactionExtention.toString());
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+      Assert.assertEquals(true, transactionExtention.getResult().getResult());
+    }else {
+      Assert.assertThat(transactionExtention.getResult().getCode().toString(),
+                      containsString("CONTRACT_VALIDATE_ERROR"));
+      Assert.assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
+                      containsString("Contract validate error : No contract or not a valid smart contract"));
+    }
 
     txid = PublicMethed
         .triggerContract(contractAddress,
@@ -255,20 +259,26 @@ public class Create2Test019 {
 
     Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
-    byte[] returnAddressBytes1 = infoById3.get().getInternalTransactions(0).getTransferToAddress()
-        .toByteArray();
-    String returnAddress1 = Base58.encode58Check(returnAddressBytes1);
-    Assert.assertEquals(returnAddress1, returnAddress);
-    txid = PublicMethed
-        .triggerContract(returnAddressBytes1,
-            "i()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+      System.out.println(infoById3);
+      Assert.assertEquals(TransactionInfo.code.FAILED, infoById3.get().getResult());
+    }else {
+      byte[] returnAddressBytes1 = infoById3.get().getInternalTransactions(0).getTransferToAddress()
+              .toByteArray();
+      String returnAddress1 = Base58.encode58Check(returnAddressBytes1);
+      Assert.assertEquals(returnAddress1, returnAddress);
+      txid = PublicMethed
+              .triggerContract(returnAddressBytes1,
+                      "i()", "#", false,
+                      0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById1 = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-    returnnumber = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
-    Assert.assertTrue(1 == returnnumber);
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      infoById1 = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+      returnnumber = ByteArray.toLong(ByteArray
+              .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+      Assert.assertTrue(1 == returnnumber);
+    }
+
   }
 
 

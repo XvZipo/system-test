@@ -23,6 +23,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 
 @Slf4j
 
@@ -386,7 +387,11 @@ public class ContractInternalTransaction002 {
     infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     int transactionsCount1 = infoById1.get().getInternalTransactionsCount();
-    Assert.assertEquals(6, transactionsCount1);
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+      Assert.assertEquals(7, transactionsCount1);
+    }else {
+      Assert.assertEquals(6, transactionsCount1);
+    }
     dupInternalTrsansactionHash(infoById1.get().getInternalTransactionsList());
 
     for (int i = 0; i < transactionsCount1; i++) {

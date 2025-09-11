@@ -31,6 +31,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 
 @Slf4j
 public class ContractTestSendCoin001 {
@@ -198,31 +199,47 @@ public class ContractTestSendCoin001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Long contractAssetCountBefore = PublicMethed
+    long contractAssetCountBefore = PublicMethed
         .getAssetIssueValue(transferTokenContractAddress, assetAccountId, blockingStubFull);
     long contractBefore = PublicMethed.queryAccount(transferTokenContractAddress, blockingStubFull)
         .getBalance();
 
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
+            blockingStubFull) == 1) {
+      Assert.assertFalse(PublicMethed
+              .transferAsset(transferTokenContractAddress, assetAccountId.toByteArray(), 100L,
+                      dev001Address, dev001Key, blockingStubFull));
+      Assert.assertFalse(PublicMethed
+              .sendcoin(transferTokenContractAddress, 1_000_000L, fromAddress, testKey002,
+                      blockingStubFull));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+//      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      long contractAssetCountAfter = PublicMethed
+              .getAssetIssueValue(transferTokenContractAddress, assetAccountId, blockingStubFull);
+      long contractAfetr = PublicMethed.queryAccount(transferTokenContractAddress, blockingStubFull)
+              .getBalance();
 
-    Assert.assertTrue(PublicMethed
-        .transferAsset(transferTokenContractAddress, assetAccountId.toByteArray(), 100L,
-            dev001Address, dev001Key, blockingStubFull));
+      Assert.assertEquals(contractAssetCountBefore, contractAssetCountAfter);
+      Assert.assertEquals(contractBefore, contractAfetr);
+    }else {
+      Assert.assertTrue(PublicMethed
+              .transferAsset(transferTokenContractAddress, assetAccountId.toByteArray(), 100L,
+                      dev001Address, dev001Key, blockingStubFull));
+      Assert.assertTrue(PublicMethed
+              .sendcoin(transferTokenContractAddress, 1_000_000L, fromAddress, testKey002,
+                      blockingStubFull));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+//      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      long contractAssetCountAfter = PublicMethed
+              .getAssetIssueValue(transferTokenContractAddress, assetAccountId, blockingStubFull);
+      long contractAfetr = PublicMethed.queryAccount(transferTokenContractAddress, blockingStubFull)
+              .getBalance();
 
-    Assert.assertTrue(PublicMethed
-        .sendcoin(transferTokenContractAddress, 1_000_000L, fromAddress, testKey002,
-            blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long contractAssetCountAfter = PublicMethed
-        .getAssetIssueValue(transferTokenContractAddress, assetAccountId, blockingStubFull);
-    long contractAfetr = PublicMethed.queryAccount(transferTokenContractAddress, blockingStubFull)
-        .getBalance();
-
-    Assert.assertTrue(contractAssetCountBefore + 100L == contractAssetCountAfter);
-    Assert.assertTrue(contractBefore + 1_000_000L == contractAfetr);
-
+      Assert.assertEquals((contractAssetCountBefore + 100L), contractAssetCountAfter);
+      Assert.assertEquals((contractBefore + 1_000_000L), contractAfetr);
+    }
   }
 
 
@@ -343,31 +360,47 @@ public class ContractTestSendCoin001 {
         .triggerContract(testContractAddress, "kill(address)", num, false, 0, maxFeeLimit,
             dev001Address, dev001Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Long contractAssetCountBefore = PublicMethed
+    long contractAssetCountBefore = PublicMethed
         .getAssetIssueValue(testContractAddress, assetAccountId, blockingStubFull);
     long contractBefore = PublicMethed.queryAccount(testContractAddress, blockingStubFull)
         .getBalance();
 
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
+            blockingStubFull) == 1) {
+      Assert.assertFalse(PublicMethed
+              .transferAsset(testContractAddress, assetAccountId.toByteArray(), 100L, dev001Address,
+                      dev001Key, blockingStubFull));
+      Assert.assertFalse(PublicMethed
+              .sendcoin(testContractAddress, 1_000_000L, fromAddress, testKey002, blockingStubFull));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+      long contractAssetCountAfter = PublicMethed
+              .getAssetIssueValue(testContractAddress, assetAccountId, blockingStubFull);
+      long contractAfetr = PublicMethed.queryAccount(testContractAddress, blockingStubFull)
+              .getBalance();
 
-    Assert.assertTrue(PublicMethed
-        .transferAsset(testContractAddress, assetAccountId.toByteArray(), 100L, dev001Address,
-            dev001Key, blockingStubFull));
+      Assert.assertEquals(contractAssetCountBefore, contractAssetCountAfter);
+      Assert.assertEquals(contractBefore, contractAfetr);
+    }else {
+      Assert.assertTrue(PublicMethed
+              .transferAsset(testContractAddress, assetAccountId.toByteArray(), 100L, dev001Address,
+                      dev001Key, blockingStubFull));
+      Assert.assertTrue(PublicMethed
+              .sendcoin(testContractAddress, 1_000_000L, fromAddress, testKey002, blockingStubFull));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+      long contractAssetCountAfter = PublicMethed
+              .getAssetIssueValue(testContractAddress, assetAccountId, blockingStubFull);
+      long contractAfetr = PublicMethed.queryAccount(testContractAddress, blockingStubFull)
+              .getBalance();
 
-    Assert.assertTrue(PublicMethed
-        .sendcoin(testContractAddress, 1_000_000L, fromAddress, testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long contractAssetCountAfter = PublicMethed
-        .getAssetIssueValue(testContractAddress, assetAccountId, blockingStubFull);
-    long contractAfetr = PublicMethed.queryAccount(testContractAddress, blockingStubFull)
-        .getBalance();
-
-    Assert.assertTrue(contractAssetCountBefore + 100L == contractAssetCountAfter);
-    Assert.assertTrue(contractBefore + 1_000_000L == contractAfetr);
+      Assert.assertEquals(contractAssetCountBefore + 100L, contractAssetCountAfter);
+      Assert.assertEquals(contractBefore + 1_000_000L,  contractAfetr);
+    }
   }
 
 
@@ -378,23 +411,9 @@ public class ContractTestSendCoin001 {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] contractExcAddress = ecKey1.getAddress();
     String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    String sendcoin = PublicMethed
-        .sendcoinGetTransactionId(contractExcAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
-
     Assert.assertTrue(PublicMethed
-        .sendcoin(contractExcAddress, 1000000000L, fromAddress, testKey002, blockingStubFull));
+        .sendcoin(contractExcAddress, 2000000000L, fromAddress, testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById0 = null;
-    infoById0 = PublicMethed.getTransactionInfoById(sendcoin, blockingStubFull);
-    logger.info("infoById0   " + infoById0.get());
-    Assert.assertEquals(ByteArray.toHexString(infoById0.get().getContractResult(0).toByteArray()),
-        "");
-    Assert.assertEquals(infoById0.get().getResult().getNumber(), 0);
-    Optional<Transaction> ById = PublicMethed.getTransactionById(sendcoin, blockingStubFull);
-    Assert.assertEquals(ById.get().getRet(0).getContractRet().getNumber(), SUCCESS_VALUE);
-    Assert.assertEquals(ById.get().getRet(0).getContractRetValue(), SUCCESS_VALUE);
-    Assert.assertEquals(ById.get().getRet(0).getContractRet(), contractResult.SUCCESS);
     String filePath = "src/test/resources/soliditycode/create2contractn2.sol";
     String contractName = "Factory";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
@@ -534,6 +553,7 @@ public class ContractTestSendCoin001 {
 
     String param1 = "\"" + Base58.encode58Check(returnAddressBytes) + "\"";
 
+    //if the receiver is the contract, it will do nothing, contract is still alive
     txid = PublicMethed
         .triggerContract(returnAddressBytes, "testSuicideNonexistentTarget(address)", param1, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -547,54 +567,96 @@ public class ContractTestSendCoin001 {
         .triggerContractForExtention(returnAddressBytes, "i()", "#", false, 0, maxFeeLimit, "0", 0,
             contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertThat(transactionExtention.getResult().getCode().toString(),
-        containsString("CONTRACT_VALIDATE_ERROR"));
-    Assert.assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
-        containsString("Contract validate error : No contract or not a valid smart contract"));
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
+            blockingStubFull) == 1) {
+      Assert.assertEquals("SUCCESS", transactionExtention.getResult().getCode().toString());
+      Assert.assertFalse(PublicMethed
+              .transferAsset(returnAddressBytes, assetAccountId.toByteArray(), 100L, dev001Address,
+                      dev001Key, blockingStubFull));
+      Assert.assertFalse(PublicMethed
+              .sendcoin(returnAddressBytes, 1_000_000L, fromAddress, testKey002, blockingStubFull));
+      txid = PublicMethed
+              .triggerContract(contractAddress, "deploy(bytes,uint256)", num, false, 0, maxFeeLimit, "0",
+                      0, contractExcAddress, contractExcKey, blockingStubFull);
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Assert.assertTrue(PublicMethed
-        .transferAsset(returnAddressBytes, assetAccountId.toByteArray(), 100L, dev001Address,
-            dev001Key, blockingStubFull));
+      Optional<TransactionInfo> infoById3 = PublicMethed
+              .getTransactionInfoById(txid, blockingStubFull);
+      Assert.assertEquals(TransactionInfo.code.FAILED, infoById3.get().getResult());
 
-    Assert.assertTrue(PublicMethed
-        .sendcoin(returnAddressBytes, 1_000_000L, fromAddress, testKey002, blockingStubFull));
+      txid = PublicMethed
+              .triggerContract(returnAddressBytes, "i()", "#", false, 0, maxFeeLimit, "0", 0,
+                      contractExcAddress, contractExcKey, blockingStubFull);
 
-    txid = PublicMethed
-        .triggerContract(contractAddress, "deploy(bytes,uint256)", num, false, 0, maxFeeLimit, "0",
-            0, contractExcAddress, contractExcKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      infoById1 = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+      returnnumber = ByteArray.toLong(ByteArray
+              .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+      Assert.assertTrue(5 == returnnumber);
 
-    Optional<TransactionInfo> infoById3 = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
-    byte[] returnAddressBytes1 = infoById3.get().getInternalTransactions(0).getTransferToAddress()
-        .toByteArray();
-    String returnAddress1 = Base58.encode58Check(returnAddressBytes1);
-    Assert.assertEquals(returnAddress1, returnAddress);
-    txid = PublicMethed
-        .triggerContract(returnAddressBytes1, "i()", "#", false, 0, maxFeeLimit, "0", 0,
-            contractExcAddress, contractExcKey, blockingStubFull);
+      ret = PublicMethed
+              .transferAssetForReturn(returnAddressBytes, assetAccountId.toByteArray(), 100L,
+                      dev001Address, dev001Key, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById1 = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-    returnnumber = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
-    Assert.assertTrue(1 == returnnumber);
+      Assert.assertEquals(CONTRACT_VALIDATE_ERROR, ret.getCode());
+      Assert.assertEquals("Contract validate error : Cannot transfer asset to smartContract.",
+              ret.getMessage().toStringUtf8());
 
-    ret = PublicMethed
-        .transferAssetForReturn(returnAddressBytes1, assetAccountId.toByteArray(), 100L,
-            dev001Address, dev001Key, blockingStubFull);
+      ret1 = PublicMethed
+              .transferAssetForReturn(returnAddressBytes, assetAccountId.toByteArray(), 100L,
+                      dev001Address, dev001Key, blockingStubFull);
 
-    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, ret.getCode());
-    Assert.assertEquals("Contract validate error : Cannot transfer asset to smartContract.",
-        ret.getMessage().toStringUtf8());
+      Assert.assertEquals(CONTRACT_VALIDATE_ERROR, ret1.getCode());
+      Assert.assertEquals("Contract validate error : Cannot transfer asset to smartContract.",
+              ret1.getMessage().toStringUtf8());
+    }else {
+      Assert.assertTrue(transactionExtention.getResult().getCode().toString().contains("CONTRACT_VALIDATE_ERROR"));
+      Assert.assertTrue(transactionExtention.getResult().getMessage().toStringUtf8()
+              .contains("Contract validate error : No contract or not a valid smart contract"));
+      Assert.assertTrue(PublicMethed
+              .transferAsset(returnAddressBytes, assetAccountId.toByteArray(), 100L, dev001Address,
+                      dev001Key, blockingStubFull));
+      Assert.assertTrue(PublicMethed
+              .sendcoin(returnAddressBytes, 1_000_000L, fromAddress, testKey002, blockingStubFull));
+      txid = PublicMethed
+              .triggerContract(contractAddress, "deploy(bytes,uint256)", num, false, 0, maxFeeLimit, "0",
+                      0, contractExcAddress, contractExcKey, blockingStubFull);
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    ret1 = PublicMethed
-        .transferAssetForReturn(returnAddressBytes1, assetAccountId.toByteArray(), 100L,
-            dev001Address, dev001Key, blockingStubFull);
+      Optional<TransactionInfo> infoById3 = PublicMethed
+              .getTransactionInfoById(txid, blockingStubFull);
+      byte[] returnAddressBytes1 = infoById3.get().getInternalTransactions(0).getTransferToAddress()
+              .toByteArray();
+      String returnAddress1 = Base58.encode58Check(returnAddressBytes1);
+      Assert.assertEquals(returnAddress1, returnAddress);
+      txid = PublicMethed
+              .triggerContract(returnAddressBytes1, "i()", "#", false, 0, maxFeeLimit, "0", 0,
+                      contractExcAddress, contractExcKey, blockingStubFull);
 
-    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, ret1.getCode());
-    Assert.assertEquals("Contract validate error : Cannot transfer asset to smartContract.",
-        ret1.getMessage().toStringUtf8());
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      infoById1 = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+      returnnumber = ByteArray.toLong(ByteArray
+              .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+      Assert.assertTrue(1 == returnnumber);
+
+      ret = PublicMethed
+              .transferAssetForReturn(returnAddressBytes1, assetAccountId.toByteArray(), 100L,
+                      dev001Address, dev001Key, blockingStubFull);
+
+      Assert.assertEquals(CONTRACT_VALIDATE_ERROR, ret.getCode());
+      Assert.assertEquals("Contract validate error : Cannot transfer asset to smartContract.",
+              ret.getMessage().toStringUtf8());
+
+      ret1 = PublicMethed
+              .transferAssetForReturn(returnAddressBytes1, assetAccountId.toByteArray(), 100L,
+                      dev001Address, dev001Key, blockingStubFull);
+
+      Assert.assertEquals(CONTRACT_VALIDATE_ERROR, ret1.getCode());
+      Assert.assertEquals("Contract validate error : Cannot transfer asset to smartContract.",
+              ret1.getMessage().toStringUtf8());
+    }
+
+
 
   }
 

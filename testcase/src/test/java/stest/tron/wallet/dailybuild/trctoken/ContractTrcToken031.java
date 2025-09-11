@@ -19,6 +19,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 @Slf4j
 public class ContractTrcToken031 {
 
@@ -142,10 +143,13 @@ public class ContractTrcToken031 {
     logger.info("afterAssetIssueDevAddress:" + afterAssetIssueContractAddress);
     logger.info("afterBalanceContractAddress:" + afterBalanceContractAddress);
 
-
-    Assert.assertTrue(afterBalanceContractAddress == 0);
-    Assert.assertTrue(afterAssetIssueContractAddress == 0);
-
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+      Assert.assertEquals(beforeBalanceContractAddress, afterBalanceContractAddress );
+      Assert.assertEquals(beforeAssetIssueContractAddress, afterAssetIssueContractAddress);
+    }else {
+      Assert.assertTrue(afterBalanceContractAddress == 0);
+      Assert.assertTrue(afterAssetIssueContractAddress == 0);
+    }
   }
 
   /**
