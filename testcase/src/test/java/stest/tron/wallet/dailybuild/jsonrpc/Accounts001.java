@@ -1585,9 +1585,9 @@ public class Accounts001 extends JsonRpcBase {
     count = 10;
     long targetBlockNum = startBlockNum;
     while (count -- > 0){
-      int trxCount = PublicMethed.getBlock(startBlockNum, blockingStubFull).getTransactionsCount();
+      int trxCount = PublicMethed.getBlock(targetBlockNum, blockingStubFull).getTransactionsCount();
       if(trxCount>=2){
-        targetBlockNum = startBlockNum;
+        break;
       }
       targetBlockNum += 1;
     }
