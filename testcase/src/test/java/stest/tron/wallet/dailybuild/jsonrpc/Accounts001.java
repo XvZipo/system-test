@@ -1582,14 +1582,16 @@ public class Accounts001 extends JsonRpcBase {
               jsonRpcOwnerKey,
               blockingStubFull);
     }
-    count = 10;
-    long targetBlockNum = startBlockNum;
-    while (count -- > 0){
-      int trxCount = PublicMethed.getBlock(targetBlockNum, blockingStubFull).getTransactionsCount();
+    long endBlockNum = startBlockNum + 10L;
+    long targetBlockNum = 0L;
+    while (startBlockNum++ < endBlockNum){
+      int trxCount = PublicMethed.getBlock(startBlockNum, blockingStubFull).getTransactionsCount();
+      logger.info("trxCount: " + trxCount);
+      logger.info("BlockNum: " + startBlockNum);
       if(trxCount>=2){
+        targetBlockNum = startBlockNum;
         break;
       }
-      targetBlockNum += 1;
     }
     String blockNumHex = "0x" + Long.toHexString(targetBlockNum);
     JsonArray params = new JsonArray();
