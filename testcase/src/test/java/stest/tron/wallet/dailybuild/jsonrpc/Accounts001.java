@@ -1582,6 +1582,7 @@ public class Accounts001 extends JsonRpcBase {
               jsonRpcOwnerKey,
               blockingStubFull);
     }
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     long endBlockNum = startBlockNum + 10L;
     long targetBlockNum = 0L;
     while (startBlockNum++ < endBlockNum){
