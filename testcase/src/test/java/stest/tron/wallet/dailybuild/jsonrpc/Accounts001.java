@@ -1583,7 +1583,7 @@ public class Accounts001 extends JsonRpcBase {
               blockingStubFull);
     }
     count = 10;
-    long targetBlockNum = 0L;
+    long targetBlockNum = startBlockNum;
     while (count -- > 0){
       int trxCount = PublicMethed.getBlock(startBlockNum, blockingStubFull).getTransactionsCount();
       if(trxCount>=2){
@@ -1591,7 +1591,6 @@ public class Accounts001 extends JsonRpcBase {
       }
       startBlockNum += 1;
     }
-    Assert.assertTrue(targetBlockNum > 0);
     String blockNumHex = "0x" + Long.toHexString(targetBlockNum);
     JsonArray params = new JsonArray();
     params.add(blockNumHex);
@@ -1603,6 +1602,7 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertNotNull(trxArray);
     GrpcAPI.BlockExtention targetBlock = PublicMethed.getBlock2(targetBlockNum, blockingStubFull);
     int trxCount = targetBlock.getTransactionsCount();
+    Assert.assertTrue(trxCount > 1);
     Assert.assertEquals(trxCount, trxArray.size());
     for(int i = 0; i < trxCount; i++){
       JSONObject receipt = trxArray.getJSONObject(i);
