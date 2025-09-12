@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.primitives.Longs;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -24,10 +23,7 @@ import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
 import org.bouncycastle.util.encoders.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountNetMessage;
@@ -73,7 +69,6 @@ import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
 
 import org.tron.protos.Protocol.Account.FreezeV2;
-import org.tron.protos.Protocol.Account.Frozen;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
@@ -8461,8 +8456,12 @@ public class PublicMethed {
     return null;
   }
 
+  public static GrpcAPI.WitnessList getPaginatedNowWitnessList(Long offset, Long limit, WalletBlockingStub blockingStubFull){
+    return blockingStubFull.getPaginatedNowWitnessList(GrpcAPI.PaginatedMessage.newBuilder().setLimit(limit).setOffset(offset).build());
+  }
 
-
-
+  public static GrpcAPI.WitnessList getPaginatedNowWitnessListSolidity(Long offset, Long limit, WalletBlockingStub blockingStubSolidity){
+    return blockingStubSolidity.getPaginatedNowWitnessList(GrpcAPI.PaginatedMessage.newBuilder().setLimit(limit).setOffset(offset).build());
+  }
 
 }
