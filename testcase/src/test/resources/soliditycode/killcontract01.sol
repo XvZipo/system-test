@@ -184,13 +184,16 @@ contract D {
 
     address[] public srList;
     uint256[] public tpList;
-    function complexCreateKill(bytes32 salt, address payable target, address payable delegate_receiver) public {
+
+    function initArray() public {
         srList.push(0x0Be88A918D74D0DfD71Dc84bD4abf036d0562991);
         srList.push(0xBAFB56091591790e00aA05eADdCC7DC1474B5D4B);
 
         tpList.push(100);
         tpList.push(100);
+    }
 
+    function complexCreateKill(bytes32 salt, address payable target, address payable delegate_receiver) public {
         NewFreezeV2 newFreeze = new NewFreezeV2{salt: salt}();
 
         newFreeze.freezeBalanceV2(100000000, 0);
@@ -210,7 +213,24 @@ contract D {
         newFreeze.killme(target);
     }
 
+    function complexCreate(bytes32 salt, address payable target, address payable delegate_receiver) public {
+        NewFreezeV2 newFreeze = new NewFreezeV2{salt: salt}();
 
+        newFreeze.freezeBalanceV2(100000000, 0);
+        newFreeze.freezeBalanceV2(100000000, 1);
+
+        newFreeze.delegateResource(50000000, 0, delegate_receiver);
+        newFreeze.delegateResource(50000000, 1, delegate_receiver);
+
+        newFreeze.unDelegateResource(50000000, 0, delegate_receiver);
+        newFreeze.unDelegateResource(50000000, 1, delegate_receiver);
+
+        newFreeze.unfreezeBalanceV2(10000000, 0);
+        newFreeze.unfreezeBalanceV2(10000000, 1);
+
+        newFreeze.cancelAllUnfreezeV2();
+        newFreeze.voteWitness(srList, tpList);
+    }
 
 
 }
