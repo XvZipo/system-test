@@ -223,12 +223,12 @@ public class HttpTestAccount003 {
 
 
   @Test(enabled = true, description = "List witness realTime vote data")
-  public void test09CheckVoteChangesRealtimeAfterVote(){
-    HttpResponse resWitnessList  = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, true);
+  public void test12CheckVoteChangesRealtimeAfterVote(){
+    HttpResponse resWitnessList  = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
     JSONArray witnessList = HttpMethed.parseResponseContent(resWitnessList).getJSONArray("witnesses");
     Assert.assertNotNull(witnessList);
     Assert.assertNotEquals(0, witnessList.size());
-    HttpResponse resWitnessListSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,true);
+    HttpResponse resWitnessListSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,false);
     JSONArray witnessListSolidity = HttpMethed.parseResponseContent(resWitnessListSolidity).getJSONArray("witnesses");
     Assert.assertNotNull(witnessListSolidity);
     Assert.assertNotEquals(0, witnessListSolidity.size());
@@ -256,11 +256,11 @@ public class HttpTestAccount003 {
     HttpMethed.waitToProduceOneBlock(httpnode);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
 
-    HttpResponse resWitnessListAfterVote = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, true);
+    HttpResponse resWitnessListAfterVote = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
     JSONArray witnessListAfterVote = HttpMethed.parseResponseContent(resWitnessListAfterVote).getJSONArray("witnesses");
     Assert.assertNotNull(witnessListAfterVote);
     Assert.assertNotEquals(0, witnessListAfterVote.size());
-    HttpResponse resWitnessListAfterVoteSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,true);
+    HttpResponse resWitnessListAfterVoteSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,false);
     JSONArray witnessListAfterVoteSolidity = HttpMethed.parseResponseContent(resWitnessListAfterVoteSolidity).getJSONArray("witnesses");
     Assert.assertNotNull(witnessListAfterVoteSolidity);
     Assert.assertNotEquals(0, witnessListAfterVoteSolidity.size());
