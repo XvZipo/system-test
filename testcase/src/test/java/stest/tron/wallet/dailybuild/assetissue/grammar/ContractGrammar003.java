@@ -126,6 +126,7 @@ public class ContractGrammar003 {
     String txid5 = PublicMethed.triggerContract(contractAddress,
         "getnumberForB()", "#", false,
         0, maxFeeLimit, grammarAddress3, testKeyForGrammarAddress3, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     String txid6 = PublicMethed.triggerContract(contractAddress1,
         "getnumberForB()", "#", false,
