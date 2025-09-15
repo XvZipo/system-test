@@ -1621,7 +1621,7 @@ public class Accounts001 extends JsonRpcBase {
       logger.info("receipt: " + receipt.toJSONString());
       Assert.assertEquals(trxReceipt.toJSONString(), receipt.toJSONString());
     }
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+    HttpMethed.waitToProduceOneBlockFromSolidity(httpFullNode, httpsolidityNode);
     JsonObject requestBodySolidity = getJsonRpcBody("eth_getBlockReceipts", params);
     response = getJsonRpc(jsonRpcNodeForSolidity, requestBodySolidity);
     responseContent = HttpMethed.parseResponseContent(response);
