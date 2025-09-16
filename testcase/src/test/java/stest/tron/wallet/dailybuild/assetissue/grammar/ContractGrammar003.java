@@ -139,7 +139,7 @@ public class ContractGrammar003 {
     String txid8 = PublicMethed.triggerContract(contractAddress,
         "getnumberForB()", "#", false,
         0, maxFeeLimit, grammarAddress3, testKeyForGrammarAddress3, blockingStubFull);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     String txid9 = PublicMethed.triggerContract(contractAddress1,
         "getnumberForB()", "#", false,
         0, maxFeeLimit, grammarAddress3, testKeyForGrammarAddress3, blockingStubFull);
@@ -151,7 +151,7 @@ public class ContractGrammar003 {
     String txid11 = PublicMethed.triggerContract(contractAddress,
         "getnumberForB()", "#", false,
         0, maxFeeLimit, grammarAddress3, testKeyForGrammarAddress3, blockingStubFull);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     String txid12 = PublicMethed.triggerContract(contractAddress1,
         "getnumberForB()", "#", false,
         0, maxFeeLimit, grammarAddress3, testKeyForGrammarAddress3, blockingStubFull);
@@ -164,7 +164,7 @@ public class ContractGrammar003 {
     String txid14 = PublicMethed.triggerContract(contractAddress,
         "getnumberForB()", "#", false,
         0, maxFeeLimit, grammarAddress3, testKeyForGrammarAddress3, blockingStubFull);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     String txid15 = PublicMethed.triggerContract(contractAddress1,
         "getnumberForB()", "#", false,
         0, maxFeeLimit, grammarAddress3, testKeyForGrammarAddress3, blockingStubFull);
