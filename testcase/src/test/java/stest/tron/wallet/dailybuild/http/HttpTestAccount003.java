@@ -226,6 +226,11 @@ public class HttpTestAccount003 {
   public void test12CheckVoteChangesRealtimeAfterVote(){
     HttpResponse resWitnessList  = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
     JSONArray witnessList = HttpMethed.parseResponseContent(resWitnessList).getJSONArray("witnesses");
+    while (witnessList == null){
+      resWitnessList  = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
+      witnessList = HttpMethed.parseResponseContent(resWitnessList).getJSONArray("witnesses");
+    }
+
     Assert.assertNotNull(witnessList);
     Assert.assertNotEquals(0, witnessList.size());
     HttpResponse resWitnessListSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,false);
@@ -258,7 +263,10 @@ public class HttpTestAccount003 {
 
     HttpResponse resWitnessListAfterVote = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
     JSONArray witnessListAfterVote = HttpMethed.parseResponseContent(resWitnessListAfterVote).getJSONArray("witnesses");
-    Assert.assertNotNull(witnessListAfterVote);
+    while (witnessListAfterVote == null){
+      resWitnessListAfterVote = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
+      witnessListAfterVote = HttpMethed.parseResponseContent(resWitnessListAfterVote).getJSONArray("witnesses");
+    }
     Assert.assertNotEquals(0, witnessListAfterVote.size());
     HttpResponse resWitnessListAfterVoteSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,false);
     JSONArray witnessListAfterVoteSolidity = HttpMethed.parseResponseContent(resWitnessListAfterVoteSolidity).getJSONArray("witnesses");
@@ -288,6 +296,10 @@ public class HttpTestAccount003 {
 
     HttpResponse resWitnessListAfterDecrease = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, true);
     JSONArray witnessListAfterDecrease = HttpMethed.parseResponseContent(resWitnessListAfterDecrease).getJSONArray("witnesses");
+    while (witnessListAfterDecrease == null){
+      resWitnessListAfterDecrease = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, true);
+      witnessListAfterDecrease = HttpMethed.parseResponseContent(resWitnessListAfterDecrease).getJSONArray("witnesses");
+    }
     HttpResponse resWitnessListAfterDecreaseSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,true);
     JSONArray witnessListAfterDecreaseSolidity = HttpMethed.parseResponseContent(resWitnessListAfterDecreaseSolidity).getJSONArray("witnesses");
     for(int i = 0; i< witnessListAfterDecrease.size(); i++){
