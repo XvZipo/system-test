@@ -153,6 +153,7 @@ public class PublicMethed {
   public static String code;
 
   public static AtomicInteger randomFreezeAmount = new AtomicInteger(1);
+  public static AtomicInteger randomTimeOffset = new AtomicInteger(1);
 
   private static final String fullnode2 = Configuration.getByPath("testng.conf")
           .getStringList("fullnode.ip.list").get(1);
