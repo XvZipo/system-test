@@ -179,7 +179,7 @@ public class KillContract01 {
 
   @Test(enabled = true, description = "getPredictedAddress,sendcoin,transferAsset,and then " +
           "make create2,freezev2,delegateResource,delegateResource,unfreezeBalanceV2,cancelAllUnfreezeV2," +
-          "vote into one transaction, and kill in another transaction")
+          "vote into one transaction, and kill in another transaction. and can not static call kill")
   void kill02() {
     String methedStr = "getPredictedAddress(bytes32)";
     String argsStr = "1122";
@@ -201,17 +201,29 @@ public class KillContract01 {
     String args = argsStr +",\"" + target58 + "\",\"" + delegateReceiver58 + "\"";
     String txid1  = PublicMethed.triggerContract(contractAddressD, methedStr, args,
             false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //can not static call kill
+    methedStr = "staticcallSelfdestruct(address,address)";
+    args = "\"" + create2Add58 + "\"," + "\"" + target58 + "\"";
+    String txid22  = PublicMethed.triggerContract(contractAddressD, methedStr, args,
+            false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    TransactionInfo info22 = PublicMethed.getTransactionInfoById(txid22,blockingStubFull).get();
+    logger.info("kill02-info22: " +info22);
+    Assert.assertEquals(code.SUCESS, info22.getResult());
+
     methedStr = "killme(address)";
     args = "\"" + target58 + "\"";
     String txid2  = PublicMethed.triggerContract(create2AddBytes, methedStr, args,
             false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //check result
     TransactionInfo info1 = PublicMethed.getTransactionInfoById(txid1,blockingStubFull).get();
     logger.info("kill02: " +info1);
     Assert.assertEquals(code.SUCESS, info1.getResult());
     Assert.assertEquals(21, info1.getInternalTransactionsCount());
     TransactionInfo info2 = PublicMethed.getTransactionInfoById(txid2, blockingStubFull).get();
-    logger.info("kill02: " +info2);
+    logger.info("kill02 info2 : " +info2);
     Assert.assertEquals(code.SUCESS, info2.getResult());
     Assert.assertEquals(1, info2.getInternalTransactionsCount());
     SmartContractOuterClass.SmartContract smartContract = PublicMethed.getContract(create2AddBytes, blockingStubFull);
@@ -249,7 +261,82 @@ public class KillContract01 {
     Assert.assertEquals(797, execAssetCount);
   }
 
+  @Test(enabled = true, description = "getPredictedAddress,sendcoin,transferAsset,and then " +
+          "make create2,freezev2,kill into one transaction, and kill through 3 call")
+  void kill03() {
+    ECKey targetEckey = new ECKey(Utils.getRandom());
+    byte[] targetAdd03 = targetEckey.getAddress();
+    String target03 = Base58.encode58Check(targetAdd03);
+    String targetKey03 = ByteArray.toHexString(targetEckey.getPrivKeyBytes());
+    String filePath = "src/test/resources/soliditycode/killcontract01.sol";
+    String contractName = "C";
+    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    String code1 = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    byte[] contractC = PublicMethed
+            .deployContractFallback(contractName, abi, code1, "", maxFeeLimit, 0L,
+                    100, null, excKey, excAdd, blockingStubFull);
+    String contractCBase58 = Base58.encode58Check(contractC);
+    contractName = "B";
+    retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    code1 = retMap.get("byteCode").toString();
+    abi = retMap.get("abI").toString();
+    byte[] contractB = PublicMethed
+            .deployContractFallback(contractName, abi, code1, "", maxFeeLimit, 0L,
+                    100, null, excKey, excAdd, blockingStubFull);
+    String contractBBase58 = Base58.encode58Check(contractB);
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    SmartContractOuterClass.SmartContract smartContract = PublicMethed.getContract(contractC, blockingStubFull);
+    Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
+    Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
+
+    smartContract = PublicMethed.getContract(contractB, blockingStubFull);
+    Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
+    Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
+
+    String methedStr = "getPredictedAddress(bytes32)";
+    String argsStr = "1123";
+    TransactionExtention transactionExtention =
+            PublicMethed.triggerConstantContractForExtention(contractAddressD, methedStr, argsStr,
+                    false, 0, maxFeeLimit, "0", 0, excAdd, excKey, blockingStubFull);
+
+    logger.info("kill03 getPredictedAddress transactionExtention: " + transactionExtention.toString());
+    String create2Add41 = "41" + ByteArray.toHexString(transactionExtention.getConstantResult(0)
+            .toByteArray()).substring(24);
+    byte[] create2AddBytes = ByteArray.fromHexString(create2Add41);
+    String create2Add58 = Base58.encode58Check(create2AddBytes);
+    Assert.assertTrue(PublicMethed.sendcoin(create2AddBytes, 2001000000L,
+            testFoundationAddress, testFoundationKey, blockingStubFull));
+    Assert.assertTrue(PublicMethed.transferAsset(create2AddBytes,
+            assetAccountId.toByteArray(), 100L, excAdd, excKey, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    methedStr = "createKill(bytes32,address,address,address)";
+    String args = argsStr +",\"" + contractCBase58 + "\",\"" + contractBBase58 + "\",\"" +target03 + "\"" ;
+    String txid1  = PublicMethed.triggerContract(contractAddressD, methedStr, args,
+            false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    TransactionInfo info1 = PublicMethed.getTransactionInfoById(txid1,blockingStubFull).get();
+    logger.info("kill03 info1: " +info1);
+    Assert.assertEquals(code.SUCESS, info1.getResult());
+    System.out.println(PublicMethed.queryAccount(create2AddBytes, blockingStubFull));
+    Assert.assertEquals(9, info1.getInternalTransactionsCount());
+
+    Account create2Account = PublicMethed.queryAccount(create2AddBytes, blockingStubFull);
+    logger.info("kill02 create2Account: " + create2Account.toString());
+    Assert.assertEquals("", create2Account.toString());
+    Account targetAccount = PublicMethed.queryAccount(targetAdd03,blockingStubFull);
+    Assert.assertEquals(1801000000L, targetAccount.getBalance());
+    Assert.assertEquals(100000000L, targetAccount.getFrozenV2(0).getAmount());
+    Assert.assertEquals(100000000L, targetAccount.getFrozenV2(1).getAmount());
+    Assert.assertEquals(0, targetAccount.getVotesList().size());
+    long targetAssetCount = PublicMethed.getAssetIssueValue(targetAdd03, assetAccountId, blockingStubFull);
+    Assert.assertEquals(100, targetAssetCount);
+    AccountResourceMessage targetResource = PublicMethed.getAccountResource(targetAdd03, blockingStubFull);
+    Assert.assertNotEquals(0, targetResource.getNetLimit());
+    Assert.assertNotEquals(0, targetResource.getEnergyLimit());
+  }
 
 
   /**
