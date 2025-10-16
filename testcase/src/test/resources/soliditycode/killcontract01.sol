@@ -120,12 +120,16 @@ contract NewFreezeV2 {
 
     function killme(address payable target) external {
         selfdestruct(target);
+//        selfdestruct(target);
     }
 
     function killme1(address payable target,uint256 amount, uint256 resourceType) external {
         unfreezebalancev2(amount, resourceType);
         cancelallunfreezev2();
         selfdestruct(target);
+    }
+    function transferTo(address payable toAddress)public payable{
+        toAddress.transfer(5);
     }
 
     function deploy(uint256 salt) public returns(address){
@@ -156,14 +160,27 @@ contract NewFreezeV2 {
 
 }
 
+contract B {
+    constructor() public payable {}
+
+    function destroy(address newFreeze,address payable target) external {
+        (bool success, bytes memory data) = newFreeze.call(abi.encodeWithSignature("killme(address)",target));
+        require(success);
+    }
+}
+
 contract C {
     constructor() public payable {}
 
     function destroy(address payable inheritor) external {
         selfdestruct(inheritor);
     }
-}
 
+    function callBdestroy(address b, address newFreeze, address payable target) external {
+        (bool success, bytes memory data) = b.call(abi.encodeWithSignature("destroy(address,address)",newFreeze,target));
+        require(success);
+    }
+}
 
 contract D {
     constructor() public payable {}
@@ -232,7 +249,38 @@ contract D {
         newFreeze.voteWitness(srList, tpList);
     }
 
+    function onlyCreate(bytes32 salt) public returns(address) {
+        NewFreezeV2 e = new NewFreezeV2{salt: salt}();
+        return address(e);
+    }
 
+    function createKill(bytes32 salt, address c, address b, address payable target) public {
+        NewFreezeV2 e = new NewFreezeV2{salt: salt}();
+        e.freezeBalanceV2(100000000, 0);
+        e.freezeBalanceV2(100000000, 1);
+        (bool success, bytes memory data) = c.call(abi.encodeWithSignature("callBdestroy(address,address,address)",b,e,target));
+        require(success);
+
+    }
+    function createKill0(bytes32 salt, address payable target) public {
+        NewFreezeV2 e = new NewFreezeV2{salt: salt}();
+        e.killme(payable(e));
+        payable(e).transfer(1);
+        e.killme(payable(e));
+    }
+
+    function call(address payable caller) public {
+        (bool success, bytes memory data) = caller.call(abi.encodeWithSignature("withdrawReward()"));
+        require(success);
+    }
+
+    function staticcallSelfdestruct(address payable called_address, address payable target) public  {
+        (bool success,) = called_address.staticcall(
+            abi.encodeWithSignature("killme(address)",target)
+        );
+        require(!success);
+
+    }
 }
 
 
