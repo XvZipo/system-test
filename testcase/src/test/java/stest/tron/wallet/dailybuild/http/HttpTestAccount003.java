@@ -273,7 +273,10 @@ public class HttpTestAccount003 {
     Assert.assertNotNull(witnessListAfterVoteSolidity);
     Assert.assertNotEquals(0, witnessListAfterVoteSolidity.size());
 
+    logger.info("witnessList: " + witnessList.toJSONString());
+    logger.info("witnessListAfterVote: " + witnessListAfterVote.toJSONString());
     for(int i = 0; i< witnessListAfterVote.size(); i++){
+
       JSONObject witness = witnessList.getJSONObject(i);
       JSONObject witnessAfterVote = witnessListAfterVote.getJSONObject(i);
       long voteDiff = witnessAfterVote.getLong("voteCount") - witness.getLong("voteCount");
@@ -302,10 +305,12 @@ public class HttpTestAccount003 {
     }
     HttpResponse resWitnessListAfterDecreaseSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,true);
     JSONArray witnessListAfterDecreaseSolidity = HttpMethed.parseResponseContent(resWitnessListAfterDecreaseSolidity).getJSONArray("witnesses");
+    logger.info("witnessListAfterVote: " + witnessListAfterVote.toJSONString());
+    logger.info("witnessListAfterDecrease: " + witnessListAfterDecrease.toJSONString());
     for(int i = 0; i< witnessListAfterDecrease.size(); i++){
       JSONObject witness = witnessListAfterVote.getJSONObject(i);
       JSONObject witnessAfterDecrease = witnessListAfterDecrease.getJSONObject(i);
-      long voteDiff =witness.getLong("voteCount") - witnessAfterDecrease.getLong("voteCount");
+      long voteDiff = witness.getLong("voteCount") - witnessAfterDecrease.getLong("voteCount");
       Assert.assertTrue(voteDiff > 4500L);
       Assert.assertTrue(voteDiff < 5500L);
       Assert.assertEquals(witnessListAfterDecreaseSolidity.getJSONObject(i).getLongValue("voteCount"), witnessAfterDecrease.getLongValue("voteCount"));

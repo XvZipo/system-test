@@ -154,7 +154,7 @@ public class WalletTestAccount015 {
   @Test(enabled = true, description = "List witness realTime vote data")
   public void test09CheckVoteChangesRealtimeAfterVote(){
     GrpcAPI.WitnessList witnessList = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
-    GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubFull);
+    GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubSolidity);
 
     ECKey voter = new ECKey(Utils.getRandom());
     byte[] voterAddress = voter.getAddress();
@@ -173,7 +173,7 @@ public class WalletTestAccount015 {
     PublicMethed.voteWitness(voterAddress, ByteArray.toHexString(voter.getPrivateKey()),voteMap,blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.WitnessList witnessListAfterVote = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
-    GrpcAPI.WitnessList witnessListAfterVoteSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubFull);
+    GrpcAPI.WitnessList witnessListAfterVoteSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubSolidity);
     Assert.assertEquals(witnessListAfterVote, witnessListAfterVoteSolidity);
 
 
@@ -181,6 +181,7 @@ public class WalletTestAccount015 {
       Protocol.Witness witness = witnessList.getWitnesses(i);
       Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(i);
       long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
+      logger.info("voteDiff: " + voteDiff);
       Assert.assertTrue(voteDiff > 9500L);
       Assert.assertTrue(voteDiff < 10500L);
       Assert.assertEquals(witnessListAfterVoteSolidity.getWitnesses(i).getVoteCount(), witnessAfterVote.getVoteCount());
