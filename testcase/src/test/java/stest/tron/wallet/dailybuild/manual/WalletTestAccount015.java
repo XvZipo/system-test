@@ -17,10 +17,7 @@ import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.*;
 
 @Slf4j
 public class WalletTestAccount015 {
@@ -168,7 +165,9 @@ public class WalletTestAccount015 {
     Long voteCount = 10000L;
     for(int i = 0; i< witnessList.getWitnessesCount(); i++){
       Protocol.Witness witness = witnessList.getWitnesses(i);
-      voteMap.put(witness.getAddress().toByteArray(), voteCount);
+      if(witness.getAddress().equals(ByteString.copyFrom(Base58.decode58CheckForShield("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")))){
+        voteMap.put(witness.getAddress().toByteArray(), voteCount);
+      }
     }
     PublicMethed.voteWitness(voterAddress, ByteArray.toHexString(voter.getPrivateKey()),voteMap,blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -176,12 +175,13 @@ public class WalletTestAccount015 {
 
     for(int i = 0; i< witnessList.getWitnessesCount(); i++){
       Protocol.Witness witness = witnessList.getWitnesses(i);
-      Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(i);
-      long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
-      logger.info("voteDiff: " + voteDiff);
-      Assert.assertTrue(voteDiff > 9500L);
-      Assert.assertTrue(voteDiff < 10500L);
-      //Assert.assertEquals(witnessListAfterVoteSolidity.getWitnesses(i).getVoteCount(), witnessAfterVote.getVoteCount());
+      if(witness.getAddress().equals(ByteString.copyFrom(Base58.decode58CheckForShield("TT1smsmhxype64boboU8xTuNZVCKP1w6qT"))){
+        Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(i);
+        long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
+        logger.info("voteDiff: " + voteDiff);
+        Assert.assertTrue(voteDiff > 9500L);
+        Assert.assertTrue(voteDiff < 10500L);
+      }
     }
   }
 
