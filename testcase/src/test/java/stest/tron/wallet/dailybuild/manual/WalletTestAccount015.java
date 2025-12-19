@@ -175,7 +175,7 @@ public class WalletTestAccount015 {
 
     for(int i = 0; i< witnessList.getWitnessesCount(); i++){
       Protocol.Witness witness = witnessList.getWitnesses(i);
-      if(witness.getAddress().equals(ByteString.copyFrom(Base58.decode58CheckForShield("TT1smsmhxype64boboU8xTuNZVCKP1w6qT"))){
+      if(witness.getAddress().equals(ByteString.copyFrom(Base58.decode58CheckForShield("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")))){
         Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(i);
         long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
         logger.info("voteDiff: " + voteDiff);
