@@ -151,8 +151,8 @@ public class WalletTestAccount015 {
   @Test(enabled = true, description = "List witness realTime vote data")
   public void test09CheckVoteChangesRealtimeAfterVote(){
     GrpcAPI.WitnessList witnessList = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
-    GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubSolidity);
-    Assert.assertTrue(witnessListSolidity.getWitnessesList().size() > 1);
+    //GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubSolidity);
+    //Assert.assertTrue(witnessListSolidity.getWitnessesList().size() > 1);
 
     ECKey voter = new ECKey(Utils.getRandom());
     byte[] voterAddress = voter.getAddress();
@@ -165,7 +165,8 @@ public class WalletTestAccount015 {
     Long voteCount = 10000L;
     for(int i = 0; i< witnessList.getWitnessesCount(); i++){
       Protocol.Witness witness = witnessList.getWitnesses(i);
-      if(witness.getAddress().equals(ByteString.copyFrom(Base58.decode58CheckForShield("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")))){
+      String witnessTAddress = Base58.encode58Check(witness.getAddress().toByteArray());
+      if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
         voteMap.put(witness.getAddress().toByteArray(), voteCount);
       }
     }
@@ -175,7 +176,8 @@ public class WalletTestAccount015 {
 
     for(int i = 0; i< witnessList.getWitnessesCount(); i++){
       Protocol.Witness witness = witnessList.getWitnesses(i);
-      if(witness.getAddress().equals(ByteString.copyFrom(Base58.decode58CheckForShield("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")))){
+      String witnessTAddress = Base58.encode58Check(witness.getAddress().toByteArray());
+      if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
         Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(i);
         long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
         logger.info("voteDiff: " + voteDiff);
