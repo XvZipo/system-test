@@ -151,7 +151,7 @@ public class WalletTestAccount015 {
   @Test(enabled = true, description = "List witness realTime vote data")
   public void test09CheckVoteChangesRealtimeAfterVote(){
     GrpcAPI.WitnessList witnessList = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
-    GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubSolidity);
+      GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubSolidity);
     Assert.assertTrue(witnessListSolidity.getWitnessesList().size() > 1);
 
     ECKey voter = new ECKey(Utils.getRandom());
@@ -172,19 +172,20 @@ public class WalletTestAccount015 {
     }
     PublicMethed.voteWitness(voterAddress, ByteArray.toHexString(voter.getPrivateKey()),voteMap,blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.WitnessList witnessListAfterVote = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
-
     for(int i = 0; i< witnessList.getWitnessesCount(); i++){
       Protocol.Witness witness = witnessList.getWitnesses(i);
       String witnessTAddress = Base58.encode58Check(witness.getAddress().toByteArray());
       if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
-        Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(i);
-        long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
-        logger.info("voteDiff: " + voteDiff);
-        Assert.assertTrue(voteDiff > 9500L);
-        Assert.assertTrue(voteDiff < 10500L);
+        for(int j=0; j<witnessListAfterVote.getWitnessesCount();j++){
+          Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(j);
+          if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+            long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
+            logger.info("voteDiff: " + voteDiff);
+            Assert.assertTrue(voteDiff > 9500L);
+            Assert.assertTrue(voteDiff < 10500L);
+          }
+        }
       }
     }
   }
