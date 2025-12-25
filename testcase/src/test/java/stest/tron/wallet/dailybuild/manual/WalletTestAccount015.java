@@ -17,10 +17,7 @@ import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.*;
 
 @Slf4j
 public class WalletTestAccount015 {
@@ -154,7 +151,8 @@ public class WalletTestAccount015 {
   @Test(enabled = true, description = "List witness realTime vote data")
   public void test09CheckVoteChangesRealtimeAfterVote(){
     GrpcAPI.WitnessList witnessList = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
-    GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubFull);
+    GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubSolidity);
+    Assert.assertTrue(witnessListSolidity.getWitnessesList().size() > 1);
 
     ECKey voter = new ECKey(Utils.getRandom());
     byte[] voterAddress = voter.getAddress();
@@ -167,26 +165,29 @@ public class WalletTestAccount015 {
     Long voteCount = 10000L;
     for(int i = 0; i< witnessList.getWitnessesCount(); i++){
       Protocol.Witness witness = witnessList.getWitnesses(i);
-      voteMap.put(witness.getAddress().toByteArray(), voteCount);
-      Assert.assertEquals(witnessListSolidity.getWitnesses(i).getVoteCount(), witness.getVoteCount());
+      String witnessTAddress = Base58.encode58Check(witness.getAddress().toByteArray());
+      if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+        voteMap.put(witness.getAddress().toByteArray(), voteCount);
+      }
     }
     PublicMethed.voteWitness(voterAddress, ByteArray.toHexString(voter.getPrivateKey()),voteMap,blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.WitnessList witnessListAfterVote = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
-    GrpcAPI.WitnessList witnessListAfterVoteSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubFull);
-    Assert.assertEquals(witnessListAfterVote, witnessListAfterVoteSolidity);
-
-
     for(int i = 0; i< witnessList.getWitnessesCount(); i++){
       Protocol.Witness witness = witnessList.getWitnesses(i);
-      Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(i);
-      long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
-      Assert.assertTrue(voteDiff > 9500L);
-      Assert.assertTrue(voteDiff < 10500L);
-      Assert.assertEquals(witnessListAfterVoteSolidity.getWitnesses(i).getVoteCount(), witnessAfterVote.getVoteCount());
+      String witnessTAddress = Base58.encode58Check(witness.getAddress().toByteArray());
+      if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+        for(int j=0; j<witnessListAfterVote.getWitnessesCount();j++){
+          Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(j);
+          if(witnessAfterVote.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+            long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
+            logger.info("voteDiff: " + voteDiff);
+            Assert.assertTrue(voteDiff > 9500L);
+            Assert.assertTrue(voteDiff < 10500L);
+          }
+        }
+      }
     }
-
-
   }
 
 

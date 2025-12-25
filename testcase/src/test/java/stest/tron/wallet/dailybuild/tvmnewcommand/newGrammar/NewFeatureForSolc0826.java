@@ -50,7 +50,7 @@ public class NewFeatureForSolc0826 {
             .sendcoin(contractExcAddress, 11010_000_000L,
                 testNetAccountAddress, testNetAccountKey, blockingStubFull));
         PublicMethed.waitProduceNextBlock(blockingStubFull);
-        String filePath = "src/test/resources/soliditycode/NewFeature0826.sol";
+        String filePath = "src/test/resources/soliditycode/newFeature0826.sol";
         String contractName = "RequireErrorTest";
         HashMap retMap = PublicMethed.getBycodeAbiWithParam(filePath, contractName,"--experimental-via-ir");
         String code = retMap.get("byteCode").toString();
