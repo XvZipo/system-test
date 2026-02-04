@@ -927,34 +927,6 @@ public class TransactionFee001 {
     witnessMap.put(witnessAddress03, 1L);
     Assert.assertTrue(PublicMethed.voteWitness(witnessAddress03, witnessKey03, witnessMap,
         blockingStubFull));
-
-// //move to onFinish()
-//    String add41 = ByteArray.toHexString(witnessAddress03);
-//    Long beginNum = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build())
-//        .getBlockHeader().getRawData().getNumber();
-//    Long nowNum = beginNum;
-//    boolean flag = false;
-//    while (true) {
-//      List<Protocol.Witness> list =
-//          PublicMethed.listWitnesses(blockingStubFull).get().getWitnessesList();
-//      for (Protocol.Witness tem: list) {
-//        if ((add41.equalsIgnoreCase(ByteArray.toHexString(tem.getAddress().toByteArray())))
-//            && (tem.getTotalProduced() > 3)) {
-//          flag = true;
-//          break;
-//        }
-//      }
-//      if (flag) {
-//        break;
-//      }
-//      PublicMethed.waitProduceNextBlock(blockingStubFull);
-//      nowNum = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build())
-//          .getBlockHeader().getRawData().getNumber();
-//      if ((nowNum - beginNum) > 210) {
-//        srStatus = false;
-//        Assert.assertEquals("3rd witness not produce block", "");
-//      }
-//    }
   }
 
   /**

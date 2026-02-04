@@ -197,9 +197,6 @@ public class MongoEventQuery002 extends MongoBase {
             testKeyForInternalTxsAddress,
             blockingStubFull);
 
-
-
-    // Move the code to the front to save time. 203~230
     ecKey2 = new ECKey(Utils.getRandom());
     event002Address = ecKey2.getAddress();
     event002Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
