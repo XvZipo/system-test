@@ -290,8 +290,6 @@ public class ContractGrammar003 {
 
   @Test(enabled = true, description = "Permission control ")
   public void test3Grammar016() {
-
-    //deploy
     String filePath = "src/test/resources/soliditycode/contractGrammar003test3Grammar016.sol";
     String contractName = "D";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
@@ -301,7 +299,6 @@ public class ContractGrammar003 {
         0L, 100, null, testKeyForGrammarAddress3,
         grammarAddress3, blockingStubFull);
 
-    //deploy1
     String contractName1 = "E";
     HashMap retMap1 = PublicMethed.getBycodeAbi(filePath, contractName1);
     String code1 = retMap1.get("byteCode").toString();
@@ -311,11 +308,8 @@ public class ContractGrammar003 {
             0L, 100, null, testKeyForGrammarAddress3,
             grammarAddress3, blockingStubFull);
 
-    //wait
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-
-    //trigger
     Optional<TransactionInfo> infoById = null;
     String txid = PublicMethed.triggerContract(contractAddress,
         "readData()", "#", false,
@@ -334,11 +328,8 @@ public class ContractGrammar003 {
         "getData()", "#", false,
         0, maxFeeLimit, grammarAddress3, testKeyForGrammarAddress3, blockingStubFull);
 
-
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-
-    //check
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
 
@@ -363,9 +354,6 @@ public class ContractGrammar003 {
 
   @Test(enabled = true, description = "Structure")
   public void test4Grammar017() {
-
-    //deploy
-
     String filePath = "src/test/resources/soliditycode/contractGrammar003test4Grammar017.sol";
     String contractName = "CrowdFunding";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
@@ -374,9 +362,7 @@ public class ContractGrammar003 {
     byte[] contractAddress1 = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, testKeyForGrammarAddress3,
         grammarAddress3, blockingStubFull);
-    //wait
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    //trigger
     String initParmes = "\"" + Base58.encode58Check(grammarAddress3) + "\",\"1\"";
     Optional<TransactionInfo> infoById = null;
     String txid = PublicMethed.triggerContract(contractAddress1,
@@ -388,9 +374,7 @@ public class ContractGrammar003 {
     String txid2 = PublicMethed.triggerContract(contractAddress1,
         "vote(uint256)", "1", false,
         0, maxFeeLimit, grammarAddress3, testKeyForGrammarAddress3, blockingStubFull);
-    //wait
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    //check
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Long returnnumber1 = ByteArray.toLong(ByteArray
         .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
@@ -408,7 +392,6 @@ public class ContractGrammar003 {
 
   @Test(enabled = true, description = "Built-in function")
   public void test5Grammar018() {
-    //deploy
     String filePath = "src/test/resources/soliditycode/contractGrammar003test5Grammar018.sol";
     String contractName = "Grammar18";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
@@ -417,11 +400,7 @@ public class ContractGrammar003 {
     byte[] contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, testKeyForGrammarAddress3,
         grammarAddress3, blockingStubFull);
-
-    //wait
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    //trigger
     Optional<TransactionInfo> infoById = null;
     String txid = PublicMethed.triggerContract(contractAddress,
         "testAddmod()", "#", false,
@@ -438,10 +417,7 @@ public class ContractGrammar003 {
     String txid4 = PublicMethed.triggerContract(contractAddress,
         "testSha3()", "#", false,
         0, maxFeeLimit, grammarAddress3, testKeyForGrammarAddress3, blockingStubFull);
-    //wait
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    //check
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Long returnnumber = ByteArray.toLong(ByteArray
         .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
