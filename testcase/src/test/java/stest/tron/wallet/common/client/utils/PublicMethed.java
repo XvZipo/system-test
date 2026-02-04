@@ -1135,6 +1135,10 @@ public class PublicMethed {
         .getProposalName(), blockingStubFull) > 0;
   }
 
+  public static Boolean allowTvmSelfdestructRestrictionIsActive(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
+            blockingStubFull) == 1;
+  }
 
   public static Boolean tronPowerProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
     return PublicMethed.getChainParametersValue(ProposalEnum.GetAllowNewResourceModel

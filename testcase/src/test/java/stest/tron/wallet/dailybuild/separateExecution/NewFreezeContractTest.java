@@ -599,7 +599,7 @@ public class NewFreezeContractTest {
     Assert.assertEquals(0, li.size());
 
     Account killCreate2 = PublicMethed.queryAccount(create2AddBytes, blockingStubFull);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(0L, killCreate2.getBalance());
       Assert.assertEquals(0L, killCreate2.getFrozenV2(0).getAmount());
       Assert.assertEquals(0L, killCreate2.getFrozenV2(1).getAmount());

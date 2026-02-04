@@ -387,7 +387,7 @@ public class ContractInternalTransaction002 {
     infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     int transactionsCount1 = infoById1.get().getInternalTransactionsCount();
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(7, transactionsCount1);
     }else {
       Assert.assertEquals(6, transactionsCount1);

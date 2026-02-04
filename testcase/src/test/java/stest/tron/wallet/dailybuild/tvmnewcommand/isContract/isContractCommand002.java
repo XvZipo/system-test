@@ -128,8 +128,7 @@ public class isContractCommand002 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
     logger.info(infoById1.toString());
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(1, ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray()));
     }else {
       Assert.assertEquals(0, ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray()));
@@ -140,8 +139,7 @@ public class isContractCommand002 {
             0, 0, "0", 0, selfdestructContractExcAddress, selfdestructContractKey,
             blockingStubFull);
     logger.info("transactionExtention:" + transactionExtention.toString());
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals("SUCCESS", transactionExtention.getResult().getCode().toString());
       Assert.assertEquals(1, ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray()));
     }else {

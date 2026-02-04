@@ -450,8 +450,7 @@ public class TransferFailed004 {
     logger.info("afterNetUsed:" + afterNetUsed);
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
     logger.info("infoById:" + infoById);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(contractResult.REVERT, infoById.get().getReceipt().getResult());
       Account nonexistentAddressAccount = PublicMethed
               .queryAccount(contractAddress, blockingStubFull1);
@@ -547,8 +546,7 @@ public class TransferFailed004 {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
 
-    if (PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if (PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Account nonexistentAddressAccount = PublicMethed
               .queryAccount(contractAddress, blockingStubFull1);
       Assert.assertEquals(0L, nonexistentAddressAccount.getBalance());

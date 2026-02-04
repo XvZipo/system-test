@@ -143,7 +143,7 @@ public class ContractTrcToken031 {
     logger.info("afterAssetIssueDevAddress:" + afterAssetIssueContractAddress);
     logger.info("afterBalanceContractAddress:" + afterBalanceContractAddress);
 
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(beforeBalanceContractAddress, afterBalanceContractAddress );
       Assert.assertEquals(beforeAssetIssueContractAddress, afterAssetIssueContractAddress);
     }else {

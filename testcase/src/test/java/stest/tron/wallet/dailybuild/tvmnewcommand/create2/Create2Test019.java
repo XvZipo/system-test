@@ -242,7 +242,7 @@ public class Create2Test019 {
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 //    PublicMethed.waitProduceNextBlock(blockingStubFull);
     System.out.println(transactionExtention.toString());
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(true, transactionExtention.getResult().getResult());
     }else {
       Assert.assertThat(transactionExtention.getResult().getCode().toString(),
@@ -259,7 +259,7 @@ public class Create2Test019 {
 
     Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       System.out.println(infoById3);
       Assert.assertEquals(TransactionInfo.code.FAILED, infoById3.get().getResult());
     }else {

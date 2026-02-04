@@ -192,7 +192,7 @@ public class ContractTrcToken082 {
     Optional<Protocol.TransactionInfo> info2 =
         PublicMethed.getTransactionInfoById(txid2, blockingStubFull);
     Assert.assertEquals(TransactionInfo.code.SUCESS, info2.get().getResult());
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertTrue(info2.get().getInternalTransactions(0).getRejected());
     }
     Optional<Protocol.TransactionInfo> info3 =
@@ -200,7 +200,7 @@ public class ContractTrcToken082 {
     Assert.assertEquals(TransactionInfo.code.SUCESS, info3.get().getResult());
 
     Protocol.Account create2Account = PublicMethed.queryAccount(create2Address, blockingStubFull);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertNotEquals(create2Account.toString(), "");
       Assert.assertEquals(0L, create2Account.getBalance());
       Assert.assertEquals(0L, create2Account.getFrozenV2(0).getAmount());

@@ -206,8 +206,7 @@ public class ContractTestSendCoin001 {
 
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertFalse(PublicMethed
               .transferAsset(transferTokenContractAddress, assetAccountId.toByteArray(), 100L,
                       dev001Address, dev001Key, blockingStubFull));
@@ -369,8 +368,7 @@ public class ContractTestSendCoin001 {
 
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertFalse(PublicMethed
               .transferAsset(testContractAddress, assetAccountId.toByteArray(), 100L, dev001Address,
                       dev001Key, blockingStubFull));
@@ -567,8 +565,7 @@ public class ContractTestSendCoin001 {
         .triggerContractForExtention(returnAddressBytes, "i()", "#", false, 0, maxFeeLimit, "0", 0,
             contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals("SUCCESS", transactionExtention.getResult().getCode().toString());
       Assert.assertFalse(PublicMethed
               .transferAsset(returnAddressBytes, assetAccountId.toByteArray(), 100L, dev001Address,

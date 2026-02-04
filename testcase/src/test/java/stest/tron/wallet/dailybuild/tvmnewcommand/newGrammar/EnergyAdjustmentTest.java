@@ -138,16 +138,14 @@ public class EnergyAdjustmentTest {
     logger.info("voteCostExtraEnergy02 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(30319, info.getReceipt().getEnergyUsageTotal());
     }else {
       Assert.assertEquals(25319, info.getReceipt().getEnergyUsageTotal());
     }
     Protocol.Account contractC = PublicMethed.queryAccount(contractAddressC, blockingStubFull);
     System.out.println("contractC  ccc: " + contractC);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertNotEquals("", contractC.toString());
       Assert.assertEquals(0L, contractC.getBalance());
       Assert.assertEquals(0L, contractC.getFrozenV2(0).getAmount());
@@ -179,16 +177,14 @@ public class EnergyAdjustmentTest {
     logger.info("sucideToActiveAcount02 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(36993, info.getReceipt().getEnergyUsageTotal());
     }else {
       Assert.assertEquals(26993, info.getReceipt().getEnergyUsageTotal());
     }
     String contractC = PublicMethed.queryAccount(contractAddressC, blockingStubFull).toString();
     System.out.println("contractC  ccc: " + contractC);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertNotEquals("", contractC);
     }else {
       Assert.assertEquals("", contractC);
@@ -223,16 +219,14 @@ public class EnergyAdjustmentTest {
     logger.info("sucideToActiveAcount03 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(61993, info.getReceipt().getEnergyUsageTotal());
     }else {
       Assert.assertEquals(51993, info.getReceipt().getEnergyUsageTotal());
     }
     String contractC = PublicMethed.queryAccount(contractAddressC, blockingStubFull).toString();
     System.out.println("contractC  ccc: " + contractC);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertNotEquals("", contractC);
     }else {
       Assert.assertEquals("", contractC);
@@ -265,16 +259,14 @@ public class EnergyAdjustmentTest {
     logger.info("sucideToActiveAcount04 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(30319, info.getReceipt().getEnergyUsageTotal());
     }else {
       Assert.assertEquals(25319, info.getReceipt().getEnergyUsageTotal());
     }
     String contractC = PublicMethed.queryAccount(contractAddressC, blockingStubFull).toString();
     System.out.println("contractC  ccc: " + contractC);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertNotEquals("", contractC);
     }else {
       Assert.assertEquals("", contractC);
@@ -301,16 +293,14 @@ public class EnergyAdjustmentTest {
     logger.info("sucideToActiveAcount05 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(30319, info.getReceipt().getEnergyUsageTotal());
     }else {
       Assert.assertEquals(25319, info.getReceipt().getEnergyUsageTotal());
     }
     String contractC = PublicMethed.queryAccount(create2Add, blockingStubFull).toString();
     System.out.println("contractC  ccc: " + contractC);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertNotEquals("", contractC);
     }else {
       Assert.assertEquals("", contractC);

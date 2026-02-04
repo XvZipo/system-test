@@ -310,8 +310,7 @@ public class ContractGrammar002 {
         "getCount()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1) {
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       infoById4 = PublicMethed.getTransactionInfoById(txid4, blockingStubFull);
       Assert.assertTrue(infoById4.get().getResultValue() == 0);
       returnnumber1 = ByteArray.toLong(ByteArray
