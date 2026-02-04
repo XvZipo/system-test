@@ -14,9 +14,6 @@ contract NewFreezeV2 {
     constructor() payable {
     }
 
-//    constructor(uint amount, uint res) payable {
-//        freezebalancev2(amount, res);
-//    }
 
     receive() payable external {}
 
@@ -120,7 +117,6 @@ contract NewFreezeV2 {
 
     function killme(address payable target) external {
         selfdestruct(target);
-//        selfdestruct(target);
     }
 
     function killme1(address payable target,uint256 amount, uint256 resourceType) external {
@@ -137,11 +133,7 @@ contract NewFreezeV2 {
         bytes memory code = type(C).creationCode;
         assembly {
             addr := create2(0, add(code, 0x20), mload(code), salt)
-        //if iszero(extcodesize(addr)) {
-        //    revert(0, 0)
-        //}
         }
-        //emit Deployed(addr, salt, msg.sender);
         return addr;
     }
 
