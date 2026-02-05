@@ -158,7 +158,9 @@ public class ContractTrcToken082 {
     Assert.assertEquals(Long.valueOf(toCreate2Num), create2Count);
   }
 
-  @Test(enabled = true, description = "kill,create2,kill,and check trc10 amount",retryAnalyzer = Retry.class)
+  @Test(enabled = true, description = "kill,create2,kill,and check trc10 amount" +
+          "when No.94 committee is been opened,after contracts been killed, " +
+          "cannot create the contract again, the transaction will be rejected as a result",retryAnalyzer = Retry.class)
   public void test02KillCreate2Kill() throws Exception{
     PublicMethed.triggerContract(contractD, "deploy(uint256)", "7",
         false, 0, maxFeeLimit, fromAddress, testKey002, blockingStubFull);
@@ -190,13 +192,23 @@ public class ContractTrcToken082 {
     Optional<Protocol.TransactionInfo> info2 =
         PublicMethed.getTransactionInfoById(txid2, blockingStubFull);
     Assert.assertEquals(TransactionInfo.code.SUCESS, info2.get().getResult());
-
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertTrue(info2.get().getInternalTransactions(0).getRejected());
+    }
     Optional<Protocol.TransactionInfo> info3 =
         PublicMethed.getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(TransactionInfo.code.SUCESS, info3.get().getResult());
 
     Protocol.Account create2Account = PublicMethed.queryAccount(create2Address, blockingStubFull);
-    Assert.assertEquals(create2Account.toString(), "");
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertNotEquals(create2Account.toString(), "");
+      Assert.assertEquals(0L, create2Account.getBalance());
+      Assert.assertEquals(0L, create2Account.getFrozenV2(0).getAmount());
+      Assert.assertEquals(0L, create2Account.getFrozenV2(1).getAmount());
+      Assert.assertEquals(0L, create2Account.getFrozenV2(2).getAmount());
+    }else {
+      Assert.assertEquals(create2Account.toString(), "");
+    }
     Long create2AssetCount = PublicMethed
         .getAssetIssueValue(receiveAdderss, assetAccountId, blockingStubFull);
     Assert.assertEquals(create2AssetCount, Long.valueOf("1"));

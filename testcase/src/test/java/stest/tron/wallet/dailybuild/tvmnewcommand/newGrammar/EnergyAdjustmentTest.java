@@ -9,6 +9,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
+import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Transaction.Result.contractResult;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.Protocol.TransactionInfo.code;
@@ -137,10 +138,22 @@ public class EnergyAdjustmentTest {
     logger.info("voteCostExtraEnergy02 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals(25319, info.getReceipt().getEnergyUsageTotal());
-    String contractC = PublicMethed.queryAccount(contractAddressC, blockingStubFull).toString();
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertEquals(30319, info.getReceipt().getEnergyUsageTotal());
+    }else {
+      Assert.assertEquals(25319, info.getReceipt().getEnergyUsageTotal());
+    }
+    Protocol.Account contractC = PublicMethed.queryAccount(contractAddressC, blockingStubFull);
     System.out.println("contractC  ccc: " + contractC);
-    Assert.assertEquals("", contractC);
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertNotEquals("", contractC.toString());
+      Assert.assertEquals(0L, contractC.getBalance());
+      Assert.assertEquals(0L, contractC.getFrozenV2(0).getAmount());
+      Assert.assertEquals(0L, contractC.getFrozenV2(1).getAmount());
+      Assert.assertEquals(0L, contractC.getFrozenV2(2).getAmount());
+    }else {
+      Assert.assertEquals("", contractC.toString());
+    }
     long balance = PublicMethed.queryAccount(testAddress002, blockingStubFull).getBalance();
     Assert.assertEquals(trxValue, balance);
   }
@@ -164,10 +177,18 @@ public class EnergyAdjustmentTest {
     logger.info("sucideToActiveAcount02 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals(27283, info.getReceipt().getEnergyUsageTotal());
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertEquals(36993, info.getReceipt().getEnergyUsageTotal());
+    }else {
+      Assert.assertEquals(26993, info.getReceipt().getEnergyUsageTotal());
+    }
     String contractC = PublicMethed.queryAccount(contractAddressC, blockingStubFull).toString();
     System.out.println("contractC  ccc: " + contractC);
-    Assert.assertEquals("", contractC);
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertNotEquals("", contractC);
+    }else {
+      Assert.assertEquals("", contractC);
+    }
     long balance = PublicMethed.queryAccount(testAddress003, blockingStubFull).getBalance();
     Assert.assertEquals(trxValue, balance);
 
@@ -198,10 +219,18 @@ public class EnergyAdjustmentTest {
     logger.info("sucideToActiveAcount03 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals(52283, info.getReceipt().getEnergyUsageTotal());
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertEquals(61993, info.getReceipt().getEnergyUsageTotal());
+    }else {
+      Assert.assertEquals(51993, info.getReceipt().getEnergyUsageTotal());
+    }
     String contractC = PublicMethed.queryAccount(contractAddressC, blockingStubFull).toString();
     System.out.println("contractC  ccc: " + contractC);
-    Assert.assertEquals("", contractC);
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertNotEquals("", contractC);
+    }else {
+      Assert.assertEquals("", contractC);
+    }
     long balance03 = PublicMethed.queryAccount(testAddress003, blockingStubFull).getBalance();
     Assert.assertEquals(trxValue, balance03);
     long balance04 = PublicMethed.queryAccount(testAddress004, blockingStubFull).getBalance();
@@ -230,10 +259,18 @@ public class EnergyAdjustmentTest {
     logger.info("sucideToActiveAcount04 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals(25319, info.getReceipt().getEnergyUsageTotal());
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertEquals(30319, info.getReceipt().getEnergyUsageTotal());
+    }else {
+      Assert.assertEquals(25319, info.getReceipt().getEnergyUsageTotal());
+    }
     String contractC = PublicMethed.queryAccount(contractAddressC, blockingStubFull).toString();
     System.out.println("contractC  ccc: " + contractC);
-    Assert.assertEquals("", contractC);
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertNotEquals("", contractC);
+    }else {
+      Assert.assertEquals("", contractC);
+    }
     long balance = PublicMethed.queryAccount(ByteArray.fromHexString(sub), blockingStubFull).getBalance();
     Assert.assertEquals(trxValue, balance);
 
@@ -256,10 +293,18 @@ public class EnergyAdjustmentTest {
     logger.info("sucideToActiveAcount05 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals(25319, info.getReceipt().getEnergyUsageTotal());
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertEquals(30319, info.getReceipt().getEnergyUsageTotal());
+    }else {
+      Assert.assertEquals(25319, info.getReceipt().getEnergyUsageTotal());
+    }
     String contractC = PublicMethed.queryAccount(create2Add, blockingStubFull).toString();
     System.out.println("contractC  ccc: " + contractC);
-    Assert.assertEquals("", contractC);
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertNotEquals("", contractC);
+    }else {
+      Assert.assertEquals("", contractC);
+    }
     long balance = PublicMethed.queryAccount(testAddress003, blockingStubFull).getBalance();
     Assert.assertEquals(trxValue, balance);
 

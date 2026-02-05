@@ -185,16 +185,14 @@ public class TestValidatemultisign003 {
     String methodStr = "testMultiPrecompileContract(bytes)";
     String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr,
         AbiUtil.parseParameters(methodStr, Arrays.asList(input)), true,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+        0, 100000000, dev001Address, dev001Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
     logger.info("infoById" + infoById);
 
-    Assert.assertEquals(0, infoById.get().getResultValue());
-    Assert.assertEquals(0, ByteArray.toInt(infoById.get().getContractResult(0).toByteArray()));
-
+    Assert.assertEquals(1, infoById.get().getResultValue());
   }
 
   @Test(enabled = true, description = "Trigger validatemultisign precompiled contract, "

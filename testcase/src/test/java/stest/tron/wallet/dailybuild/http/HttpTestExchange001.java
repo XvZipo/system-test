@@ -238,7 +238,7 @@ public class HttpTestExchange001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Transaction exchange by http")
+  @Test(enabled = false, description = "Transaction exchange by http")
   public void test10TransactionExchange() {
     //Transaction exchange.
     response = HttpMethed

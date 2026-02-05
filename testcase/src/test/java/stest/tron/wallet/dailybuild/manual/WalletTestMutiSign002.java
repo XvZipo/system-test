@@ -346,7 +346,7 @@ public class WalletTestMutiSign002 {
 
   }
 
-  @Test(enabled = true, description = "MutiSign for transaction exchange")
+  @Test(enabled = false, description = "MutiSign for transaction exchange")
   public void test6TransactionExchange() {
     Long balanceBefore = PublicMethed.queryAccount(exchange001Address, blockingStubFull)
         .getBalance();

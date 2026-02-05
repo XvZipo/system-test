@@ -1,7 +1,10 @@
 package stest.tron.wallet.dailybuild.manual;
 
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+
+import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -9,13 +12,12 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
+import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.*;
 
 @Slf4j
 public class WalletTestAccount015 {
@@ -143,6 +145,49 @@ public class WalletTestAccount015 {
   public void test08ListWitnessFromPbft() {
     Assert.assertTrue(PublicMethed.listWitnessesFromSolidity(blockingStubPbft)
         .get().getWitnessesCount() >= 2);
+  }
+
+
+  @Test(enabled = true, description = "List witness realTime vote data")
+  public void test09CheckVoteChangesRealtimeAfterVote(){
+    GrpcAPI.WitnessList witnessList = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
+    GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubSolidity);
+    Assert.assertTrue(witnessListSolidity.getWitnessesList().size() > 1);
+
+    ECKey voter = new ECKey(Utils.getRandom());
+    byte[] voterAddress = voter.getAddress();
+    Long freezeBalance = 30500_000000L;
+    PublicMethed.sendcoin(voterAddress, freezeBalance, fromAddress , testKey002, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.freezeBalanceV2(voterAddress, freezeBalance, 0, ByteArray.toHexString(voter.getPrivateKey()), blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    HashMap<byte[], Long> voteMap = new HashMap<>();
+    Long voteCount = 10000L;
+    for(int i = 0; i< witnessList.getWitnessesCount(); i++){
+      Protocol.Witness witness = witnessList.getWitnesses(i);
+      String witnessTAddress = Base58.encode58Check(witness.getAddress().toByteArray());
+      if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+        voteMap.put(witness.getAddress().toByteArray(), voteCount);
+      }
+    }
+    PublicMethed.voteWitness(voterAddress, ByteArray.toHexString(voter.getPrivateKey()),voteMap,blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    GrpcAPI.WitnessList witnessListAfterVote = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
+    for(int i = 0; i< witnessList.getWitnessesCount(); i++){
+      Protocol.Witness witness = witnessList.getWitnesses(i);
+      String witnessTAddress = Base58.encode58Check(witness.getAddress().toByteArray());
+      if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+        for(int j=0; j<witnessListAfterVote.getWitnessesCount();j++){
+          Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(j);
+          if(witnessAfterVote.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+            long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
+            logger.info("voteDiff: " + voteDiff);
+            Assert.assertTrue(voteDiff > 9500L);
+            Assert.assertTrue(voteDiff < 10500L);
+          }
+        }
+      }
+    }
   }
 
 

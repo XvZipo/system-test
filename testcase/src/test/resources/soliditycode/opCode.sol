@@ -49,7 +49,7 @@ contract A {
 //        }
 //    }
 
-    function ssswap() public returns (int a) {
+    function ssswap14() public returns (int a) {
         int a=1;
         int b=2;
         int c=3;
@@ -62,29 +62,78 @@ contract A {
         int b1=2;
         int c1=3;
         int d1=3;
-        int e1=3;  //swap 14
-        int f1=3;  //swap 15
-        int g1=3;  //swap 16
+        int e1=3;
         return (a);
     }
 
-    function pppushx() public returns (uint256) {
+    function ssswap15() public returns (int a) {
+        int a=1;
+        int b=2;
+        int c=3;
+        int d=3;
+        int e=3;
+        int f=3;
+        int g=3;
+        int h=3;
+        int a1=1;
+        int b1=2;
+        int c1=3;
+        int d1=3;
+        int e1=3;
+        int f1=3;
+        return (a);
+    }
+
+    function ssswap16() public returns (int a) {
+        int a=1;
+        int b=2;
+        int c=3;
+        int d=3;
+        int e=3;
+        int f=3;
+        int g=3;
+        int h=3;
+        int a1=1;
+        int b1=2;
+        int c1=3;
+        int d1=3;
+        int e1=3;
+        int f1=3;
+        int g1=3;
+        return (a);
+    }
+
+
+    function pppushx(int8 index) public returns (uint256) {
+        if(index == 13){
             return 0x11223344556677889900112233; //push13
-//            return 0x1122334455667788990011223344; //push14
-//            return 0x112233445566778899001122334455; //push15
-//            return 0x11223344556677889900112233445566; //push16
-//            return 0x1122334455667788990011223344556611; //push17
-//            return 0x112233445566778899001122334455661111; //push18
-//            return 0x11223344556677889900112233445566111111; //push19
-//            return 0x112233445566778899001122334455661111111111; //push21
-//            return 0x11223344556677889900112233445566111111111111; //push22
-//            return 0x1122334455667788990011223344556611111111111111; //push23
-//            return 0x112233445566778899001122334455661111111111111111; //push24
-//            return 0x11223344556677889900112233445566111111111111111111; //push25
-//            return 0x1122334455667788990011223344556611111111111111111111; //push26
-//           return 0x112233445566778899001122334455661111111111111111111111; //push27
-//           return 0x11223344556677889900112233445566111111111111111111111111; //push28
-//         return 0x112233445566778899001122334455661111111111111111111111111111; //push30
+        }else if(index == 14){
+            return 0x1122334455667788990011223344;
+        }else if(index == 15){
+            return 0x112233445566778899001122334455;
+        }else if(index == 17){
+            return 0x1122334455667788990011223344556677;
+        }else if(index == 18){
+            return 0x112233445566778899001122334455667788;
+        }else if(index == 19){
+            return 0x11223344556677889900112233445566111111; //push19
+        }else if(index == 22){
+            return 0x11223344556677889900112233445566111111111111; //push22
+        }else if(index == 23){
+            return 0x1122334455667788990011223344556611111111111111; //push23
+        }else if(index == 24){
+            return 0x112233445566778899001122334455661111111111111111; //push24
+        }else if(index == 25){
+            return 0x11223344556677889900112233445566111111111111111111; //push25
+        }else if(index == 26){
+            return 0x1122334455667788990011223344556611111111111111111111; //push26
+        }else if(index == 27){
+            return 0x112233445566778899001122334455661111111111111111111111; //push27
+        }else if(index == 30){
+            return 0x112233445566778899001122334455661111111111111111111111111111; //push30
+        }else{
+            return 0x01;
+        }
     }
 
     // for test09Callcode

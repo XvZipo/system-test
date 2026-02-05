@@ -117,7 +117,7 @@ public class HttpTestProposal001 {
         "getMaintenanceTimeInterval",
         responseContent.getJSONArray("chainParameter").getJSONObject(0).get("key"));
     Assert.assertEquals(
-        300000, responseContent.getJSONArray("chainParameter").getJSONObject(0).get("value"));
+        180000, responseContent.getJSONArray("chainParameter").getJSONObject(0).get("value"));
     Assert.assertEquals(
         "getCreateAccountFee",
         responseContent.getJSONArray("chainParameter").getJSONObject(2).get("key"));

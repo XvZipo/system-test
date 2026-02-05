@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.primitives.Longs;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -24,10 +23,7 @@ import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
 import org.bouncycastle.util.encoders.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountNetMessage;
@@ -73,7 +69,6 @@ import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
 
 import org.tron.protos.Protocol.Account.FreezeV2;
-import org.tron.protos.Protocol.Account.Frozen;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
@@ -158,6 +153,7 @@ public class PublicMethed {
   public static String code;
 
   public static AtomicInteger randomFreezeAmount = new AtomicInteger(1);
+  public static AtomicInteger randomTimeOffset = new AtomicInteger(1);
 
   private static final String fullnode2 = Configuration.getByPath("testng.conf")
           .getStringList("fullnode.ip.list").get(1);
@@ -1139,6 +1135,10 @@ public class PublicMethed {
         .getProposalName(), blockingStubFull) > 0;
   }
 
+  public static Boolean allowTvmSelfdestructRestrictionIsActive(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
+            blockingStubFull) == 1;
+  }
 
   public static Boolean tronPowerProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
     return PublicMethed.getChainParametersValue(ProposalEnum.GetAllowNewResourceModel
@@ -5740,7 +5740,7 @@ public class PublicMethed {
     logger.debug("outputPath: " + outputPath);
     String cmd =
         compile
-            + " --optimize  --evm-version cancun --bin --abi --overwrite "
+            + " --optimize --bin --abi --overwrite "
             + absolutePath
             + "/"
             + solFile
@@ -5798,7 +5798,7 @@ public class PublicMethed {
     logger.debug("outputPath: " + outputPath);
     String cmd =
             compile
-                    + " --optimize " + param +" --evm-version cancun --bin --abi --overwrite "
+                    + " --optimize " + param +" --bin --abi --overwrite "
                     + absolutePath
                     + "/"
                     + solFile
@@ -8461,8 +8461,12 @@ public class PublicMethed {
     return null;
   }
 
+  public static GrpcAPI.WitnessList getPaginatedNowWitnessList(Long offset, Long limit, WalletBlockingStub blockingStubFull){
+    return blockingStubFull.getPaginatedNowWitnessList(GrpcAPI.PaginatedMessage.newBuilder().setLimit(limit).setOffset(offset).build());
+  }
 
-
-
+  public static GrpcAPI.WitnessList getPaginatedNowWitnessListSolidity(Long offset, Long limit, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity){
+    return blockingStubSolidity.getPaginatedNowWitnessList(GrpcAPI.PaginatedMessage.newBuilder().setLimit(limit).setOffset(offset).build());
+  }
 
 }

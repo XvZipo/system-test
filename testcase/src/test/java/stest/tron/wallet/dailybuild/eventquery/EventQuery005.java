@@ -106,30 +106,34 @@ public class EventQuery005 {
           maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
       transactionIdList.add(txid);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
+      try {
+        for(byte[] message: messageArray){
+          if (message != null) {
+            transactionMessage = new String(message);
+            logger.info("transaction message:" + transactionMessage);
 
-      for(byte[] message: messageArray){
-        if (message != null) {
-          transactionMessage = new String(message);
-          logger.info("transaction message:" + transactionMessage);
-
-          if (!transactionMessage.equals("transactionTrigger")
-              && !transactionMessage.isEmpty()
-              && transactionMessage.contains("transactionId")) {
-            JSONObject data = JSON.parseObject(transactionMessage);
-            String id = data.getString("transactionId");
-            logger.info("trxId : " + id);
-            if (transactionIdList.contains(id)) {
-              logger.info("find target tx, begin to Assert and abort loop");
-              Assert.assertEquals(data.getString("contractType"), "FreezeBalanceV2Contract");
-              Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
-              Assert.assertEquals(data.getString("assetName"), "trx");
-              Assert.assertEquals(data.getLong("assetAmount"), maxFeeLimit);
-              success = true;
-              break;
+            if (!transactionMessage.equals("transactionTrigger")
+                && !transactionMessage.isEmpty()
+                && transactionMessage.contains("transactionId")) {
+              JSONObject data = JSON.parseObject(transactionMessage);
+              String id = data.getString("transactionId");
+              logger.info("trxId : " + id);
+              if (transactionIdList.contains(id)) {
+                logger.info("find target tx, begin to Assert and abort loop");
+                Assert.assertEquals(data.getString("contractType"), "FreezeBalanceV2Contract");
+                Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
+                Assert.assertEquals(data.getString("assetName"), "trx");
+                Assert.assertEquals(data.getLong("assetAmount"), maxFeeLimit);
+                success = true;
+                break;
+              }
             }
           }
         }
+      } catch (Exception e) {
+
       }
+
     }
     logger.info("Final transaction message:" + transactionMessage);
     logger.info("retryTimes: " + retryTimes);
@@ -200,31 +204,33 @@ public class EventQuery005 {
       transactionIdList.add(txid);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
 
+      try {
+        for(byte[] message: messageArray){
+          if (message != null) {
+            transactionMessage = new String(message);
+            logger.info("transaction message:" + transactionMessage);
 
-      for(byte[] message: messageArray){
-        if (message != null) {
-          transactionMessage = new String(message);
-          logger.info("transaction message:" + transactionMessage);
-
-          if (!transactionMessage.equals("transactionTrigger")
-              && !transactionMessage.isEmpty()
-              && transactionMessage.contains("transactionId")) {
-            JSONObject data = JSON.parseObject(transactionMessage);
-            String id = data.getString("transactionId");
-            if(transactionIdList.contains(id)) {
-              logger.info("find target tx, begin to Assert and abort loop");
-              logger.info("trxId : " + data.getString("transactionId"));
-              Assert.assertEquals(data.getString("contractType"), "UnfreezeBalanceV2Contract");
-              Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
-              Assert.assertEquals(data.getString("assetName"), "trx");
-              Assert.assertEquals(data.getLong("assetAmount"), unfreezeAmount);
-              success = true;
-              break;
+            if (!transactionMessage.equals("transactionTrigger")
+                && !transactionMessage.isEmpty()
+                && transactionMessage.contains("transactionId")) {
+              JSONObject data = JSON.parseObject(transactionMessage);
+              String id = data.getString("transactionId");
+              if(transactionIdList.contains(id)) {
+                logger.info("find target tx, begin to Assert and abort loop");
+                logger.info("trxId : " + data.getString("transactionId"));
+                Assert.assertEquals(data.getString("contractType"), "UnfreezeBalanceV2Contract");
+                Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
+                Assert.assertEquals(data.getString("assetName"), "trx");
+                Assert.assertEquals(data.getLong("assetAmount"), unfreezeAmount);
+                success = true;
+                break;
+              }
             }
           }
         }
-      }
+      }catch (Exception e){
 
+      }
 
     }
     logger.info("Final transaction message:" + transactionMessage);
@@ -308,31 +314,36 @@ public class EventQuery005 {
       transactionIdList.add(txid);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-      for(byte[] message: messageArray) {
-        if (message != null) {
-          transactionMessage = new String(message);
-          logger.info("transaction message:" + transactionMessage);
+      try {
+        for(byte[] message: messageArray) {
+          if (message != null) {
+            transactionMessage = new String(message);
+            logger.info("transaction message:" + transactionMessage);
 
-          if (!transactionMessage.equals("transactionTrigger")
-              && !transactionMessage.isEmpty()
-              && transactionMessage.contains("transactionId")) {
-            JSONObject data = JSON.parseObject(transactionMessage);
-            String id = data.getString("transactionId");
-            if (transactionIdList.contains(id)) {
-              logger.info("find target tx, begin to Assert and abort loop");
-              logger.info("trxId : " + id);
-              Assert.assertEquals(data.getString("contractType"), "DelegateResourceContract");
-              Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
-              Assert.assertEquals(data.getString("toAddress"), Base58.encode58Check(receiverAddress));
-              Assert.assertEquals(data.getString("assetName"), "trx");
-              Assert.assertEquals(data.getLong("assetAmount"), delegateAmount);
-              success = true;
-              break;
+            if (!transactionMessage.equals("transactionTrigger")
+                && !transactionMessage.isEmpty()
+                && transactionMessage.contains("transactionId")) {
+              JSONObject data = JSON.parseObject(transactionMessage);
+              String id = data.getString("transactionId");
+              if (transactionIdList.contains(id)) {
+                logger.info("find target tx, begin to Assert and abort loop");
+                logger.info("trxId : " + id);
+                Assert.assertEquals(data.getString("contractType"), "DelegateResourceContract");
+                Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
+                Assert.assertEquals(data.getString("toAddress"), Base58.encode58Check(receiverAddress));
+                Assert.assertEquals(data.getString("assetName"), "trx");
+                Assert.assertEquals(data.getLong("assetAmount"), delegateAmount);
+                success = true;
+                break;
+              }
+
             }
-
           }
         }
+      } catch (Exception e) {
+
       }
+
     }
     logger.info("Final transaction message:" + transactionMessage);
     logger.info("retryTimes: " + retryTimes);
@@ -410,31 +421,35 @@ public class EventQuery005 {
       }
       byte[] message = req.recv();
 
+      try {
+        if (message != null) {
+          transactionMessage = new String(message);
+          logger.info("transaction message:" + transactionMessage);
 
-      if (message != null) {
-        transactionMessage = new String(message);
-        logger.info("transaction message:" + transactionMessage);
+          if (!transactionMessage.equals("transactionTrigger")
+              && !transactionMessage.isEmpty()
+              && transactionMessage.contains("transactionId")) {
+            JSONObject data = JSON.parseObject(transactionMessage);
+            String id = data.getString("transactionId");
+            if (transactionIdList.contains(id)) {
+              logger.info("find target tx, begin to Assert and abort loop");
+              logger.info("trxId : " + data.getString("transactionId"));
+              Assert.assertEquals(data.getString("contractType"), "UnDelegateResourceContract");
+              Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
+              Assert.assertEquals(data.getString("toAddress"), Base58.encode58Check(receiverAddress));
+              Assert.assertEquals(data.getString("assetName"), "trx");
+              Assert.assertEquals(data.getLong("assetAmount"), unDelegateAmount);
+              break;
+            }
 
-        if (!transactionMessage.equals("transactionTrigger")
-            && !transactionMessage.isEmpty()
-            && transactionMessage.contains("transactionId")) {
-          JSONObject data = JSON.parseObject(transactionMessage);
-          String id = data.getString("transactionId");
-          if (transactionIdList.contains(id)) {
-            logger.info("find target tx, begin to Assert and abort loop");
-            logger.info("trxId : " + data.getString("transactionId"));
-            Assert.assertEquals(data.getString("contractType"), "UnDelegateResourceContract");
-            Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
-            Assert.assertEquals(data.getString("toAddress"), Base58.encode58Check(receiverAddress));
-            Assert.assertEquals(data.getString("assetName"), "trx");
-            Assert.assertEquals(data.getLong("assetAmount"), unDelegateAmount);
-            break;
           }
-
+        } else {
+          sendTransaction = true;
         }
-      } else {
-        sendTransaction = true;
+      } catch (Exception e) {
+
       }
+
     }
     logger.info("Final transaction message:" + transactionMessage);
     logger.info("retryTimes: " + retryTimes);

@@ -149,7 +149,6 @@ public class MongoEventQuery002 extends MongoBase {
             testKeyForInternalTxsAddress,
             internalTxsAddress,
             blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     String contractName1 = "C";
     HashMap retMap1 = PublicMethed.getBycodeAbi(filePath, contractName1);
@@ -183,7 +182,7 @@ public class MongoEventQuery002 extends MongoBase {
             internalTxsAddress,
             testKeyForInternalTxsAddress,
             blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
     logger.info("txId:" + txId);
     String initParmes2 = "\"" + Base58.encode58Check(contractAddress1) + "\",\"1\"";
     txIdForInternalTransaction =
@@ -197,8 +196,6 @@ public class MongoEventQuery002 extends MongoBase {
             internalTxsAddress,
             testKeyForInternalTxsAddress,
             blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    logger.info("txIdForInternalTransaction:" + txIdForInternalTransaction);
 
     ecKey2 = new ECKey(Utils.getRandom());
     event002Address = ecKey2.getAddress();
@@ -223,12 +220,14 @@ public class MongoEventQuery002 extends MongoBase {
     Assert.assertTrue(
         PublicMethed.sendcoin(
             event002Address, maxFeeLimit * 30, fromAddress, testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Assert.assertTrue(
         PublicMethed.sendcoin(
             event003Address, 1000000000L, fromAddress, testKey002, blockingStubFull));
+
+
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    logger.info("txIdForInternalTransaction:" + txIdForInternalTransaction);
 
     contractName = "addressDemo";
     code = Configuration.getByPath("testng.conf").getString("code.code_ContractEventAndLog1");
@@ -250,12 +249,9 @@ public class MongoEventQuery002 extends MongoBase {
     Assert.assertTrue(
         PublicMethed.freezeBalanceGetEnergy(
             event002Address, freezeAmount, 0, 1, event002Key, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(
         PublicMethed.freezeBalanceGetEnergy(
             testNetAccountAddress, freezeAmount, 0, 1, testNetAccountKey, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     freezeAmount =
         PublicMethed.getFreezeBalanceCount(event003Address, event003Key, 5000L, blockingStubFull);
     logger.info("freezeAmount:" + freezeAmount);
@@ -355,7 +351,6 @@ public class MongoEventQuery002 extends MongoBase {
 */
 
     query = new BasicDBObject();
-    //PublicMethed.waitProduceNextBlock(blockingStubFull);
     //txIdIndex0 = txId;
     //txIdIndex2 = txId;
     query.put("transactionId", txIdIndex2);
@@ -379,7 +374,6 @@ public class MongoEventQuery002 extends MongoBase {
         contractAddressFromHttp, jsonObjectTxIdIndex2, txIdIndex2);
 
     query = new BasicDBObject();
-    //PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", txIdIndex0);
     findIterable = mongoDatabase.getCollection("transaction").find(query);
     mongoCursor = findIterable.iterator();
@@ -412,7 +406,7 @@ public class MongoEventQuery002 extends MongoBase {
     responseContent = HttpMethed.parseResponseContent(response);
     int size = responseContent.getJSONArray("internal_transactions").size();
     BasicDBObject query = new BasicDBObject();
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", txIdForInternalTransaction);
     FindIterable<org.bson.Document> findIterable =
         mongoDatabase.getCollection("transaction").find(query);
@@ -473,9 +467,7 @@ public class MongoEventQuery002 extends MongoBase {
     txId =
         HttpMethed.sendCoinGetTxid(httpFullNode, fromAddress, event002Address, amount, testKey002);
     logger.info("transfer trx Id：" + txId);
-    //HttpMethed.waitToProduceOneBlock(httpFullNode);
     BasicDBObject query = new BasicDBObject();
-    //PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", txId);
     FindIterable<org.bson.Document> findIterable =
         mongoDatabase.getCollection("transaction").find(query);
@@ -611,7 +603,6 @@ public class MongoEventQuery002 extends MongoBase {
     byte[] transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
     //Assert.assertTrue(PublicMethed.sendcoin(
     //    transferTokenContractAddress, 5000000, fromAddress, testKey002, blockingStubFull));
-    //PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     tokenId = assetAccountId.toStringUtf8();
     tokenValue = 10;
@@ -643,7 +634,6 @@ public class MongoEventQuery002 extends MongoBase {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     BasicDBObject query = new BasicDBObject();
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", triggerTxid);
     FindIterable<org.bson.Document> findIterable =
         mongoDatabase.getCollection("transaction").find(query);
@@ -793,7 +783,6 @@ public class MongoEventQuery002 extends MongoBase {
     while (useUpFreeBandwidth-- > 0) {
           PublicMethed.sendcoin(
               fromAddress, 1000000L + PublicMethed.randomFreezeAmount.addAndGet(1), event002Address, event002Key, blockingStubFull);
-      //PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
