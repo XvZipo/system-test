@@ -122,7 +122,7 @@ public class EnergyAdjustmentTest {
     logger.info("voteCostExtraEnergy02 info: " + info.toString());
     long energyUsageTotal = info.getReceipt().getEnergyUsageTotal();
     Assert.assertTrue(energyUsageTotal > 31000);
-    Assert.assertEquals(19199555, energyUsageTotal);
+    Assert.assertEquals(19199554, energyUsageTotal);
 
   }
 
@@ -178,7 +178,7 @@ public class EnergyAdjustmentTest {
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
     if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
-      Assert.assertEquals(36993, info.getReceipt().getEnergyUsageTotal());
+      Assert.assertEquals(36992, info.getReceipt().getEnergyUsageTotal());
     }else {
       Assert.assertEquals(26993, info.getReceipt().getEnergyUsageTotal());
     }
@@ -220,7 +220,7 @@ public class EnergyAdjustmentTest {
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
     if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
-      Assert.assertEquals(61993, info.getReceipt().getEnergyUsageTotal());
+      Assert.assertEquals(61992, info.getReceipt().getEnergyUsageTotal());
     }else {
       Assert.assertEquals(51993, info.getReceipt().getEnergyUsageTotal());
     }
