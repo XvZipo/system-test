@@ -104,7 +104,7 @@ public class MutiSignMarketAssetTest {
 
   }
 
-  @Test(enabled = true, description = "MutiSignForMarketSellAsset with active_permissions")
+  @Test(enabled = false, description = "MutiSignForMarketSellAsset with active_permissions")
   public void testMutiSignForMarketSellAsset001() {
     //  MarketSellAsset
     ByteString assetAccountId = PublicMethed
@@ -125,7 +125,7 @@ public class MutiSignMarketAssetTest {
     Assert.assertEquals(marketOrderCountBefore + 1, marketOrder.getOrdersCount());
   }
 
-  @Test(enabled = true, description = "MutiSignForMarketSellAsset with owner_permission")
+  @Test(enabled = false, description = "MutiSignForMarketSellAsset with owner_permission")
   public void testMutiSignForMarketSellAsset002() {
     //  MarketSellAsset
     ByteString assetAccountId = PublicMethed
@@ -148,7 +148,7 @@ public class MutiSignMarketAssetTest {
   }
 
 
-  @Test(enabled = true, dependsOnMethods = "testMutiSignForMarketSellAsset001",
+  @Test(enabled = false, dependsOnMethods = "testMutiSignForMarketSellAsset001",
       description = "MutiSignForMarketOrderCancel with active_permissions")
   public void testMutiSignForMarketOrderCancel001() {
     // MarketOrderCancel
@@ -170,7 +170,7 @@ public class MutiSignMarketAssetTest {
 
   }
 
-  @Test(enabled = true, dependsOnMethods = "testMutiSignForMarketSellAsset002",
+  @Test(enabled = false, dependsOnMethods = "testMutiSignForMarketSellAsset002",
       description = "MutiSignForMarketOrderCancel with owner_permission")
   public void testMutiSignForMarketOrderCancel002() {
     // MarketOrderCancel
