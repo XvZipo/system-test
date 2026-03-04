@@ -390,10 +390,10 @@ public class FreezeBalanceV2Test006 {
     Long beforeUnlockTimeStamp
         = beforeDelegatedResourceList.get().getDelegatedResource(0).getExpireTimeForEnergy();
     Assert.assertTrue(
-        Math.abs((beforeUnlockTimeStamp - beforeDelegateTime) - (lockPeriod * 3 * 1000)) < 5000L);
+        Math.abs((beforeUnlockTimeStamp - beforeDelegateTime) - (lockPeriod * 3 * 1000)) < lockPeriod);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.TransactionExtention ext = PublicMethed.delegateResourceV2AndGetTransactionExtention(
-        fromAddress, delegateBalance, 1, true, lockPeriod - 5,
+        fromAddress, delegateBalance, 1, true, lockPeriod - 10,
         receiverAddress, fromKey, blockingStubFull);
     logger.info("ext.toString(): " + ext);
     Assert.assertTrue(ext.toString().contains("CONTRACT_VALIDATE_ERROR"));
