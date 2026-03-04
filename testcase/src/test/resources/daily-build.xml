@@ -24,6 +24,10 @@
       <package name="stest.tron.wallet.dailybuild.jsonrpc"></package>
       <package name="stest.tron.wallet.dailybuild.zentrc20token"></package>
       <package name="stest.tron.wallet.dailybuild.eventquery"></package>
+    </packages>
+  </test>
+  <test name="Separate Execution Case" parallel = "classes" thread-count = "1" preserve-order="true">
+    <packages>
       <package name="stest.tron.wallet.dailybuild.separateExecution.*"></package>
     </packages>
   </test>
