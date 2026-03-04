@@ -356,7 +356,7 @@ public class GrpcReflectionTest002 {
 
     String data = String.format("{\"owner_address\":\"%s\",\"owner\":{\"type\":0,\"id\":0,\"permission_name\":\"owner\"," +
         "\"threshold\":1,\"keys\":[{\"address\":\"%s\",\"weight\":1}]},\"actives\":[{\"type\":2,\"id\":2," +
-        "\"permission_name\":\"active\",\"threshold\":1,\"operations\":\"f/8fwAM+8w8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"," +
+        "\"permission_name\":\"active\",\"threshold\":1,\"operations\":\"f/8fwAM+ww8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"," +
         "\"keys\":[{\"address\":\"%s\",\"weight\":1}]}]}",
         newAccountBase64,
         newAccountBase64,
