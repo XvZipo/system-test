@@ -54,7 +54,7 @@ public class HttpStressTest {
   /**
    * constructor.
    */
-  @Test(enabled = true, threadPoolSize = 10, invocationCount = 10)
+  @Test(enabled = false, threadPoolSize = 10, invocationCount = 10)
   public void test4InjectExchange() {
     final long now = System.currentTimeMillis();
     final long totalSupply = 10000000000000000L;

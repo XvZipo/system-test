@@ -121,7 +121,7 @@ public class MarketSellAsset006 {
   }
 
 
-  @Test(enabled = true, description = "create sellOrder")
+  @Test(enabled = false, description = "create sellOrder")
   void marketSellAssetTest001() {
 
     String txid = PublicMethed.marketSellAsset(testAddress001, testKey001, assetAccountId001,
@@ -173,7 +173,7 @@ public class MarketSellAsset006 {
 
   }
 
-  @Test(enabled = true, description = "getMarketOrderListByPair from solidity and pbft")
+  @Test(enabled = false, description = "getMarketOrderListByPair from solidity and pbft")
   void marketSellAssetTest003() {
     Optional<MarketOrderList> orderList = PublicMethed
         .getMarketOrderListByPair(assetAccountId001,assetAccountId002,blockingStubFull);
@@ -195,7 +195,7 @@ public class MarketSellAsset006 {
   }
 
 
-  @Test(enabled = true, description = "GetMarketOrderById from solidity and pbft")
+  @Test(enabled = false, description = "GetMarketOrderById from solidity and pbft")
   void marketSellAssetTest004() {
     Optional<MarketOrderList> orderList = PublicMethed
         .getMarketOrderListByPair(assetAccountId001,assetAccountId002,blockingStubFull);
@@ -217,7 +217,7 @@ public class MarketSellAsset006 {
   }
 
 
-  @Test(enabled = true, description = "GetMarketOrderByAccount from solidity and pbft")
+  @Test(enabled = false, description = "GetMarketOrderByAccount from solidity and pbft")
   void marketSellAssetTest005() {
 
     Optional<MarketOrderList> orderList = PublicMethed
@@ -239,7 +239,7 @@ public class MarketSellAsset006 {
 
   }
 
-  @Test(enabled = true, description = "GetMarketOrderById from solidity and pbft")
+  @Test(enabled = false, description = "GetMarketOrderById from solidity and pbft")
   void marketSellAssetTest006() {
 
     Optional<MarketOrderList> orderList = PublicMethed

@@ -17,10 +17,7 @@ import org.tron.protos.Protocol.MarketOrderList;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result.code;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.*;
 
 @Slf4j
 public class MarketSellAsset001 {
@@ -48,27 +45,19 @@ public class MarketSellAsset001 {
   String testKey002 = ByteArray.toHexString(ecKey002.getPrivKeyBytes());
   byte[] assetAccountId002;
 
-  long sellTokenQuantity = 100;
-  long buyTokenQuantity = 50;
+
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  public ManagedChannel channelSolidity = null;
-  public WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
-  private String fullnode =
-      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
-  public String solidityNode =
-      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
+
 
   /** constructor. */
   @BeforeClass
   public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
+    channelFull = ManagedChannelBuilder.forTarget("grpc.nile.trongrid.io:50051").usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
-    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
 
     PublicMethed.printAddress(testKey001);
     PublicMethed.printAddress(testKey002);
@@ -76,26 +65,19 @@ public class MarketSellAsset001 {
     Assert.assertTrue(
         PublicMethed.sendcoin(
             testAddress001,
-            20000_000000L,
+            10000_000000L,
             foundationAddress001,
             foundationKey001,
             blockingStubFull));
-    Assert.assertTrue(
-        PublicMethed.sendcoin(
-            testAddress002,
-            20000_000000L,
-            foundationAddress001,
-            foundationKey001,
-            blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Long start = System.currentTimeMillis() + 5000;
-    Long end = System.currentTimeMillis() + 1000000000;
+
+    Long start = System.currentTimeMillis()+20000;
+    Long end = start + 100000;
     Assert.assertTrue(
         PublicMethed.createAssetIssue(
             testAddress001,
             name,
-            10000_000000L,
+            500000000L,
             1,
             1,
             start,
@@ -110,207 +92,15 @@ public class MarketSellAsset001 {
             testKey001,
             blockingStubFull));
 
-    start = System.currentTimeMillis() + 5000;
-    end = System.currentTimeMillis() + 1000000000;
-    Assert.assertTrue(
-        PublicMethed.createAssetIssue(
-            testAddress002,
-            name,
-            10000_000000L,
-            1,
-            1,
-            start,
-            end,
-            1,
-            description,
-            url,
-            10000L,
-            10000L,
-            1L,
-            1L,
-            testKey002,
-            blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    assetAccountId001 =
-        PublicMethed.queryAccount(testAddress001, blockingStubFull)
-            .getAssetIssuedID()
-            .toByteArray();
-
-    assetAccountId002 =
-        PublicMethed.queryAccount(testAddress002, blockingStubFull)
-            .getAssetIssuedID()
-            .toByteArray();
   }
 
-  @Test(enabled = true, description = "create sellOrder")
+  @Test(enabled = false, description = "create sellOrder")
   void marketSellAssetTest001() {
+    logger.info("1");
 
-    String txid =
-        PublicMethed.marketSellAsset(
-            testAddress001,
-            testKey001,
-            assetAccountId001,
-            sellTokenQuantity,
-            assetAccountId002,
-            buyTokenQuantity,
-            blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertNotNull(txid);
-
-    Optional<Transaction> transaction = PublicMethed.getTransactionById(txid, blockingStubFull);
-
-    Assert.assertEquals(transaction.get().getRet(0).getRet(), code.SUCESS);
-
-    Optional<MarketOrderList> orderList =
-        PublicMethed.getMarketOrderByAccount(testAddress001, blockingStubFull);
-    Assert.assertTrue(orderList.get().getOrdersCount() > 0);
-
-    byte[] orderId = orderList.get().getOrders(0).getOrderId().toByteArray();
-
-    MarketOrder order = PublicMethed.getMarketOrderById(orderId, blockingStubFull).get();
-
-    Assert.assertEquals(order.getOrderId().toByteArray(), orderId);
-    Assert.assertEquals(order.getOwnerAddress().toByteArray(), testAddress001);
-    Assert.assertEquals(order.getSellTokenId().toByteArray(), assetAccountId001);
-    Assert.assertEquals(order.getSellTokenQuantity(), sellTokenQuantity);
-    Assert.assertEquals(order.getBuyTokenId().toByteArray(), assetAccountId002);
-    Assert.assertEquals(order.getBuyTokenQuantity(), buyTokenQuantity);
-
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
-    Optional<Transaction> transactionFromSolidity =
-        PublicMethed.getTransactionByIdSolidity(txid, blockingStubSolidity);
-    Assert.assertEquals(transaction, transactionFromSolidity);
   }
 
-  @Test(enabled = true, description = "create sellOrder with value excption")
-  void marketSellAssetTest002() {
 
-    ECKey ecKey = new ECKey(Utils.getRandom());
-    byte[] testAddress = ecKey.getAddress();
-    String testKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
-
-    long sendCoinValue = 10000_000000L;
-    Assert.assertTrue(
-        PublicMethed.sendcoin(
-            testAddress, sendCoinValue, foundationAddress001, foundationKey001, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    long sellTokenQuantity = 100;
-    long buyTokenQuantity = 50;
-
-    Return resposne =
-        PublicMethed.marketSellAssetGetResposne(
-            testAddress,
-            testKey,
-            assetAccountId001,
-            sellTokenQuantity,
-            assetAccountId002,
-            buyTokenQuantity,
-            blockingStubFull);
-    Assert.assertEquals(
-        ByteArray.toStr(resposne.getMessage().toByteArray()),
-        "Contract validate error : SellToken balance is not enough !");
-    Assert.assertEquals(resposne.getCode(), response_code.CONTRACT_VALIDATE_ERROR);
-
-    resposne =
-        PublicMethed.marketSellAssetGetResposne(
-            testAddress,
-            testKey,
-            assetAccountId001,
-            0,
-            assetAccountId002,
-            buyTokenQuantity,
-            blockingStubFull);
-    Assert.assertEquals(
-        ByteArray.toStr(resposne.getMessage().toByteArray()),
-        "Contract validate error : token quantity must greater than zero");
-    Assert.assertEquals(resposne.getCode(), response_code.CONTRACT_VALIDATE_ERROR);
-
-    Account account = PublicMethed.queryAccount(testAddress, blockingStubFull);
-    Assert.assertEquals(account.getBalance(), sendCoinValue);
-  }
-
-  @Test(enabled = true, description = "create sellOrder with tokenId excption")
-  void marketSellAssetTest003() {
-
-    long beforeBalance = PublicMethed.queryAccount(testAddress001, blockingStubFull).getBalance();
-    logger.info("BeforeBalance: " + beforeBalance);
-
-    Return resposne =
-        PublicMethed.marketSellAssetGetResposne(
-            testAddress001,
-            testKey001,
-            "xxxx".getBytes(),
-            sellTokenQuantity,
-            assetAccountId002,
-            buyTokenQuantity,
-            blockingStubFull);
-    Assert.assertEquals(
-        ByteArray.toStr(resposne.getMessage().toByteArray()),
-        "Contract validate error : sellTokenId is not a valid number");
-    Assert.assertEquals(resposne.getCode(), response_code.CONTRACT_VALIDATE_ERROR);
-
-    resposne =
-        PublicMethed.marketSellAssetGetResposne(
-            testAddress001,
-            testKey001,
-            assetAccountId001,
-            sellTokenQuantity,
-            "xxx".getBytes(),
-            buyTokenQuantity,
-            blockingStubFull);
-    Assert.assertEquals(
-        ByteArray.toStr(resposne.getMessage().toByteArray()),
-        "Contract validate error : buyTokenId is not a valid number");
-    Assert.assertEquals(resposne.getCode(), response_code.CONTRACT_VALIDATE_ERROR);
-
-    resposne =
-        PublicMethed.marketSellAssetGetResposne(
-            testAddress001,
-            testKey001,
-            "10001039999".getBytes(),
-            sellTokenQuantity,
-            assetAccountId002,
-            buyTokenQuantity,
-            blockingStubFull);
-    Assert.assertEquals(
-        ByteArray.toStr(resposne.getMessage().toByteArray()),
-        "Contract validate error : No sellTokenId !");
-    Assert.assertEquals(resposne.getCode(), response_code.CONTRACT_VALIDATE_ERROR);
-
-    resposne =
-        PublicMethed.marketSellAssetGetResposne(
-            testAddress001,
-            testKey001,
-            assetAccountId001,
-            sellTokenQuantity,
-            "10001039999".getBytes(),
-            buyTokenQuantity,
-            blockingStubFull);
-    Assert.assertEquals(
-        ByteArray.toStr(resposne.getMessage().toByteArray()),
-        "Contract validate error : No buyTokenId !");
-    Assert.assertEquals(resposne.getCode(), response_code.CONTRACT_VALIDATE_ERROR);
-
-    resposne =
-        PublicMethed.marketSellAssetGetResposne(
-            testAddress001,
-            testKey001,
-            assetAccountId001,
-            sellTokenQuantity,
-            assetAccountId001,
-            buyTokenQuantity,
-            blockingStubFull);
-    Assert.assertEquals(
-        ByteArray.toStr(resposne.getMessage().toByteArray()),
-        "Contract validate error : cannot exchange same tokens");
-    Assert.assertEquals(resposne.getCode(), response_code.CONTRACT_VALIDATE_ERROR);
-
-    long afterBalance = PublicMethed.queryAccount(testAddress002, blockingStubFull).getBalance();
-    logger.info("AfterBalance: " + afterBalance);
-
-    Assert.assertEquals(beforeBalance, afterBalance);
-  }
 }

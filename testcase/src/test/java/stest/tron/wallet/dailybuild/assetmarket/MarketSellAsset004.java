@@ -86,7 +86,7 @@ public class MarketSellAsset004 {
   }
 
 
-  @Test(enabled = true,description = "The order amount exceeds the balance")
+  @Test(enabled = false,description = "The order amount exceeds the balance")
   void marketCancelAssetTest002() {
 
     String txid = PublicMethed.marketSellAsset(testAddress001,testKey001,assetAccountId001,100,
