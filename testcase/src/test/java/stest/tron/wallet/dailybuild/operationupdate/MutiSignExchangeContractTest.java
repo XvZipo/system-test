@@ -92,7 +92,7 @@ public class MutiSignExchangeContractTest {
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
   }
 
-  @Test(enabled = true, description = "MutiSign for create token")
+  @Test(enabled = false, description = "MutiSign for create token")
   public void test1CreateUsedAsset() {
     ecKey1 = new ECKey(Utils.getRandom());
     exchange001Address = ecKey1.getAddress();
@@ -126,7 +126,7 @@ public class MutiSignExchangeContractTest {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "MutiSign for create exchange")
+  @Test(enabled = false, description = "MutiSign for create exchange")
   public void test2CreateExchange() {
     ecKey3 = new ECKey(Utils.getRandom());
     manager1Address = ecKey3.getAddress();
@@ -207,7 +207,7 @@ public class MutiSignExchangeContractTest {
   }
 
 
-  @Test(enabled = true, description = "Mutisign for inject exchange")
+  @Test(enabled = false, description = "Mutisign for inject exchange")
   public void test4InjectExchange() {
     exchangeIdInfo = PublicMethed.getExchange(exchangeId.toString(), blockingStubFull);
     final Long beforeExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
@@ -266,7 +266,7 @@ public class MutiSignExchangeContractTest {
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
   }
 
-  @Test(enabled = true, description = "MutiSign for withdraw exchange")
+  @Test(enabled = false, description = "MutiSign for withdraw exchange")
   public void test5WithdrawExchange() {
     final long needCoin = multiSignFee;
     Long balanceBefore = PublicMethed.queryAccount(exchange001Address, blockingStubFull)

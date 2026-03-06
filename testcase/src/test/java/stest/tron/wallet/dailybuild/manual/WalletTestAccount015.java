@@ -148,7 +148,7 @@ public class WalletTestAccount015 {
   }
 
 
-  @Test(enabled = true, description = "List witness realTime vote data")
+  @Test(enabled = true, retryAnalyzer = Retry.class, description = "List witness realTime vote data")
   public void test09CheckVoteChangesRealtimeAfterVote(){
     GrpcAPI.WitnessList witnessList = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
     GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubSolidity);

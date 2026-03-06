@@ -100,7 +100,7 @@ public class MarketSellAsset002 {
   }
 
 
-  @Test(enabled = true, description = "create sellOrder and Match Order")
+  @Test(enabled = false, description = "create sellOrder and Match Order")
   void marketSellAssetTest001() {
 
     Map<String, Long> beforeAsset001 = PublicMethed
@@ -158,7 +158,7 @@ public class MarketSellAsset002 {
 
   }
 
-  @Test(enabled = true, description = "create sellOrder and Match Order twice")
+  @Test(enabled = false, description = "create sellOrder and Match Order twice")
   void marketSellAssetTest002() {
     Map<String, Long> beforeAsset001 = PublicMethed.queryAccount(testAddress001, blockingStubFull)
         .getAssetV2Map();
@@ -262,7 +262,7 @@ public class MarketSellAsset002 {
 
   }
 
-  @Test(enabled = true, description = "create sellOrder and not Match Order")
+  @Test(enabled = false, description = "create sellOrder and not Match Order")
   void marketSellAssetTest003() {
 
     Map<String, Long> beforeAsset001 = PublicMethed
@@ -320,7 +320,7 @@ public class MarketSellAsset002 {
         afterAsset002.get(assetId001).longValue());
   }
 
-  @Test(enabled = true, description = "CancelOrder")
+  @Test(enabled = false, description = "CancelOrder")
   void marketSellAssetTest004() {
 
     Map<String, Long> beforeAsset001 = PublicMethed

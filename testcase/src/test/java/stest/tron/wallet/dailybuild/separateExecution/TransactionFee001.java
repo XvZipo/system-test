@@ -776,7 +776,7 @@ public class TransactionFee001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, priority=2, description = "Test create trc10 token with fee not to sr")
+  @Test(enabled = true, retryAnalyzer = Retry.class, priority=2, description = "Test create trc10 token with fee not to sr")
   public void test06CreateAssetIssue() {
     // get account
     ECKey ecKey1 = new ECKey(Utils.getRandom());

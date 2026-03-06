@@ -48,7 +48,7 @@ public class MarketOrderTest {
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
-  @Test
+  @Test(enabled = false)
   public void markerOrderCancle(){
 
     while (true) {

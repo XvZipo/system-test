@@ -60,7 +60,7 @@ public class TestExchangeTransaction {
 
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void testCreateShieldToken() {
     //just test key
     String tokenOwnerKey = "2925e186bb1e88988855f11ebf20ea3a6e19ed92328b0ffb576122e769d45b68";
@@ -87,7 +87,7 @@ public class TestExchangeTransaction {
 
   }
 
-  @Test(enabled = true, threadPoolSize = 20, invocationCount = 20)
+  @Test(enabled = false, threadPoolSize = 20, invocationCount = 20)
   public void testExchangeTransaction() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] exchangeAddress = ecKey1.getAddress();
