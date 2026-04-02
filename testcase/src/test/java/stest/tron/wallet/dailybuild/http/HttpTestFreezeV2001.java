@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.http;
 
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.grpc.ManagedChannelBuilder;
@@ -12,6 +13,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.WalletGrpc;
+import stest.tron.wallet.common.client.AbstractHttpEndpoints124;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.*;
 
@@ -20,7 +22,7 @@ import stest.tron.wallet.common.client.utils.*;
  *
  */
 @Slf4j
-public class HttpTestFreezeV2001 {
+public class HttpTestFreezeV2001 extends AbstractHttpEndpoints124 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -54,13 +56,6 @@ public class HttpTestFreezeV2001 {
   Long delegateAmount = 1000000L;
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(1);
-  private String httpSoliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
-
 
   /**
    * constructor.

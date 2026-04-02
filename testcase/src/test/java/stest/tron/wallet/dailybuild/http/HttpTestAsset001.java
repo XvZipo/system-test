@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.http;
 
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,7 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.AbstractHttpEndpoints124;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -16,7 +18,7 @@ import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.Base58;
 
 @Slf4j
-public class HttpTestAsset001 {
+public class HttpTestAsset001 extends AbstractHttpEndpoints124 {
 
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
@@ -44,13 +46,6 @@ public class HttpTestAsset001 {
   private JSONObject getAssetIssueByIdContent;
   private JSONObject getAssetIssueByNameContent;
   private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(1);
-  private String httpSoliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
-
 
   /**
    * constructor.

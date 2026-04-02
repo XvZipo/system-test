@@ -7,6 +7,7 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.AbstractHttpSmartContractNodes023;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -15,7 +16,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class HttpTestSmartContract001 {
+public class HttpTestSmartContract001 extends AbstractHttpSmartContractNodes023 {
 
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
@@ -38,12 +39,6 @@ public class HttpTestSmartContract001 {
   String url = Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
-  private String httpSolidityNode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(2);
-  private String httpRealSolidityNode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(3);
   String txid1;
   String txid2;
   JSONObject responseCon1;

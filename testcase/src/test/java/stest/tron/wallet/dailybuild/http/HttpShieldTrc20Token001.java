@@ -12,16 +12,16 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.Note;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.AbstractZenTrc20HttpNodes02;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.ShieldAddressInfo;
 import stest.tron.wallet.common.client.utils.ShieldNoteInfo;
 import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.ZenTrc20Base;
 import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
 
 @Slf4j
-public class HttpShieldTrc20Token001 extends ZenTrc20Base {
+public class HttpShieldTrc20Token001 extends AbstractZenTrc20HttpNodes02 {
   List<Note> shieldOutList = new ArrayList<>();
   Optional<ShieldAddressInfo> shieldAddressOptionalInfo1;
   Optional<ShieldAddressInfo> shieldAddressOptionalInfo2;
@@ -54,10 +54,6 @@ public class HttpShieldTrc20Token001 extends ZenTrc20Base {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] zenTokenOwnerAddress = ecKey1.getAddress();
   String zenTokenOwnerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private String httpnode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(0);
-  private String httpSolidityNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
   private JSONObject responseContent;
   private HttpResponse response;
 

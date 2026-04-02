@@ -55,3 +55,8 @@ Wallet
 
 # vm_trace
 /vm_trace/
+
+# local migration scripts
+*.py
+__pycache__/
+*.pyc

@@ -9,23 +9,15 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import stest.tron.wallet.common.client.Configuration;
+import stest.tron.wallet.common.client.utils.AbstractZenTrc20HttpNodes0124;
 import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.ZenTrc20Base;
 
 @Slf4j
-public class HttpShieldTrc20Token004 extends ZenTrc20Base {
+public class HttpShieldTrc20Token004 extends AbstractZenTrc20HttpNodes0124 {
 
   JSONArray shieldedReceives = new JSONArray();
   String txid;
   JSONArray shieldSpends = new JSONArray();
-  private String httpnode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(0);
-  private String anotherHttpnode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(1);
-  private String httpSolidityNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode = Configuration.getByPath("testng.conf")
-          .getStringList("httpnode.ip.list").get(4);
   private JSONObject responseContent;
   private HttpResponse response;
   private JSONObject shieldAccountInfo1;

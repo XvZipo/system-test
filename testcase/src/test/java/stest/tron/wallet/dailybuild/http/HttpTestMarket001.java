@@ -1,11 +1,13 @@
 package stest.tron.wallet.dailybuild.http;
 
+
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.AbstractHttpEndpointsZen124;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
@@ -15,7 +17,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class HttpTestMarket001 {
+public class HttpTestMarket001 extends AbstractHttpEndpointsZen124 {
 
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
@@ -60,13 +62,6 @@ public class HttpTestMarket001 {
   private JSONObject getMarketPriceByPairContentFromSolidity;
   private JSONObject getMarketPriceByPairContentFromPbft;
   private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(1);
-  private String httpSolidityNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
-
 
   /**
    * constructor.

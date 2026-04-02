@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.http;
 
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,7 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.AbstractHttpEndpoints124;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -15,7 +17,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class HttpTestSendCoin001 {
+public class HttpTestSendCoin001 extends AbstractHttpEndpoints124 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -24,12 +26,6 @@ public class HttpTestSendCoin001 {
   byte[] receiverAddress = ecKey1.getAddress();
   String receiverKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   Long amount = 1000L;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(1);
-  private String httpSoliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
   private JSONObject responseContent;
   private HttpResponse response;
   String txid;

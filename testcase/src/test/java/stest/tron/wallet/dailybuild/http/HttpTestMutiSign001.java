@@ -15,6 +15,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.WalletGrpc;
+import stest.tron.wallet.common.client.AbstractHttpNode1;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -24,7 +25,7 @@ import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class HttpTestMutiSign001 {
+public class HttpTestMutiSign001 extends AbstractHttpNode1 {
 
   private final String testKey002 =
       Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
@@ -62,8 +63,6 @@ public class HttpTestMutiSign001 {
   JsonObject activeObject = new JsonObject();
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(1);
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode =

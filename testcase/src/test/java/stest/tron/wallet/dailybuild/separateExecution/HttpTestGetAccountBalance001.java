@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.AbstractHttpEndpointsZen024;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -16,19 +17,13 @@ import stest.tron.wallet.common.client.utils.Retry;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class HttpTestGetAccountBalance001 {
+public class HttpTestGetAccountBalance001 extends AbstractHttpEndpointsZen024 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(0);
-  private String httpPbftNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
-  private String httpSolidityNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] assetOwnerAddress = ecKey2.getAddress();
   String assetOwnerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());

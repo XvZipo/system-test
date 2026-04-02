@@ -1,8 +1,6 @@
 package stest.tron.wallet.transfer;
 
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import java.math.BigInteger;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +14,6 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.BytesMessage;
 import org.tron.api.GrpcAPI.NumberMessage;
-import org.tron.api.WalletExtensionGrpc;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol;
@@ -26,6 +23,7 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.AccountContract.AccountUpdateContract;
 import org.tron.protos.contract.BalanceContract;
+import stest.tron.wallet.common.client.AbstractGrpcDualFullAndSolidityExtensionTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.CommonParameter;
@@ -37,7 +35,7 @@ import stest.tron.wallet.common.client.utils.Utils;
 
 
 @Slf4j
-public class WalletTestTransfer003 {
+public class WalletTestTransfer003 extends AbstractGrpcDualFullAndSolidityExtensionTest {
 
   private static final long now = System.currentTimeMillis();
   private static final String name = "transaction007_" + Long.toString(now);
@@ -56,19 +54,7 @@ public class WalletTestTransfer003 {
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] newAccountAddress = ecKey2.getAddress();
   String testKeyForNewAccount = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-  private ManagedChannel channelFull = null;
-  private ManagedChannel channelFull1 = null;
-  private ManagedChannel channelSolidity = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-  private WalletExtensionGrpc.WalletExtensionBlockingStub blockingStubExtension = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  // gRPC setup handled by base classes.
 
   public static String loadPubKey() {
     char[] buf = new char[0x100];
@@ -126,26 +112,7 @@ public class WalletTestTransfer003 {
    * constructor.
    */
 
-  @BeforeClass
-  public void beforeClass() {
-    logger.info(testKeyForSendCoin);
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
-    blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-
-    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
-    blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
-
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
-    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
-    blockingStubExtension = WalletExtensionGrpc.newBlockingStub(channelSolidity);
-
-  }
+  // gRPC setup handled by base classes.
 
   @Test(enabled = true)
   public void test1UseFeeOrNet() {

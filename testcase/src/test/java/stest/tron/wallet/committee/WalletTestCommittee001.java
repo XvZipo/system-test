@@ -1,7 +1,8 @@
 package stest.tron.wallet.committee;
 
+
+import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +21,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 
 
 @Slf4j
-public class WalletTestCommittee001 {
+public class WalletTestCommittee001 extends AbstractGrpcFullSolidityTest {
 
   private static final long now = System.currentTimeMillis();
   private final String testKey002 = Configuration.getByPath("testng.conf")
@@ -49,33 +50,7 @@ public class WalletTestCommittee001 {
   private final byte[] witness003Address = PublicMethed.getFinalAddress(witnessKey003);
   private final byte[] witness004Address = PublicMethed.getFinalAddress(witnessKey004);
   private final byte[] witness005Address = PublicMethed.getFinalAddress(witnessKey005);
-  private ManagedChannel channelFull = null;
-  private ManagedChannel channelSolidity = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
 
-  
-
-  /**
-   * constructor.
-   */
-
-  @BeforeClass
-  public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
-    blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
-    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
-  }
 
 
   @Test

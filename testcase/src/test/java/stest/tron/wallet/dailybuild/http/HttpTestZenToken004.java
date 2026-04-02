@@ -12,6 +12,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.Note;
 import stest.tron.wallet.common.client.Configuration;
+import stest.tron.wallet.common.client.AbstractHttpEndpointsZen024;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
@@ -21,7 +22,7 @@ import stest.tron.wallet.common.client.utils.ShieldNoteInfo;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class HttpTestZenToken004 {
+public class HttpTestZenToken004 extends AbstractHttpEndpointsZen024 {
 
   Optional<ShieldAddressInfo> sendShieldAddressInfo;
   Optional<ShieldAddressInfo> receiverShieldAddressInfo1;
@@ -51,10 +52,6 @@ public class HttpTestZenToken004 {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] receiverPublicAddress = ecKey1.getAddress();
   String receiverPublicKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
-  private String httpSolidityNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
   private String foundationZenTokenKey = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.zenTokenOwnerKey");
   byte[] foundationZenTokenAddress = PublicMethed.getFinalAddress(foundationZenTokenKey);

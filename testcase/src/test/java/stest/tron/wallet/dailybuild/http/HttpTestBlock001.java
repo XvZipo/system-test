@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.http;
 
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -10,6 +11,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.AbstractHttpEndpoints024;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
@@ -19,17 +21,10 @@ import stest.tron.wallet.common.client.utils.Utils;
 
 
 @Slf4j
-public class HttpTestBlock001 {
+public class HttpTestBlock001 extends AbstractHttpEndpoints024 {
 
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
-  private String httpSoliditynode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(4);
-
   private final String testKey002 =
       Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);

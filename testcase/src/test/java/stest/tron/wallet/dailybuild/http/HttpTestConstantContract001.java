@@ -11,11 +11,12 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import org.tron.api.WalletGrpc;
+import stest.tron.wallet.common.client.AbstractHttpNodes01;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.*;
 
 @Slf4j
-public class HttpTestConstantContract001 {
+public class HttpTestConstantContract001 extends AbstractHttpNodes01 {
 
   private static String contractName;
   private final String testKey002 = Configuration.getByPath("testng.conf")
@@ -28,10 +29,6 @@ public class HttpTestConstantContract001 {
   Long amount = 2048000000L;
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
-  private String httpnode1 = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(1);
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
 

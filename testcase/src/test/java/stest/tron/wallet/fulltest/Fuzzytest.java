@@ -11,11 +11,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AssetIssueList;
-import org.tron.api.WalletExtensionGrpc;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol;
 import org.tron.protos.contract.AssetIssueContractOuterClass;
+import stest.tron.wallet.common.client.AbstractGrpcFullSolidityExtensionTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -24,7 +24,7 @@ import stest.tron.wallet.common.client.utils.TransactionUtils;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class Fuzzytest {
+public class Fuzzytest extends AbstractGrpcFullSolidityExtensionTest {
 
   private static final long sendAmount = 10000000000L;
   private static final long netCostMeasure = 200L;
@@ -48,15 +48,7 @@ public class Fuzzytest {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] asset017Address = ecKey1.getAddress();
   String testKeyForAssetIssue017 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private ManagedChannel channelFull = null;
-  private ManagedChannel channelSolidity = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-  private WalletExtensionGrpc.WalletExtensionBlockingStub blockingStubExtension = null;
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  // gRPC setup handled by base classes.
 
   /**
    * constructor.
@@ -140,17 +132,6 @@ public class Fuzzytest {
 
   @BeforeClass(enabled = false)
   public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
-    blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
-    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
-    blockingStubExtension = WalletExtensionGrpc.newBlockingStub(channelSolidity);
-
     AssetIssueList assetIssueList = blockingStubFull
         .getAssetIssueList(GrpcAPI.EmptyMessage.newBuilder().build());
     Assert.assertTrue(PublicMethed.freezeBalance(fromAddress, 10000000, 3, testKey002,

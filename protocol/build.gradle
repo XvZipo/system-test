@@ -16,6 +16,7 @@ dependencies {
     // end google grpc
 
     implementation group: 'com.google.api.grpc', name: 'googleapis-common-protos', version: '0.0.3'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
 }
 
 tasks.matching { it instanceof Test }.all {
@@ -29,7 +30,6 @@ sourceSets {
         }
         java {
             srcDir 'src/main/gen'
-            srcDir 'src/main/java'
         }
     }
 
@@ -37,7 +37,6 @@ sourceSets {
 
 
 protobuf {
-    generatedFilesBaseDir = "$projectDir/src/"
     protoc {
         artifact = "com.google.protobuf:protoc:${protobufVersion}"
     }
@@ -60,9 +59,5 @@ protobuf {
             }
         }
     }
-}
-
-clean.doFirst {
-    delete "src/main/java"
 }
 

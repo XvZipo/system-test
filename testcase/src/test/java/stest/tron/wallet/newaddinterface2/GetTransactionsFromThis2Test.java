@@ -1,8 +1,6 @@
 package stest.tron.wallet.newaddinterface2;
 
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -15,12 +13,12 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountPaginated;
 import org.tron.api.GrpcAPI.NumberMessage;
-import org.tron.api.WalletExtensionGrpc;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
+import stest.tron.wallet.common.client.AbstractGrpcFullSolidityExtensionTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -29,7 +27,7 @@ import stest.tron.wallet.common.client.utils.TransactionUtils;
 
 
 @Slf4j
-public class GetTransactionsFromThis2Test {
+public class GetTransactionsFromThis2Test extends AbstractGrpcFullSolidityExtensionTest {
 
   private static final byte[] INVAILD_ADDRESS =
       Base58.decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
@@ -42,16 +40,6 @@ public class GetTransactionsFromThis2Test {
       "DCB620820121A866E4E25905DC37F5025BFA5420B781C69E1BC6E1D83038C88A";
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
-  private ManagedChannel channelFull = null;
-  private ManagedChannel channelSolidity = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-  private WalletExtensionGrpc.WalletExtensionBlockingStub blockingStubExtension = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
-
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
@@ -63,20 +51,7 @@ public class GetTransactionsFromThis2Test {
    * constructor.
    */
 
-  @BeforeClass
-  public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
-    blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
-    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
-    blockingStubExtension = WalletExtensionGrpc.newBlockingStub(channelSolidity);
-
-  }
+  // gRPC setup handled by base classes.
 
   @Test(enabled = false)
   public void testgetTransactionsFromThis2() {

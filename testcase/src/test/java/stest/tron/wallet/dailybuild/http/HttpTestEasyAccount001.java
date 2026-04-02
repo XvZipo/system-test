@@ -6,6 +6,7 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.AbstractHttpNode0;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.ByteArray;
@@ -15,7 +16,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class HttpTestEasyAccount001 {
+public class HttpTestEasyAccount001 extends AbstractHttpNode0 {
 
   private static String assetIssueId;
   private final String testKey002 = Configuration.getByPath("testng.conf")
@@ -37,8 +38,6 @@ public class HttpTestEasyAccount001 {
   String assetKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
   private long now = System.currentTimeMillis();
   private final long totalSupply = now;
   private String userPassword = "ps_" + now;

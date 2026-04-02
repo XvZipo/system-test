@@ -8,6 +8,7 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.AbstractHttpNode0;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.HttpMethed;
@@ -15,7 +16,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 
 
 @Slf4j
-public class HttpTestProposal001 {
+public class HttpTestProposal001 extends AbstractHttpNode0 {
 
   private static Integer proposalId;
   private final String testKey002 =
@@ -27,8 +28,6 @@ public class HttpTestProposal001 {
   private final String witnessKey002 =
       Configuration.getByPath("testng.conf").getString("witness.key2");
   private final byte[] witness2Address = PublicMethed.getFinalAddress(witnessKey002);
-  private String httpnode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
   private JSONObject responseContent;
   private HttpResponse response;
   private int energyFee = 0;

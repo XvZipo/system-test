@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.http;
 
+
 import com.alibaba.fastjson.JSONObject;
 import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,7 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.AbstractHttpEndpoints124;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -15,7 +17,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class HttpTestMortgageMechanism01 {
+public class HttpTestMortgageMechanism01 extends AbstractHttpEndpoints124 {
 
   private static final long now = System.currentTimeMillis();
   private final String testKey002 =
@@ -33,12 +35,6 @@ public class HttpTestMortgageMechanism01 {
   String url = Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(1);
-  private String httpSoliditynode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(4);
   private ECKey ecKey1 = new ECKey(Utils.getRandom());
   private byte[] dev001Address = ecKey1.getAddress();
   private String dev001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());

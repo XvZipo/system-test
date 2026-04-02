@@ -1,8 +1,9 @@
 package stest.tron.wallet.dailybuild.assetissue;
 
+
+import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +22,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class WalletTestAssetIssue006 {
+public class WalletTestAssetIssue006 extends AbstractGrpcFullSolidityTest {
 
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
@@ -38,16 +39,7 @@ public class WalletTestAssetIssue006 {
   ECKey ecKey = new ECKey(Utils.getRandom());
   byte[] queryAssetIssueFromSoliAddress = ecKey.getAddress();
   String queryAssetIssueKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
-  private ManagedChannel channelFull = null;
-  private ManagedChannel channelSolidity = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
-
-  public static String loadPubKey() {
+public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
@@ -129,24 +121,7 @@ public class WalletTestAssetIssue006 {
 
   }*/
 
-  /**
-   * constructor.
-   */
-
-  @BeforeClass(enabled = false)
-  public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
-    blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
-    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
-
-
-  }
+  
 
   /**
    * constructor.

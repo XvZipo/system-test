@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.http;
 
+
 import com.alibaba.fastjson.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.Note;
+import stest.tron.wallet.common.client.AbstractHttpEndpointsZen024;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -22,7 +24,7 @@ import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
 
 @Slf4j
-public class HttpTestZenToken001 {
+public class HttpTestZenToken001 extends AbstractHttpEndpointsZen024 {
 
   List<Note> shieldOutList = new ArrayList<>();
   Optional<ShieldAddressInfo> shieldAddressOptionalInfo1;
@@ -56,12 +58,6 @@ public class HttpTestZenToken001 {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] zenTokenOwnerAddress = ecKey1.getAddress();
   String zenTokenOwnerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
-  private String httpSolidityNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
   private String foundationZenTokenKey = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.zenTokenOwnerKey");
   byte[] foundationZenTokenAddress = PublicMethed.getFinalAddress(foundationZenTokenKey);

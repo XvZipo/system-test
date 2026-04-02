@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.http;
 
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
@@ -14,6 +15,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.protos.Protocol;
+import stest.tron.wallet.common.client.AbstractHttpEndpoints024;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -22,7 +24,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class HttpTestAccount003 {
+public class HttpTestAccount003 extends AbstractHttpEndpoints024 {
 
   private static String updateAccountName = "updateAccount_" + System.currentTimeMillis();
   private static String updateUrl = "http://www.update.url" + System.currentTimeMillis();
@@ -50,14 +52,7 @@ public class HttpTestAccount003 {
 
   private Long frozenBalance = 40000000L;
   private HttpResponse response;
-  private String httpnode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
-  private String httpSoliditynode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode =
-      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(4);
-
-  /** constructor. */
+/** constructor. */
   @Test(enabled = true, description = "Update account by http")
   public void test01UpdateAccount() {
     response = HttpMethed.sendCoin(httpnode, fromAddress, updateAccountAddress, amount, testKey002);

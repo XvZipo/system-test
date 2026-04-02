@@ -9,6 +9,7 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.AbstractHttpEndpoints024;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -17,7 +18,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class HttpTestClearAbiContract001 {
+public class HttpTestClearAbiContract001 extends AbstractHttpEndpoints024 {
 
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
@@ -39,12 +40,6 @@ public class HttpTestClearAbiContract001 {
   String url = Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
-  private String httpSoliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String httpPbftnode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
 
   /**
    * constructor.
@@ -130,7 +125,7 @@ public class HttpTestClearAbiContract001 {
     Assert.assertEquals(responseContent.getString("constant_result"),
             "[\"0000000000000000000000000000000000000000000000000000000000000001\"]");
 
-    httpResponse = HttpMethed.triggerConstantContractFromPbft(httpPbftnode, assetOwnerAddress,
+    httpResponse = HttpMethed.triggerConstantContractFromPbft(httpPbftNode, assetOwnerAddress,
         contractAddress, "testView()", "");
 
     responseContent = HttpMethed.parseResponseContent(httpResponse);

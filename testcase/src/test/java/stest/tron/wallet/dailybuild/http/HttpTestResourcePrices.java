@@ -4,21 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.AbstractHttpEndpoints0243;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.ProposalEnum;
 
-public class HttpTestResourcePrices {
+public class HttpTestResourcePrices extends AbstractHttpEndpoints0243 {
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
-  private String httpSoliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
-  private String httpnodeSolidityPort = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(3);
 
 
   @Test(enabled = true, description = "get MemoFee from http interface")
