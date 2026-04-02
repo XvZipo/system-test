@@ -1,7 +1,5 @@
 package stest.tron.wallet.onlinestress;
 
-
-import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import io.grpc.ManagedChannel;
 import java.util.HashMap;
 import java.util.Optional;
@@ -16,9 +14,9 @@ import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.ChainParameters;
+import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
-
 
 @Slf4j
 public class TestApproveProposal extends AbstractGrpcFullSolidityTest {

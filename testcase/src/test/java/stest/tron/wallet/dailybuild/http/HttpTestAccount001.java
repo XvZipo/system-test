@@ -1,6 +1,5 @@
 package stest.tron.wallet.dailybuild.http;
 
-
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -15,15 +14,13 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 @Slf4j
 public class HttpTestAccount001 extends AbstractHttpEndpoints024 {
 
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   private JSONObject responseContent;
   private HttpResponse response;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get account by http")
   public void getAccount() {
     response = HttpMethed.getAccount(httpnode, fromAddress);
@@ -34,9 +31,7 @@ public class HttpTestAccount001 extends AbstractHttpEndpoints024 {
     Assert.assertTrue(responseContent.size() > 3);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get account from solidity by http")
   public void getAccountFromSolidity() {
     response = HttpMethed.getAccountFromSolidity(httpSoliditynode, fromAddress);
@@ -47,9 +42,7 @@ public class HttpTestAccount001 extends AbstractHttpEndpoints024 {
     Assert.assertTrue(responseContent.size() > 3);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get account from PBFT by http")
   public void getAccountFromPbftNode() {
     response = HttpMethed.getAccountFromPbft(httpPbftNode, fromAddress);
@@ -60,10 +53,7 @@ public class HttpTestAccount001 extends AbstractHttpEndpoints024 {
     Assert.assertTrue(responseContent.size() > 3);
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get accountNet by http")
   public void getAccountNet() {
     response = HttpMethed.getAccountNet(httpnode, fromAddress);
@@ -72,14 +62,12 @@ public class HttpTestAccount001 extends AbstractHttpEndpoints024 {
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     Assert.assertEquals(Integer.parseInt(responseContent.get("freeNetLimit").toString()), 1500);
-    Assert.assertEquals(Long.parseLong(responseContent.get("TotalNetLimit").toString()),
-        43200000000L);
+    Assert.assertEquals(
+        Long.parseLong(responseContent.get("TotalNetLimit").toString()), 43200000000L);
     Assert.assertTrue(responseContent.size() >= 2);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get accountResource by http")
   public void getAccountResource() {
     response = HttpMethed.getAccountReource(httpnode, fromAddress);
@@ -92,10 +80,7 @@ public class HttpTestAccount001 extends AbstractHttpEndpoints024 {
     Assert.assertTrue(responseContent.size() >= 3);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     HttpMethed.disConnect();

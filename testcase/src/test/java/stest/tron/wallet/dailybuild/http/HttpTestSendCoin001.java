@@ -1,6 +1,5 @@
 package stest.tron.wallet.dailybuild.http;
 
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +18,8 @@ import stest.tron.wallet.common.client.utils.Utils;
 @Slf4j
 public class HttpTestSendCoin001 extends AbstractHttpEndpoints124 {
 
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] receiverAddress = ecKey1.getAddress();
@@ -29,9 +28,8 @@ public class HttpTestSendCoin001 extends AbstractHttpEndpoints124 {
   private JSONObject responseContent;
   private HttpResponse response;
   String txid;
-  /**
-   * constructor.
-   */
+
+  /** constructor. */
   @Test(enabled = true, description = "SendCoin by http")
   public void test1SendCoin() {
     response = HttpMethed.sendCoin(httpnode, fromAddress, receiverAddress, amount, testKey002);
@@ -40,13 +38,10 @@ public class HttpTestSendCoin001 extends AbstractHttpEndpoints124 {
     Assert.assertEquals(HttpMethed.getBalance(httpnode, receiverAddress), amount);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get transaction by id from solidity by http")
   public void test2GetTransactionByIdFromSolidity() {
-    txid = HttpMethed
-        .sendCoinGetTxid(httpnode, fromAddress, receiverAddress, amount, testKey002);
+    txid = HttpMethed.sendCoinGetTxid(httpnode, fromAddress, receiverAddress, amount, testKey002);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
 
     response = HttpMethed.getTransactionByIdFromSolidity(httpSoliditynode, txid);
@@ -59,9 +54,7 @@ public class HttpTestSendCoin001 extends AbstractHttpEndpoints124 {
     Assert.assertTrue(responseContent.size() > 4);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get transaction by id from PBFT by http")
   public void test3GetTransactionByIdFromPbft() {
     response = HttpMethed.getTransactionByIdFromPbft(httpPbftNode, txid);
@@ -74,10 +67,7 @@ public class HttpTestSendCoin001 extends AbstractHttpEndpoints124 {
     Assert.assertTrue(responseContent.size() > 4);
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get transaction info by id from solidity by http")
   public void test4GetTransactionInfoByIdFromSolidity() {
     response = HttpMethed.getTransactionInfoByIdFromSolidity(httpSoliditynode, txid);
@@ -86,9 +76,7 @@ public class HttpTestSendCoin001 extends AbstractHttpEndpoints124 {
     Assert.assertTrue(responseContent.size() > 4);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get transaction info by id from PBFT by http")
   public void test5GetTransactionInfoByIdFromPbft() {
     response = HttpMethed.getTransactionInfoByIdFromPbft(httpPbftNode, txid);
@@ -97,19 +85,17 @@ public class HttpTestSendCoin001 extends AbstractHttpEndpoints124 {
     Assert.assertTrue(responseContent.size() > 4);
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Get transactions from this from solidity by http")
   public void test4GetTransactionsFromThisFromSolidity() {
-    response = HttpMethed
-        .getTransactionsFromThisFromSolidity(httpSoliditynode, fromAddress, 0, 100);
+    response =
+        HttpMethed.getTransactionsFromThisFromSolidity(httpSoliditynode, fromAddress, 0, 100);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    JSONObject transactionObject = HttpMethed.parseStringContent(
-        JSONArray.parseArray(responseContent.getString("transaction")).get(0).toString());
+    JSONObject transactionObject =
+        HttpMethed.parseStringContent(
+            JSONArray.parseArray(responseContent.getString("transaction")).get(0).toString());
     String retString = transactionObject.getString("ret");
     JSONArray array = JSONArray.parseArray(retString);
     Assert.assertEquals(
@@ -117,18 +103,17 @@ public class HttpTestSendCoin001 extends AbstractHttpEndpoints124 {
     Assert.assertTrue(responseContent.size() == 1);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Get transactions to this from solidity by http")
   public void test5GetTransactionsToThisFromSolidity() {
-    response = HttpMethed
-        .getTransactionsFromThisFromSolidity(httpSoliditynode, fromAddress, 0, 100);
+    response =
+        HttpMethed.getTransactionsFromThisFromSolidity(httpSoliditynode, fromAddress, 0, 100);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    JSONObject transactionObject = HttpMethed.parseStringContent(
-        JSONArray.parseArray(responseContent.getString("transaction")).get(0).toString());
+    JSONObject transactionObject =
+        HttpMethed.parseStringContent(
+            JSONArray.parseArray(responseContent.getString("transaction")).get(0).toString());
     String retString = transactionObject.getString("ret");
     JSONArray array = JSONArray.parseArray(retString);
     Assert.assertEquals(
@@ -136,13 +121,10 @@ public class HttpTestSendCoin001 extends AbstractHttpEndpoints124 {
     Assert.assertTrue(responseContent.size() == 1);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     HttpMethed.freedResource(httpnode, receiverAddress, fromAddress, receiverKey);
     HttpMethed.disConnect();
   }
-
 }

@@ -15,37 +15,30 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.ECKey;
 
 @Slf4j
 public class ContractScenario008 {
 
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contract008Address = ecKey1.getAddress();
   String contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
-
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
@@ -55,12 +48,14 @@ public class ContractScenario008 {
     contract008Address = ecKey1.getAddress();
     contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     PublicMethed.printAddress(contract008Key);
-    Assert.assertTrue(PublicMethed.sendcoin(contract008Address, 5000000000L, fromAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(contract008Address, 1000000L,
-        3, 1, contract008Key, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(contract008Address,
-        blockingStubFull);
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            contract008Address, 5000000000L, fromAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.freezeBalanceGetEnergy(
+            contract008Address, 1000000L, 3, 1, contract008Key, blockingStubFull));
+    AccountResourceMessage accountResource =
+        PublicMethed.getAccountResource(contract008Address, blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
     Account account = PublicMethed.queryAccount(contract008Key, blockingStubFull);
@@ -75,11 +70,33 @@ public class ContractScenario008 {
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    byte[] contractAddress = PublicMethed.deployContract(contractName, abi, code, "", shortFeeLimit,
-        0L, 100, null, contract008Key, contract008Address, blockingStubFull);
+    byte[] contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            shortFeeLimit,
+            0L,
+            100,
+            null,
+            contract008Key,
+            contract008Address,
+            blockingStubFull);
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contract008Key, contract008Address, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contract008Key,
+            contract008Address,
+            blockingStubFull);
 
     final SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     accountResource = PublicMethed.getAccountResource(contract008Address, blockingStubFull);
@@ -96,10 +113,7 @@ public class ContractScenario008 {
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -107,5 +121,3 @@ public class ContractScenario008 {
     }
   }
 }
-
-

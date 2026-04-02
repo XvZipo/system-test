@@ -19,8 +19,8 @@ import stest.tron.wallet.common.client.utils.Utils;
 @Slf4j
 public class HttpTestGetAccountBalance001 extends AbstractHttpEndpointsZen024 {
 
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   private JSONObject responseContent;
   private HttpResponse response;
@@ -37,17 +37,16 @@ public class HttpTestGetAccountBalance001 extends AbstractHttpEndpointsZen024 {
   String deployContractBlockHash;
   Long fee;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true, description = "Deploy smart contract by http")
   public void test01DeployContractForTest() {
     HttpMethed.waitToProduceOneBlock(httpnode);
     PublicMethed.printAddress(assetOwnerKey);
     txid = HttpMethed.sendCoin(httpnode, fromAddress, assetOwnerAddress, amount, "", testKey002);
     HttpMethed.waitToProduceOneBlock(httpnode);
-    txid = HttpMethed.sendCoin(httpnode, assetOwnerAddress, randomAddress,
-        amount / 1000000L, "", assetOwnerKey);
+    txid =
+        HttpMethed.sendCoin(
+            httpnode, assetOwnerAddress, randomAddress, amount / 1000000L, "", assetOwnerKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.getTransactionInfoById(httpnode, txid);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -61,13 +60,27 @@ public class HttpTestGetAccountBalance001 extends AbstractHttpEndpointsZen024 {
     sendcoinBlockHash = responseContent.getString("blockID");
 
     String contractName = "transferTokenContract";
-    String code = Configuration.getByPath("testng.conf")
-        .getString("code.code_ContractTrcToken001_transferTokenContract");
-    String abi = Configuration.getByPath("testng.conf")
-        .getString("abi.abi_ContractTrcToken001_transferTokenContract");
-    txid = HttpMethed
-        .deployContractGetTxid(httpnode, contractName, abi, code, 1000000L, 1000000000L, 100,
-            11111111111111L, 0L, 0, 0L, assetOwnerAddress, assetOwnerKey);
+    String code =
+        Configuration.getByPath("testng.conf")
+            .getString("code.code_ContractTrcToken001_transferTokenContract");
+    String abi =
+        Configuration.getByPath("testng.conf")
+            .getString("abi.abi_ContractTrcToken001_transferTokenContract");
+    txid =
+        HttpMethed.deployContractGetTxid(
+            httpnode,
+            contractName,
+            abi,
+            code,
+            1000000L,
+            1000000000L,
+            100,
+            11111111111111L,
+            0L,
+            0,
+            0L,
+            assetOwnerAddress,
+            assetOwnerKey);
 
     HttpMethed.waitToProduceOneBlock(httpnode);
     logger.info(txid);
@@ -78,8 +91,8 @@ public class HttpTestGetAccountBalance001 extends AbstractHttpEndpointsZen024 {
     fee = responseContent.getLong("fee");
     deployContractBlockNumber = responseContent.getLong("blockNumber");
     String receiptString = responseContent.getString("receipt");
-    Assert
-        .assertEquals(HttpMethed.parseStringContent(receiptString).getString("result"), "SUCCESS");
+    Assert.assertEquals(
+        HttpMethed.parseStringContent(receiptString).getString("result"), "SUCCESS");
 
     response = HttpMethed.getBlockByNum(httpnode, deployContractBlockNumber);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -87,21 +100,21 @@ public class HttpTestGetAccountBalance001 extends AbstractHttpEndpointsZen024 {
     deployContractBlockHash = responseContent.getString("blockID");
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, priority=2, description = "Get account balance by http")
+  /** constructor. */
+  @Test(enabled = true, priority = 2, description = "Get account balance by http")
   public void test01GetAccountBalance() {
-    response = HttpMethed.getAccountBalance(httpnode, assetOwnerAddress,
-        sendcoinBlockNumber, sendcoinBlockHash);
+    response =
+        HttpMethed.getAccountBalance(
+            httpnode, assetOwnerAddress, sendcoinBlockNumber, sendcoinBlockHash);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     Assert.assertTrue(responseContent.size() >= 2);
     final Long beforeBalance = responseContent.getLong("balance");
 
-    response = HttpMethed.getAccountBalance(httpnode, assetOwnerAddress,
-        deployContractBlockNumber, deployContractBlockHash);
+    response =
+        HttpMethed.getAccountBalance(
+            httpnode, assetOwnerAddress, deployContractBlockNumber, deployContractBlockHash);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
@@ -110,68 +123,69 @@ public class HttpTestGetAccountBalance001 extends AbstractHttpEndpointsZen024 {
 
     Assert.assertTrue(beforeBalance - afterBalance == fee);
 
-
-    response = HttpMethed.getAccountBalance(httpnode, assetOwnerAddress,
-        deployContractBlockNumber, deployContractBlockHash);
+    response =
+        HttpMethed.getAccountBalance(
+            httpnode, assetOwnerAddress, deployContractBlockNumber, deployContractBlockHash);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     Assert.assertTrue(responseContent.size() >= 2);
-
-
   }
 
-
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, priority=2, description = "Get block balance by http")
+  /** constructor. */
+  @Test(enabled = true, priority = 2, description = "Get block balance by http")
   public void test02GetBlockBalance() {
-    response = HttpMethed.getBlockBalance(httpnode,
-        sendcoinBlockNumber, sendcoinBlockHash);
+    response = HttpMethed.getBlockBalance(httpnode, sendcoinBlockNumber, sendcoinBlockHash);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     Assert.assertTrue(responseContent.size() >= 2);
-    Assert.assertEquals(sendcoinBlockNumber, responseContent.getJSONObject("block_identifier")
-        .getLong("number"));
-    JSONObject transactionObject = responseContent.getJSONArray("transaction_balance_trace")
-        .getJSONObject(0);
+    Assert.assertEquals(
+        sendcoinBlockNumber, responseContent.getJSONObject("block_identifier").getLong("number"));
+    JSONObject transactionObject =
+        responseContent.getJSONArray("transaction_balance_trace").getJSONObject(0);
     Assert.assertEquals(transactionObject.getString("type"), "TransferContract");
-    Assert.assertTrue(Math.abs(transactionObject.getJSONArray("operation")
-        .getJSONObject(0).getLong("amount")) == 100000L);
-    Assert.assertTrue(Math.abs(transactionObject.getJSONArray("operation")
-        .getJSONObject(1).getLong("amount")) == (amount / 1000000L + 1000000L));
-    Assert.assertTrue(Math.abs(transactionObject.getJSONArray("operation")
-        .getJSONObject(2).getLong("amount")) == amount / 1000000L);
+    Assert.assertTrue(
+        Math.abs(transactionObject.getJSONArray("operation").getJSONObject(0).getLong("amount"))
+            == 100000L);
+    Assert.assertTrue(
+        Math.abs(transactionObject.getJSONArray("operation").getJSONObject(1).getLong("amount"))
+            == (amount / 1000000L + 1000000L));
+    Assert.assertTrue(
+        Math.abs(transactionObject.getJSONArray("operation").getJSONObject(2).getLong("amount"))
+            == amount / 1000000L);
 
-    response = HttpMethed.getBlockBalance(httpnode,
-        deployContractBlockNumber, deployContractBlockHash);
+    response =
+        HttpMethed.getBlockBalance(httpnode, deployContractBlockNumber, deployContractBlockHash);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     Assert.assertTrue(responseContent.size() >= 2);
 
     Integer transactionIndex = 0;
-    for(int i = 0; i < responseContent.getJSONArray("transaction_balance_trace").size();i++) {
-      transactionObject = responseContent.getJSONArray("transaction_balance_trace").getJSONObject(i);
-      if(transactionObject.getString("transaction_identifier").equalsIgnoreCase(txid)) {
+    for (int i = 0; i < responseContent.getJSONArray("transaction_balance_trace").size(); i++) {
+      transactionObject =
+          responseContent.getJSONArray("transaction_balance_trace").getJSONObject(i);
+      if (transactionObject.getString("transaction_identifier").equalsIgnoreCase(txid)) {
         transactionIndex = i;
         break;
       }
     }
 
-    transactionObject = responseContent.getJSONArray("transaction_balance_trace").getJSONObject(transactionIndex);
+    transactionObject =
+        responseContent.getJSONArray("transaction_balance_trace").getJSONObject(transactionIndex);
     Assert.assertEquals(transactionObject.getString("transaction_identifier"), txid);
     Assert.assertEquals(transactionObject.getString("type"), "CreateSmartContract");
-    Assert.assertTrue(transactionObject.getJSONArray("operation")
-        .getJSONObject(0).getLong("amount") == -fee);
+    Assert.assertTrue(
+        transactionObject.getJSONArray("operation").getJSONObject(0).getLong("amount") == -fee);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, retryAnalyzer = Retry.class, priority=2, description = "Get burn trx by http")
+  /** constructor. */
+  @Test(
+      enabled = true,
+      retryAnalyzer = Retry.class,
+      priority = 2,
+      description = "Get burn trx by http")
   public void test03GetBurnTrx() {
 
     ECKey ecKey2 = new ECKey(Utils.getRandom());
@@ -183,10 +197,11 @@ public class HttpTestGetAccountBalance001 extends AbstractHttpEndpointsZen024 {
     ECKey ecKey3 = new ECKey(Utils.getRandom());
     byte[] receiverAddress = ecKey3.getAddress();
 
-    String txid = HttpMethed.sendCoin(httpnode, assetOwnerAddress, receiverAddress,
-        amount - 2003000L, "", assetOwnerKey);
+    String txid =
+        HttpMethed.sendCoin(
+            httpnode, assetOwnerAddress, receiverAddress, amount - 2003000L, "", assetOwnerKey);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
-    //HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
+    // HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
     Long afterBurnTrxAmount = HttpMethed.getBurnTrx(httpnode);
     logger.info(afterBurnTrxAmount + "  :   " + beforeBurnTrxAmount);
     Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == 1100000L);
@@ -195,27 +210,23 @@ public class HttpTestGetAccountBalance001 extends AbstractHttpEndpointsZen024 {
     Assert.assertEquals(afterBurnTrxAmount, HttpMethed.getBurnTrxFromPbft(httpPbftNode));
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, priority=2, description = "Get receipt root by http")
+  /** constructor. */
+  @Test(enabled = false, priority = 2, description = "Get receipt root by http")
   public void test04GetReceiptRootByHttp() {
     response = HttpMethed.getBlockByNum(httpnode, sendcoinBlockNumber);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    String receiptsRoot = responseContent.getJSONObject("block_header").getJSONObject("raw_data")
-        .getString("receiptsRoot");
-    Assert.assertNotEquals(receiptsRoot,
-        "0000000000000000000000000000000000000000000000000000000000000000");
+    String receiptsRoot =
+        responseContent
+            .getJSONObject("block_header")
+            .getJSONObject("raw_data")
+            .getString("receiptsRoot");
+    Assert.assertNotEquals(
+        receiptsRoot, "0000000000000000000000000000000000000000000000000000000000000000");
     Assert.assertFalse(receiptsRoot.isEmpty());
-
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     HttpMethed.disConnect();

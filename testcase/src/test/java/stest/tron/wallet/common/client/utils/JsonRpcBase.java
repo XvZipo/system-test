@@ -1,6 +1,5 @@
 package stest.tron.wallet.common.client.utils;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -110,8 +109,7 @@ public class JsonRpcBase {
   /** constructor. */
   @BeforeSuite(enabled = true, description = "Deploy json rpc test case resource")
   public void deployJsonRpcUseResource() throws Exception {
-    maxFeeLimit =
-            Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
+    maxFeeLimit = Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
     logger.info("maxFeeLimit: " + maxFeeLimit);
     // Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
@@ -131,10 +129,11 @@ public class JsonRpcBase {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     getCommitData();
     openProposal(0, proposalMap);
-    waitMaxTime = secondProposalMap.get(0L) * 2 + 10000L; //reload max wait time from proposal list
-    waitProposalApprove(ProposalEnum.getMaxCpuTimeOfOneTx.getProposalName(), 80,  blockingStubFull);
+    waitMaxTime = secondProposalMap.get(0L) * 2 + 10000L; // reload max wait time from proposal list
+    waitProposalApprove(ProposalEnum.getMaxCpuTimeOfOneTx.getProposalName(), 80, blockingStubFull);
     openProposal(1, secondProposalMap);
-    waitProposalApprove(ProposalEnum.getAllowCancelAllUnfreezeV2.getProposalName(), 1,blockingStubFull);
+    waitProposalApprove(
+        ProposalEnum.getAllowCancelAllUnfreezeV2.getProposalName(), 1, blockingStubFull);
     Assert.assertTrue(
         PublicMethed.sendcoin(
             jsonRpcOwnerAddress,
@@ -186,48 +185,55 @@ public class JsonRpcBase {
     deployCreate2Contract();
   }
 
-  //Protection excessive fluctuations when freeze to get resource
-  void freezeBeforeAllTest(){
+  // Protection excessive fluctuations when freeze to get resource
+  void freezeBeforeAllTest() {
     ECKey ecKeyBefore = new ECKey(Utils.getRandom());
     byte[] address = ecKeyBefore.getAddress();
     String key = ByteArray.toHexString(ecKeyBefore.getPrivKeyBytes());
     PublicMethed.printAddress(key);
-    Assert.assertTrue(PublicMethed.sendcoin(address, 201000000000L, foundationAccountAddress,
-        foundationAccountKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            address,
+            201000000000L,
+            foundationAccountAddress,
+            foundationAccountKey,
+            blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(address, 100000000000L,
-        0, 0, key, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(address, 100000000000L,
-        0, 1, key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.freezeBalanceGetEnergy(address, 100000000000L, 0, 0, key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.freezeBalanceGetEnergy(address, 100000000000L, 0, 1, key, blockingStubFull));
   }
 
   void getCommitData() {
-    List<String> commitList = Configuration.getByPath("testng.conf").getStringList("commitData.commit.list");
+    List<String> commitList =
+        Configuration.getByPath("testng.conf").getStringList("commitData.commit.list");
     for (String ent : commitList) {
       String[] str = ent.split(":");
       logger.info(str[0] + " : " + str[1]);
       proposalMap.put(Long.valueOf(str[0]), Long.valueOf(str[1]));
     }
 
-    List<String> secondCommitList = Configuration.getByPath("testng.conf").getStringList("commitData.secondCommit.list");
+    List<String> secondCommitList =
+        Configuration.getByPath("testng.conf").getStringList("commitData.secondCommit.list");
     for (String ent : secondCommitList) {
       String[] str = ent.split(":");
       logger.info(str[0] + " : " + str[1]);
       secondProposalMap.put(Long.valueOf(str[0]), Long.valueOf(str[1]));
     }
-
   }
 
   /** constructor. */
-  public void waitProposalApprove(String proposalName, long proposalValue,
-                                         WalletGrpc.WalletBlockingStub blockingStubFull) {
+  public void waitProposalApprove(
+      String proposalName, long proposalValue, WalletGrpc.WalletBlockingStub blockingStubFull) {
     Long currentTime = System.currentTimeMillis();
     while (System.currentTimeMillis() <= currentTime + waitMaxTime) {
-      //max wait time is 300s + 310s
-      ChainParameters chainParameters = blockingStubFull
-          .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
+      // max wait time is 300s + 310s
+      ChainParameters chainParameters =
+          blockingStubFull.getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
       Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
-      for (Protocol.ChainParameters.ChainParameter op : getChainParameters.get().getChainParameterList()) {
+      for (Protocol.ChainParameters.ChainParameter op :
+          getChainParameters.get().getChainParameterList()) {
         if (proposalName.equalsIgnoreCase(op.getKey()) && (op.getValue() == proposalValue)) {
           logger.info(proposalName + ":  Proposal has been approval");
           return;
@@ -238,8 +244,8 @@ public class JsonRpcBase {
   }
 
   /** constructor. */
-  public void openProposal(int openIndex, HashMap<Long, Long> proposalMap)  {
-    if(proposalMap.size() == 0) {
+  public void openProposal(int openIndex, HashMap<Long, Long> proposalMap) {
+    if (proposalMap.size() == 0) {
       logger.info("proposalMap.size() == 0 , no need to open proposal");
       return;
     }
@@ -247,12 +253,17 @@ public class JsonRpcBase {
       System.out.println("no need to open proposal");
       return;
     }
-    if (openIndex == 1 && (ProposalGetAllowOldRewardOptIsOpen()
-        || ProposalGetMaxDelegateLockPeriodIsOpen())) {
+    if (openIndex == 1
+        && (ProposalGetAllowOldRewardOptIsOpen() || ProposalGetMaxDelegateLockPeriodIsOpen())) {
       System.out.println("no need to open proposal");
       return;
     }
-    PublicMethed.sendcoin(witness001Address,10000000000L,foundationAccountAddress,foundationAccountKey,blockingStubFull);
+    PublicMethed.sendcoin(
+        witness001Address,
+        10000000000L,
+        foundationAccountAddress,
+        foundationAccountKey,
+        blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(
         PublicMethed.createProposal(
@@ -279,11 +290,12 @@ public class JsonRpcBase {
 
   /** constructor. */
   public boolean ProposalGetAllowMarketTransactionIsOpen() {
-    Protocol.ChainParameters chainParameters = blockingStubFull
-        .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
+    Protocol.ChainParameters chainParameters =
+        blockingStubFull.getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
     Optional<Protocol.ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
-    for (Protocol.ChainParameters.ChainParameter op : getChainParameters.get().getChainParameterList()) {
-      if("getAllowMarketTransaction".equalsIgnoreCase(op.getKey()) && (op.getValue() == 1)){
+    for (Protocol.ChainParameters.ChainParameter op :
+        getChainParameters.get().getChainParameterList()) {
+      if ("getAllowMarketTransaction".equalsIgnoreCase(op.getKey()) && (op.getValue() == 1)) {
         logger.info("1111111: " + op.toString());
         return true;
       }
@@ -292,11 +304,13 @@ public class JsonRpcBase {
   }
 
   public boolean ProposalGetAllowOldRewardOptIsOpen() {
-    Protocol.ChainParameters chainParameters = blockingStubFull
-        .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
+    Protocol.ChainParameters chainParameters =
+        blockingStubFull.getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
     Optional<Protocol.ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
-    for (Protocol.ChainParameters.ChainParameter op : getChainParameters.get().getChainParameterList()) {
-      if("getAllowOldRewardOpt".equalsIgnoreCase(op.getKey()) && (op.getValue() == secondProposalMap.get(79L))){
+    for (Protocol.ChainParameters.ChainParameter op :
+        getChainParameters.get().getChainParameterList()) {
+      if ("getAllowOldRewardOpt".equalsIgnoreCase(op.getKey())
+          && (op.getValue() == secondProposalMap.get(79L))) {
         logger.info("getAllowOldRewardOpt: " + op);
         return true;
       }
@@ -305,18 +319,19 @@ public class JsonRpcBase {
   }
 
   public boolean ProposalGetMaxDelegateLockPeriodIsOpen() {
-    Protocol.ChainParameters chainParameters = blockingStubFull
-        .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
+    Protocol.ChainParameters chainParameters =
+        blockingStubFull.getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
     Optional<Protocol.ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
-    for (Protocol.ChainParameters.ChainParameter op : getChainParameters.get().getChainParameterList()) {
-      if("getMaxDelegateLockPeriod".equalsIgnoreCase(op.getKey()) && (op.getValue() == secondProposalMap.get(78L))){
+    for (Protocol.ChainParameters.ChainParameter op :
+        getChainParameters.get().getChainParameterList()) {
+      if ("getMaxDelegateLockPeriod".equalsIgnoreCase(op.getKey())
+          && (op.getValue() == secondProposalMap.get(78L))) {
         logger.info("getMaxDelegateLockPeriod: " + op);
         return true;
       }
     }
     return false;
   }
-
 
   /** constructor. */
   public void deployContract() throws Exception {
@@ -431,8 +446,7 @@ public class JsonRpcBase {
     org.junit.Assert.assertEquals(beforeTokenBalance - afterTokenBalance, -1L);
     org.junit.Assert.assertTrue(beforeBalance - afterBalance >= 5000);
 
-    blockNum =
-        (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getBlockNumber());
+    blockNum = (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getBlockNumber());
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     response = HttpMethed.getBlockByNum(httpFullNode, blockNum);
     org.junit.Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
@@ -504,12 +518,8 @@ public class JsonRpcBase {
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     blockNumForTrc20 =
-
-            (PublicMethed.getTransactionInfoById(trc20Txid, blockingStubFull)
-                .get()
-                .getBlockNumber());
+        (PublicMethed.getTransactionInfoById(trc20Txid, blockingStubFull).get().getBlockNumber());
   }
-
 
   /** constructor. */
   public void deploySelfDestructContract() throws InterruptedException {
@@ -519,14 +529,21 @@ public class JsonRpcBase {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    selfDestructAddressByte = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, jsonRpcOwnerKey,
-        jsonRpcOwnerAddress, blockingStubFull);
+    selfDestructAddressByte =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            jsonRpcOwnerKey,
+            jsonRpcOwnerAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.getContract(selfDestructAddressByte,blockingStubFull).hasAbi());
-
-
-
+    Assert.assertTrue(PublicMethed.getContract(selfDestructAddressByte, blockingStubFull).hasAbi());
   }
 
   /** constructor. */
@@ -537,25 +554,46 @@ public class JsonRpcBase {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    byte[] cAddressByte = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, jsonRpcOwnerKey,
-        jsonRpcOwnerAddress, blockingStubFull);
+    byte[] cAddressByte =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            jsonRpcOwnerKey,
+            jsonRpcOwnerAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(!PublicMethed.getContract(cAddressByte,blockingStubFull).getBytecode().isEmpty());
+    Assert.assertTrue(
+        !PublicMethed.getContract(cAddressByte, blockingStubFull).getBytecode().isEmpty());
     String methedStr = "createWithSalted(bytes32)";
     String argsStr = "1232";
-    String txid = PublicMethed.triggerContract(cAddressByte, methedStr, argsStr,
-        false, 0, maxFeeLimit, jsonRpcOwnerAddress, jsonRpcOwnerKey, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            cAddressByte,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            jsonRpcOwnerAddress,
+            jsonRpcOwnerKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Protocol.TransactionInfo infoById =
         PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("Trigger InfobyId: " + infoById);
     Assert.assertEquals(Protocol.TransactionInfo.code.SUCESS, infoById.getResult());
-    Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, infoById.getReceipt().getResult());
-    create2AddressFrom41 = "41" + ByteArray.toHexString(infoById.getContractResult(0).toByteArray()).substring(24);
+    Assert.assertEquals(
+        Protocol.Transaction.Result.contractResult.SUCCESS, infoById.getReceipt().getResult());
+    create2AddressFrom41 =
+        "41" + ByteArray.toHexString(infoById.getContractResult(0).toByteArray()).substring(24);
     logger.info("create2AddressFrom41: " + create2AddressFrom41);
-
   }
 
   /** constructor. */
@@ -628,9 +666,9 @@ public class JsonRpcBase {
     String resStr = responseContent.toJSONString();
     logger.info(resStr);
 
-    if(resStr.contains("QUANTITY not supported, just support TAG as latest")){
+    if (resStr.contains("QUANTITY not supported, just support TAG as latest")) {
       return false;
-    }else {
+    } else {
       return true;
     }
   }

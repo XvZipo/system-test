@@ -1,7 +1,5 @@
 package stest.tron.wallet.dailybuild.http;
 
-
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import java.util.HashMap;
@@ -17,8 +15,6 @@ import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
-
-
 
 @Slf4j
 public class HttpTestBlock001 extends AbstractHttpEndpoints024 {
@@ -151,14 +147,17 @@ public class HttpTestBlock001 extends AbstractHttpEndpoints024 {
     Integer retryTimes = 5;
 
     while (retryTimes-- >= 0) {
-      HttpResponse response1 = HttpMethed.getBlock(httpnode, null,null);
+      HttpResponse response1 = HttpMethed.getBlock(httpnode, null, null);
       HttpResponse response2 = HttpMethed.getNowBlock(httpnode);
       JSONObject getBlockObject = HttpMethed.parseResponseContent(response1);
       JSONObject getNowBlockObject = HttpMethed.parseResponseContent(response2);
       logger.info("get05GetBlockGetNowBlock getBlockObject:  " + getBlockObject.toJSONString());
-      logger.info("get05GetBlockGetNowBlock getNowBlockObject: " + getNowBlockObject.toJSONString());
-      if (getBlockObject.getJSONObject("block_header").equals(getNowBlockObject.getJSONObject("block_header"))
-          &&getBlockObject.getString("blockID").equals(getNowBlockObject.getString("blockID"))) {
+      logger.info(
+          "get05GetBlockGetNowBlock getNowBlockObject: " + getNowBlockObject.toJSONString());
+      if (getBlockObject
+              .getJSONObject("block_header")
+              .equals(getNowBlockObject.getJSONObject("block_header"))
+          && getBlockObject.getString("blockID").equals(getNowBlockObject.getString("blockID"))) {
         getBlockEqualGetNowBlock = true;
         break;
       }
@@ -166,42 +165,31 @@ public class HttpTestBlock001 extends AbstractHttpEndpoints024 {
     }
 
     Assert.assertTrue(getBlockEqualGetNowBlock);
-
-
   }
 
   /** constructor. */
   @Test(enabled = true, description = "Get block with block num and detail true from http")
   public void get06GetBlockWithGetblockNumFromHttp() {
-    response = HttpMethed.getBlock(httpnode, String.valueOf(blockNumForType),true);
+    response = HttpMethed.getBlock(httpnode, String.valueOf(blockNumForType), true);
     JSONObject getBlockObject = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(getBlockObject);
     response = HttpMethed.getBlockByNum(httpnode, blockNumForType);
     JSONObject getBlockByNum = HttpMethed.parseResponseContent(response);
-    Assert.assertEquals(getBlockObject,getBlockByNum);
+    Assert.assertEquals(getBlockObject, getBlockByNum);
 
-    response = HttpMethed.getBlock(httpnode, blockIdForNoType,true);
+    response = HttpMethed.getBlock(httpnode, blockIdForNoType, true);
     getBlockObject = HttpMethed.parseResponseContent(response);
-    Assert.assertEquals(getBlockObject,getBlockByNum);
+    Assert.assertEquals(getBlockObject, getBlockByNum);
 
-
-    response = HttpMethed.getBlock(httpnode, String.valueOf(blockNumForType),false);
+    response = HttpMethed.getBlock(httpnode, String.valueOf(blockNumForType), false);
     getBlockObject = HttpMethed.parseResponseContent(response);
-    Assert.assertNotEquals(getBlockObject,getBlockByNum);
+    Assert.assertNotEquals(getBlockObject, getBlockByNum);
 
-
-    response = HttpMethed.getBlock(httpnode, String.valueOf(blockNumForType),false);
+    response = HttpMethed.getBlock(httpnode, String.valueOf(blockNumForType), false);
     JSONObject getBlockWithNumObject = HttpMethed.parseResponseContent(response);
-    response = HttpMethed.getBlock(httpnode, blockIdForNoType,false);
+    response = HttpMethed.getBlock(httpnode, blockIdForNoType, false);
     JSONObject getBlockWithIdObject = HttpMethed.parseResponseContent(response);
-    Assert.assertEquals(getBlockWithNumObject,getBlockWithIdObject);
-
-
-
-
-
-
-
+    Assert.assertEquals(getBlockWithNumObject, getBlockWithIdObject);
   }
 
   /** constructor. */
@@ -423,7 +411,7 @@ public class HttpTestBlock001 extends AbstractHttpEndpoints024 {
   @Test(enabled = false, description = "Get block by num by http")
   public void get26TestResponse() {
     Integer times = 1000;
-    //just test key
+    // just test key
     String testKey002 = "7400E3D0727F8A61041A8E8BF86599FE5597CE19DE451E59AED07D60967A5E25";
     byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
     Long duration = HttpMethed.getBlockByNumForResponse(httpnode, 4942435, times);

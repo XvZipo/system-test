@@ -1,9 +1,7 @@
 package stest.tron.wallet.dailybuild.manual;
 
-import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -25,8 +23,8 @@ public class WalletTestAccount015 {
   private static final long now = System.currentTimeMillis();
   private static long amount = 100000000L;
   private static String accountId = "accountid_" + Long.toString(now);
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] account015Address = ecKey1.getAddress();
@@ -39,43 +37,31 @@ public class WalletTestAccount015 {
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSoliInFull = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubPbft = null;
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
-  private String soliInFullnode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(1);
-  private String soliInPbft = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(2);
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
+  private String soliInFullnode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(1);
+  private String soliInPbft =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(2);
 
-  
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(testKey002);
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
 
-    channelSoliInFull = ManagedChannelBuilder.forTarget(soliInFullnode)
-        .usePlaintext()
-        .build();
+    channelSoliInFull = ManagedChannelBuilder.forTarget(soliInFullnode).usePlaintext().build();
     blockingStubSoliInFull = WalletSolidityGrpc.newBlockingStub(channelSoliInFull);
 
-    channelPbft = ManagedChannelBuilder.forTarget(soliInPbft)
-        .usePlaintext()
-        .build();
+    channelPbft = ManagedChannelBuilder.forTarget(soliInPbft).usePlaintext().build();
     blockingStubPbft = WalletSolidityGrpc.newBlockingStub(channelPbft);
 
     Random rand = new Random();
@@ -84,102 +70,111 @@ public class WalletTestAccount015 {
 
   @Test(enabled = true, description = "Set account id")
   public void test01SetAccountId() {
-    //Create account014
+    // Create account014
     ecKey1 = new ECKey(Utils.getRandom());
     account015Address = ecKey1.getAddress();
     account015Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
     PublicMethed.printAddress(account015Key);
-    Assert.assertTrue(PublicMethed.sendcoin(account015Address, amount, fromAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            account015Address, amount, fromAddress, testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Assert.assertTrue(PublicMethed.setAccountId(accountId.getBytes(),
-        account015Address, account015Key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.setAccountId(
+            accountId.getBytes(), account015Address, account015Key, blockingStubFull));
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
   }
 
   @Test(enabled = true, description = "Get account by id")
   public void test02GetAccountById() {
-    Assert.assertEquals(amount, PublicMethed.getAccountById(
-        accountId, blockingStubFull).getBalance());
+    Assert.assertEquals(
+        amount, PublicMethed.getAccountById(accountId, blockingStubFull).getBalance());
   }
-
 
   @Test(enabled = true, description = "Get account by id from solidity")
   public void test03GetAccountByIdFromSolidity() {
-    Assert.assertEquals(amount, PublicMethed.getAccountByIdFromSolidity(
-        accountId, blockingStubSoliInFull).getBalance());
+    Assert.assertEquals(
+        amount,
+        PublicMethed.getAccountByIdFromSolidity(accountId, blockingStubSoliInFull).getBalance());
   }
 
   @Test(enabled = true, description = "Get account by id from PBFT")
   public void test04GetAccountByIdFromPbft() {
-    Assert.assertEquals(amount, PublicMethed.getAccountByIdFromSolidity(
-        accountId, blockingStubPbft).getBalance());
+    Assert.assertEquals(
+        amount, PublicMethed.getAccountByIdFromSolidity(accountId, blockingStubPbft).getBalance());
   }
-
 
   @Test(enabled = true, description = "Get account from PBFT")
   public void test05GetAccountFromPbft() {
-    Assert.assertEquals(amount, PublicMethed.queryAccount(
-        account015Address, blockingStubPbft).getBalance());
+    Assert.assertEquals(
+        amount, PublicMethed.queryAccount(account015Address, blockingStubPbft).getBalance());
   }
-
 
   @Test(enabled = true, description = "List witnesses")
   public void test06ListWitness() {
-    Assert.assertTrue(PublicMethed.listWitnesses(blockingStubFull)
-        .get().getWitnessesCount() >= 2);
+    Assert.assertTrue(PublicMethed.listWitnesses(blockingStubFull).get().getWitnessesCount() >= 2);
   }
 
   @Test(enabled = true, description = "List witnesses from solidity node")
   public void test07ListWitnessFromSolidity() {
-    Assert.assertTrue(PublicMethed.listWitnessesFromSolidity(blockingStubSolidity)
-        .get().getWitnessesCount() >= 2);
-    Assert.assertTrue(PublicMethed.listWitnessesFromSolidity(blockingStubSoliInFull)
-        .get().getWitnessesCount() >= 2);
+    Assert.assertTrue(
+        PublicMethed.listWitnessesFromSolidity(blockingStubSolidity).get().getWitnessesCount()
+            >= 2);
+    Assert.assertTrue(
+        PublicMethed.listWitnessesFromSolidity(blockingStubSoliInFull).get().getWitnessesCount()
+            >= 2);
   }
 
   @Test(enabled = true, description = "List witnesses from PBFT node")
   public void test08ListWitnessFromPbft() {
-    Assert.assertTrue(PublicMethed.listWitnessesFromSolidity(blockingStubPbft)
-        .get().getWitnessesCount() >= 2);
+    Assert.assertTrue(
+        PublicMethed.listWitnessesFromSolidity(blockingStubPbft).get().getWitnessesCount() >= 2);
   }
 
-
   @Test(enabled = true, description = "List witness realTime vote data")
-  public void test09CheckVoteChangesRealtimeAfterVote(){
-    GrpcAPI.WitnessList witnessList = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
-    GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubSolidity);
+  public void test09CheckVoteChangesRealtimeAfterVote() {
+    GrpcAPI.WitnessList witnessList =
+        PublicMethed.getPaginatedNowWitnessList(0L, 100L, blockingStubFull);
+    GrpcAPI.WitnessList witnessListSolidity =
+        PublicMethed.getPaginatedNowWitnessListSolidity(0L, 100L, blockingStubSolidity);
     Assert.assertTrue(witnessListSolidity.getWitnessesList().size() > 1);
 
     ECKey voter = new ECKey(Utils.getRandom());
     byte[] voterAddress = voter.getAddress();
     Long freezeBalance = 30500_000000L;
-    PublicMethed.sendcoin(voterAddress, freezeBalance, fromAddress , testKey002, blockingStubFull);
+    PublicMethed.sendcoin(voterAddress, freezeBalance, fromAddress, testKey002, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.freezeBalanceV2(voterAddress, freezeBalance, 0, ByteArray.toHexString(voter.getPrivateKey()), blockingStubFull);
+    PublicMethed.freezeBalanceV2(
+        voterAddress,
+        freezeBalance,
+        0,
+        ByteArray.toHexString(voter.getPrivateKey()),
+        blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     HashMap<byte[], Long> voteMap = new HashMap<>();
     Long voteCount = 10000L;
-    for(int i = 0; i< witnessList.getWitnessesCount(); i++){
+    for (int i = 0; i < witnessList.getWitnessesCount(); i++) {
       Protocol.Witness witness = witnessList.getWitnesses(i);
       String witnessTAddress = Base58.encode58Check(witness.getAddress().toByteArray());
-      if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+      if (witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")) {
         voteMap.put(witness.getAddress().toByteArray(), voteCount);
       }
     }
-    PublicMethed.voteWitness(voterAddress, ByteArray.toHexString(voter.getPrivateKey()),voteMap,blockingStubFull);
+    PublicMethed.voteWitness(
+        voterAddress, ByteArray.toHexString(voter.getPrivateKey()), voteMap, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    GrpcAPI.WitnessList witnessListAfterVote = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
-    for(int i = 0; i< witnessList.getWitnessesCount(); i++){
+    GrpcAPI.WitnessList witnessListAfterVote =
+        PublicMethed.getPaginatedNowWitnessList(0L, 100L, blockingStubFull);
+    for (int i = 0; i < witnessList.getWitnessesCount(); i++) {
       Protocol.Witness witness = witnessList.getWitnesses(i);
       String witnessTAddress = Base58.encode58Check(witness.getAddress().toByteArray());
-      if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
-        for(int j=0; j<witnessListAfterVote.getWitnessesCount();j++){
+      if (witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")) {
+        for (int j = 0; j < witnessListAfterVote.getWitnessesCount(); j++) {
           Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(j);
-          if(witnessAfterVote.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+          if (witnessAfterVote.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")) {
             long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
             logger.info("voteDiff: " + voteDiff);
             Assert.assertTrue(voteDiff > 9500L);
@@ -190,10 +185,7 @@ public class WalletTestAccount015 {
     }
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     PublicMethed.freedResource(account015Address, account015Key, fromAddress, blockingStubFull);

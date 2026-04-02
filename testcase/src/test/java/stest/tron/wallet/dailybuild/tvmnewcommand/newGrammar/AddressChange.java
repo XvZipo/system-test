@@ -19,79 +19,103 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
+
 @Slf4j
 public class AddressChange {
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   byte[] contractAddressOld = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(contractExcKey);
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
 
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
-    PublicMethed
-        .sendcoin(contractExcAddress, 1000_000_000L, testNetAccountAddress, testNetAccountKey,
-            blockingStubFull);
+    PublicMethed.sendcoin(
+        contractExcAddress,
+        1000_000_000L,
+        testNetAccountAddress,
+        testNetAccountKey,
+        blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/getAddressChange.sol";
     String contractName = "getAddressChange";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed
-        .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
-            contractExcAddress, blockingStubFull);
-    abi = Configuration.getByPath("testng.conf")
-        .getString("abi.abi_getAddressChange");
-    code = Configuration.getByPath("testng.conf")
-        .getString("code.code_getAddressChange");
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
+    abi = Configuration.getByPath("testng.conf").getString("abi.abi_getAddressChange");
+    code = Configuration.getByPath("testng.conf").getString("code.code_getAddressChange");
     contractName = "getAddressChangeOldVersion";
-    contractAddressOld = PublicMethed
-        .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
-            contractExcAddress, blockingStubFull);
+    contractAddressOld =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
   @Test(enabled = true, description = "get external function address")
   public void test01GetExternalAddress() {
     String txid = "";
-    GrpcAPI.TransactionExtention transactionExtention = PublicMethed
-        .triggerConstantContractForExtention(contractAddress, "testaddress1()", "#", false, 0, 0,
-            "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    GrpcAPI.TransactionExtention transactionExtention =
+        PublicMethed.triggerConstantContractForExtention(
+            contractAddress,
+            "testaddress1()",
+            "#",
+            false,
+            0,
+            0,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     Protocol.Transaction transaction = transactionExtention.getTransaction();
     byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
@@ -106,9 +130,19 @@ public class AddressChange {
   @Test(enabled = true, description = "get external function address, solidity version < 0.6.0")
   public void test02GetExternalAddressOldVersion() {
     String txid = "";
-    GrpcAPI.TransactionExtention transactionExtention = PublicMethed
-        .triggerConstantContractForExtention(contractAddressOld, "testaddress1()", "#", false, 0, 0,
-            "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    GrpcAPI.TransactionExtention transactionExtention =
+        PublicMethed.triggerConstantContractForExtention(
+            contractAddressOld,
+            "testaddress1()",
+            "#",
+            false,
+            0,
+            0,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     Protocol.Transaction transaction = transactionExtention.getTransaction();
     byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
@@ -122,10 +156,10 @@ public class AddressChange {
 
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed
-        .freedResource(contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
-    PublicMethed
-        .freedResource(contractAddressOld, contractExcKey, testNetAccountAddress, blockingStubFull);
+    PublicMethed.freedResource(
+        contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
+    PublicMethed.freedResource(
+        contractAddressOld, contractExcKey, testNetAccountAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

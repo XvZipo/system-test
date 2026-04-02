@@ -1,8 +1,5 @@
 package stest.tron.wallet.dailybuild.tvmnewcommand.clearabi;
 
-
-import stest.tron.wallet.common.client.AbstractGrpcDualFullAndSolidityTest;
-import io.grpc.ManagedChannel;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -12,45 +9,46 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
-import org.tron.api.WalletGrpc;
-import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
+import stest.tron.wallet.common.client.AbstractGrpcDualFullAndSolidityTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.ECKey;
+
 @Slf4j
 public class ClearAbi008 extends AbstractGrpcDualFullAndSolidityTest {
 
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
-
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(contractExcKey);
   }
 
-  @Test(enabled = true, description = "Clear a contract with ABI created by itself，"
-      + "clear a contract by itself again")
+  @Test(
+      enabled = true,
+      description =
+          "Clear a contract with ABI created by itself，" + "clear a contract by itself again")
   public void testClearAbi() {
-    Assert.assertTrue(PublicMethed
-        .sendcoin(contractExcAddress, 10000000000L, testNetAccountAddress, testNetAccountKey,
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            contractExcAddress,
+            10000000000L,
+            testNetAccountAddress,
+            testNetAccountKey,
             blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -60,9 +58,19 @@ public class ClearAbi008 extends AbstractGrpcDualFullAndSolidityTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
@@ -70,8 +78,8 @@ public class ClearAbi008 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -82,9 +90,9 @@ public class ClearAbi008 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
 
-    String txid = PublicMethed
-        .clearContractAbi(contractAddress, contractExcAddress, contractExcKey,
-            blockingStubFull);
+    String txid =
+        PublicMethed.clearContractAbi(
+            contractAddress, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -95,9 +103,9 @@ public class ClearAbi008 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
 
-    String txid1 = PublicMethed
-        .clearContractAbi(contractAddress, contractExcAddress, contractExcKey,
-            blockingStubFull);
+    String txid1 =
+        PublicMethed.clearContractAbi(
+            contractAddress, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById1 = null;
     infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
@@ -107,18 +115,13 @@ public class ClearAbi008 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(smartContract.getAbi().toString().isEmpty());
     Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
-
-
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed
-        .freedResource(contractExcAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
+    PublicMethed.freedResource(
+        contractExcAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
@@ -129,6 +132,4 @@ public class ClearAbi008 extends AbstractGrpcDualFullAndSolidityTest {
       channelSolidity.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-
-
 }

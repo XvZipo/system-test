@@ -1,7 +1,5 @@
 package stest.tron.wallet.block;
 
-
-import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +17,7 @@ import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
+import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
@@ -26,14 +25,10 @@ import stest.tron.wallet.common.client.utils.TransactionUtils;
 @Slf4j
 public class WalletTestBlock003 extends AbstractGrpcFullSolidityTest {
 
-public static String loadPubKey() {
+  public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
-
-
-
-  
 
   @Test(enabled = true)
   public void testGetNextMaintenanceTime() {

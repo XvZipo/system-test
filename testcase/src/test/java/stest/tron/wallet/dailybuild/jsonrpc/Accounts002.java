@@ -148,7 +148,9 @@ public class Accounts002 extends JsonRpcBase {
     param.addProperty("gas", "0x0");
     param.addProperty("gasPrice", "0x0");
     param.addProperty("value", "0x0");
-    paramString = "0000000000000000000000000000000000000000000000000000000000000000" + "0000000000000000000000000000000010000000000000000000000000000000";
+    paramString =
+        "0000000000000000000000000000000000000000000000000000000000000000"
+            + "0000000000000000000000000000000010000000000000000000000000000000";
     param.addProperty("data", "0x" + Util.parseMethod("approve(address,uint256)", paramString));
     JsonArray params = new JsonArray();
     params.add(param);
@@ -160,7 +162,7 @@ public class Accounts002 extends JsonRpcBase {
     String dataResult = responseContent.getString("result");
     Assert.assertEquals("0x4fd1", dataResult);
 
-    //release_4.5.2 to latest version， revert will return instead of failed gas value.
+    // release_4.5.2 to latest version， revert will return instead of failed gas value.
     JsonObject wrongParam = new JsonObject();
     params.remove(param);
     wrongParam.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
@@ -168,15 +170,16 @@ public class Accounts002 extends JsonRpcBase {
     wrongParam.addProperty("gas", "0x0");
     wrongParam.addProperty("gasPrice", "0x0");
     wrongParam.addProperty("value", "0x0");
-    wrongParam.addProperty("data", "0x" + Util.parseMethod("transfer(address,uint256)", paramString));
+    wrongParam.addProperty(
+        "data", "0x" + Util.parseMethod("transfer(address,uint256)", paramString));
     params.add(wrongParam);
     requestBody = getJsonRpcBody("eth_estimateGas", params);
     response = getJsonRpc(jsonRpcNodeForSolidity, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     JSONObject errorResult = responseContent.getJSONObject("error");
-    Assert.assertEquals(errorResult.getString("code"),"-32000");
-    Assert.assertEquals(errorResult.getString("message"),"REVERT opcode executed");
+    Assert.assertEquals(errorResult.getString("code"), "-32000");
+    Assert.assertEquals(errorResult.getString("message"), "REVERT opcode executed");
   }
 
   @Test(enabled = true, description = "Json rpc api of eth_estimateGasHasPayable")
@@ -502,14 +505,25 @@ public class Accounts002 extends JsonRpcBase {
 
     Assert.assertEquals(jsonrpcResult.get("value").toString(), "0x1389");
     String data;
-    if (getBlockByNumFromSolidityResult.getJSONObject("raw_data").getJSONArray("contract")
-        .getJSONObject(0).getJSONObject("parameter")
-        .getJSONObject("value").getString("data") == null) {
+    if (getBlockByNumFromSolidityResult
+            .getJSONObject("raw_data")
+            .getJSONArray("contract")
+            .getJSONObject(0)
+            .getJSONObject("parameter")
+            .getJSONObject("value")
+            .getString("data")
+        == null) {
       data = "0x";
     } else {
       data =
-          "0x" + getBlockByNumFromSolidityResult.getJSONObject("raw_data").getJSONArray("contract")
-              .getJSONObject(0).getJSONObject("parameter").getJSONObject("value").getString("data");
+          "0x"
+              + getBlockByNumFromSolidityResult
+                  .getJSONObject("raw_data")
+                  .getJSONArray("contract")
+                  .getJSONObject(0)
+                  .getJSONObject("parameter")
+                  .getJSONObject("value")
+                  .getString("data");
     }
     Assert.assertEquals(jsonrpcResult.get("input").toString(), data);
 
@@ -960,15 +974,16 @@ public class Accounts002 extends JsonRpcBase {
   public void test35JsonRpcApiTestForWeb3Sha3() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x08");
-    //JsonObject requestBody1 = getJsonRpcBody("web3_sha3", params);
-    //response = getEthHttps(ethHttpsNode, requestBody1);
-    //responseContent = HttpMethed.parseResponseContent(response);
-    //String result1 = responseContent.getString("result");
+    // JsonObject requestBody1 = getJsonRpcBody("web3_sha3", params);
+    // response = getEthHttps(ethHttpsNode, requestBody1);
+    // responseContent = HttpMethed.parseResponseContent(response);
+    // String result1 = responseContent.getString("result");
     JsonObject requestBody2 = getJsonRpcBody("web3_sha3", params);
     response = getJsonRpc(jsonRpcNodeForSolidity, requestBody2);
     responseContent = HttpMethed.parseResponseContent(response);
     String result2 = responseContent.getString("result");
-    Assert.assertEquals("0xd33e25809fcaa2b6900567812852539da8559dc8b76a7ce3fc5ddd77e8d19a69", result2);
+    Assert.assertEquals(
+        "0xd33e25809fcaa2b6900567812852539da8559dc8b76a7ce3fc5ddd77e8d19a69", result2);
   }
 
   @Test(enabled = true, description = "Json rpc api of eth_compileLLL from solidity")
@@ -1375,8 +1390,7 @@ public class Accounts002 extends JsonRpcBase {
     Assert.assertEquals(result, resultForGetTransactionByBlockHashAndIndex);
   }
 
-  @Test(
-      enabled = true, description = "Json rpc api of eth_call with blockNumber")
+  @Test(enabled = true, description = "Json rpc api of eth_call with blockNumber")
   public void test51JsonRpcApiTestForEthCallWithBlockNumber() throws Exception {
     final JsonArray jsonArrayParams = new JsonArray();
     JsonObject param = new JsonObject();
@@ -1390,7 +1404,7 @@ public class Accounts002 extends JsonRpcBase {
     JsonArray params = new JsonArray();
     params.add(param);
     JsonObject blockNumAndHash = new JsonObject();
-    blockNumAndHash.addProperty("blockNumber",String.valueOf(blockNum));
+    blockNumAndHash.addProperty("blockNumber", String.valueOf(blockNum));
     params.add(blockNumAndHash);
     final JsonObject requestBody = getJsonRpcBody("eth_call", params);
     JsonObject param1 = new JsonObject();
@@ -1441,9 +1455,7 @@ public class Accounts002 extends JsonRpcBase {
     Assert.assertEquals(result, resultForGetTransactionByBlockHashAndIndex);
   }
 
-
-  @Test(
-      enabled = true, description = "Json rpc api of eth_call with blockHash")
+  @Test(enabled = true, description = "Json rpc api of eth_call with blockHash")
   public void test52JsonRpcApiTestForEthCallWithBlockHash() throws Exception {
     final JsonArray jsonArrayParams = new JsonArray();
     JsonObject param = new JsonObject();
@@ -1457,7 +1469,7 @@ public class Accounts002 extends JsonRpcBase {
     JsonArray params = new JsonArray();
     params.add(param);
     JsonObject blockNumAndHash = new JsonObject();
-    blockNumAndHash.addProperty("blockHash",blockHash);
+    blockNumAndHash.addProperty("blockHash", blockHash);
     params.add(blockNumAndHash);
     final JsonObject requestBody = getJsonRpcBody("eth_call", params);
     JsonObject param1 = new JsonObject();

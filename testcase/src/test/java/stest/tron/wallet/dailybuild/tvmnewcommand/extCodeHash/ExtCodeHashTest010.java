@@ -18,23 +18,24 @@ import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.ECKey;
+
 @Slf4j
 public class ExtCodeHashTest010 {
 
   final boolean AllTest = false;
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-  private long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
   private byte[] factoryContractAddress = null;
   private byte[] extCodeHashContractAddress = null;
@@ -50,17 +51,11 @@ public class ExtCodeHashTest010 {
   private byte[] user001Address = ecKey2.getAddress();
   private String user001Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-  
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     PublicMethed.printAddress(dev001Key);
@@ -69,14 +64,15 @@ public class ExtCodeHashTest010 {
 
   @Test(enabled = AllTest, description = "Deploy extcodehash contract")
   public void test01DeployExtCodeHashContract() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 100_000_000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            dev001Address, 100_000_000L, fromAddress, testKey002, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
-        blockingStubFull);
+    // before deploy, check account resource
+    AccountResourceMessage accountResource =
+        PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
     long balanceBefore = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
@@ -91,11 +87,22 @@ public class ExtCodeHashTest010 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    final String transferTokenTxid = PublicMethed
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, 0L, 0, 10000,
-            "0", 0, null, dev001Key,
-            dev001Address, blockingStubFull);
+    final String transferTokenTxid =
+        PublicMethed.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            0,
+            10000,
+            "0",
+            0,
+            null,
+            dev001Key,
+            dev001Address,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
@@ -107,8 +114,8 @@ public class ExtCodeHashTest010 {
     logger.info("after energyUsage is " + Long.toString(energyUsage));
     logger.info("after balanceAfter is " + Long.toString(balanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(transferTokenTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethed.getTransactionInfoById(transferTokenTxid, blockingStubFull);
 
     if (infoById.get().getResultValue() != 0) {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
@@ -119,19 +126,22 @@ public class ExtCodeHashTest010 {
     logger.info("NetUsage: " + transactionInfo.getReceipt().getNetUsage());
 
     extCodeHashContractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(extCodeHashContractAddress,
-        blockingStubFull);
+    SmartContract smartContract =
+        PublicMethed.getContract(extCodeHashContractAddress, blockingStubFull);
   }
 
-
-  @Test(enabled = AllTest, description = "The EXTCODEHASH of an account that selfdestructed in the "
-      + "current transaction. but later been revert")
+  @Test(
+      enabled = AllTest,
+      description =
+          "The EXTCODEHASH of an account that selfdestructed in the "
+              + "current transaction. but later been revert")
   public void test02GetTestContractCodeHash() {
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            user001Address, 100_000_000L, fromAddress, testKey002, blockingStubFull));
 
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
     long devBalanceBefore = PublicMethed.queryAccount(dev001Address, blockingStubFull).getBalance();
@@ -143,17 +153,26 @@ public class ExtCodeHashTest010 {
     accountResource = PublicMethed.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethed.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceBefore =
+        PublicMethed.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
 
-    final String triggerTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
-        "getCodeHashRevert()", "#", false, 0L,
-        1000000000L, "0", 0, user001Address, user001Key,
-        blockingStubFull);
+    final String triggerTxid =
+        PublicMethed.triggerContract(
+            extCodeHashContractAddress,
+            "getCodeHashRevert()",
+            "#",
+            false,
+            0L,
+            1000000000L,
+            "0",
+            0,
+            user001Address,
+            user001Key,
+            blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -169,15 +188,15 @@ public class ExtCodeHashTest010 {
     accountResource = PublicMethed.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethed.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceAfter =
+        PublicMethed.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
     logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethed.getTransactionInfoById(triggerTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
     logger.info("EnergyUsageTotal: " + transactionInfo.getReceipt().getEnergyUsageTotal());
@@ -188,25 +207,28 @@ public class ExtCodeHashTest010 {
           "transaction failed with message: " + infoById.get().getResMessage().toStringUtf8());
     }
 
-    List<String> retList = PublicMethed
-        .getStrings(transactionInfo.getContractResult(0).toByteArray());
+    List<String> retList =
+        PublicMethed.getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info("the value: " + retList);
 
     Assert.assertFalse(retList.isEmpty());
-    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000000",
-        retList.get(0));
+    Assert.assertEquals(
+        "0000000000000000000000000000000000000000000000000000000000000000", retList.get(0));
   }
 
-
-  @Test(enabled = AllTest, description = "The EXTCODEHASH of an account that create in the current "
-      + "transaction. but later been revert")
+  @Test(
+      enabled = AllTest,
+      description =
+          "The EXTCODEHASH of an account that create in the current "
+              + "transaction. but later been revert")
   public void test03GetTestContractCodeHash() {
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            user001Address, 100_000_000L, fromAddress, testKey002, blockingStubFull));
 
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
     long devBalanceBefore = PublicMethed.queryAccount(dev001Address, blockingStubFull).getBalance();
@@ -218,17 +240,26 @@ public class ExtCodeHashTest010 {
     accountResource = PublicMethed.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethed.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceBefore =
+        PublicMethed.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
 
-    final String triggerTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
-        "getCodeHashCreate()", "#", false, 0L,
-        1000000000L, "0", 0, user001Address, user001Key,
-        blockingStubFull);
+    final String triggerTxid =
+        PublicMethed.triggerContract(
+            extCodeHashContractAddress,
+            "getCodeHashCreate()",
+            "#",
+            false,
+            0L,
+            1000000000L,
+            "0",
+            0,
+            user001Address,
+            user001Key,
+            blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -244,15 +275,15 @@ public class ExtCodeHashTest010 {
     accountResource = PublicMethed.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethed.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceAfter =
+        PublicMethed.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
     logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethed.getTransactionInfoById(triggerTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
     logger.info("EnergyUsageTotal: " + transactionInfo.getReceipt().getEnergyUsageTotal());
@@ -263,24 +294,27 @@ public class ExtCodeHashTest010 {
           "transaction failed with message: " + infoById.get().getResMessage().toStringUtf8());
     }
 
-    List<String> retList = PublicMethed
-        .getStrings(transactionInfo.getContractResult(0).toByteArray());
+    List<String> retList =
+        PublicMethed.getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info("the value: " + retList);
 
     Assert.assertFalse(retList.isEmpty());
-    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000000",
-        retList.get(0));
+    Assert.assertEquals(
+        "0000000000000000000000000000000000000000000000000000000000000000", retList.get(0));
   }
 
-  @Test(enabled = AllTest, description = "The EXTCODEHASH of an account that selfdestructed in the"
-      + " current transaction.")
+  @Test(
+      enabled = AllTest,
+      description =
+          "The EXTCODEHASH of an account that selfdestructed in the" + " current transaction.")
   public void test04GetTestContractCodeHash() {
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            user001Address, 100_000_000L, fromAddress, testKey002, blockingStubFull));
 
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
     long devBalanceBefore = PublicMethed.queryAccount(dev001Address, blockingStubFull).getBalance();
@@ -292,18 +326,27 @@ public class ExtCodeHashTest010 {
     accountResource = PublicMethed.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethed.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceBefore =
+        PublicMethed.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
 
     String param = "\"" + Base58.encode58Check(extCodeHashContractAddress) + "\"";
-    final String triggerTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
-        "getCodeHashSuicide(address)", param, false, 0L,
-        1000000000L, "0", 0, user001Address, user001Key,
-        blockingStubFull);
+    final String triggerTxid =
+        PublicMethed.triggerContract(
+            extCodeHashContractAddress,
+            "getCodeHashSuicide(address)",
+            param,
+            false,
+            0L,
+            1000000000L,
+            "0",
+            0,
+            user001Address,
+            user001Key,
+            blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -319,15 +362,15 @@ public class ExtCodeHashTest010 {
     accountResource = PublicMethed.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethed.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceAfter =
+        PublicMethed.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
     logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethed.getTransactionInfoById(triggerTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
     logger.info("EnergyUsageTotal: " + transactionInfo.getReceipt().getEnergyUsageTotal());
@@ -338,19 +381,17 @@ public class ExtCodeHashTest010 {
           "transaction failed with message: " + infoById.get().getResMessage().toStringUtf8());
     }
 
-    List<String> retList = PublicMethed
-        .getStrings(transactionInfo.getContractResult(0).toByteArray());
+    List<String> retList =
+        PublicMethed.getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info("the value: " + retList);
 
     Assert.assertFalse(retList.isEmpty());
-    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000000",
-        retList.get(0));
+    Assert.assertEquals(
+        "0000000000000000000000000000000000000000000000000000000000000000", retList.get(0));
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     PublicMethed.freedResource(user001Address, user001Key, fromAddress, blockingStubFull);
@@ -362,5 +403,3 @@ public class ExtCodeHashTest010 {
     }
   }
 }
-
-

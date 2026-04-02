@@ -7,7 +7,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
 import io.netty.util.internal.StringUtil;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.testng.collections.Lists;
 import org.tron.api.GrpcAPI;
-import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
@@ -227,18 +225,18 @@ public class HttpMethed {
     return response;
   }
 
-
   /** constructor. */
-  public static HttpResponse withdrawExpireUnfreeze(String httpNode, byte[] ownerAddress,String ownerKey) {
+  public static HttpResponse withdrawExpireUnfreeze(
+      String httpNode, byte[] ownerAddress, String ownerKey) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/withdrawexpireunfreeze";
       JsonObject userBaseObj2 = new JsonObject();
       userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
       response = createConnect(requestUrl, userBaseObj2);
       logger.info(userBaseObj2.toString());
-       transactionString = EntityUtils.toString(response.getEntity());
-       transactionSignString = gettransactionsign(httpNode,transactionString,ownerKey);
-        response = broadcastTransaction(httpNode,transactionSignString);
+      transactionString = EntityUtils.toString(response.getEntity());
+      transactionSignString = gettransactionsign(httpNode, transactionString, ownerKey);
+      response = broadcastTransaction(httpNode, transactionSignString);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -490,6 +488,7 @@ public class HttpMethed {
     }
     return response;
   }
+
   public static HttpResponse getEnergyPricSolidity(String httpNode) {
     try {
       final String requestUrl = "http://" + httpNode + "/walletsolidity/getenergyprices";
@@ -526,6 +525,7 @@ public class HttpMethed {
     }
     return response;
   }
+
   public static HttpResponse getBandPricSolidity(String httpNode) {
     try {
       final String requestUrl = "http://" + httpNode + "/walletsolidity/getbandwidthprices";
@@ -537,6 +537,7 @@ public class HttpMethed {
     }
     return response;
   }
+
   public static HttpResponse getBandPricPbft(String httpNode) {
     try {
       final String requestUrl = "http://" + httpNode + "/walletpbft/getbandwidthprices";
@@ -548,6 +549,7 @@ public class HttpMethed {
     }
     return response;
   }
+
   public static HttpResponse getMemoFee(String httpNode) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getmemofee";
@@ -574,32 +576,29 @@ public class HttpMethed {
   }
 
   public static Boolean proposalFreezeV2IsOpen(String http) {
-    return getProposalValue(http,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0;
+    return getProposalValue(http, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0;
   }
 
   public static Boolean proposalTronPowerIsOpen(String http) {
-    return getProposalValue(http,ProposalEnum.GetAllowNewResourceModel.getProposalName()) > 0;
+    return getProposalValue(http, ProposalEnum.GetAllowNewResourceModel.getProposalName()) > 0;
   }
 
   /** constructor. */
-  public static Long getProposalValue(String httpNode,String proposalName) {
+  public static Long getProposalValue(String httpNode, String proposalName) {
     response = HttpMethed.getChainParameters(httpNode);
     responseContent = HttpMethed.parseResponseContent(response);
     JSONArray temp;
     temp = responseContent.getJSONArray("chainParameter");
     for (int i = 0; i < temp.size(); i++) {
       if (temp.getJSONObject(i).get("key").equals(proposalName)) {
-        if(temp.getJSONObject(i).containsKey("value")) {
+        if (temp.getJSONObject(i).containsKey("value")) {
           return temp.getJSONObject(i).getLong("value");
         } else {
           return 0L;
         }
-
-
       }
     }
     return 0L;
-
   }
 
   /** constructor. */
@@ -819,8 +818,7 @@ public class HttpMethed {
     return response;
   }
 
-  /** constructor.
-   * visible: true and broadcast hex */
+  /** constructor. visible: true and broadcast hex */
   public static HttpResponse transferAsset(
       String httpNode,
       String ownerAddress,
@@ -843,9 +841,11 @@ public class HttpMethed {
       System.out.println(transactionSignString);
       JSONObject ob = JSONObject.parseObject(transactionSignString);
       Protocol.Transaction.Builder transaction = Protocol.Transaction.newBuilder();
-      Protocol.Transaction.raw raw = Protocol.Transaction.raw.parseFrom(Hex.decode(ob.getString("raw_data_hex")));
+      Protocol.Transaction.raw raw =
+          Protocol.Transaction.raw.parseFrom(Hex.decode(ob.getString("raw_data_hex")));
       transaction.setRawData(raw);
-      transaction.addSignature(ByteString.copyFrom(Hex.decode(ob.getJSONArray("signature").get(0).toString())));
+      transaction.addSignature(
+          ByteString.copyFrom(Hex.decode(ob.getJSONArray("signature").get(0).toString())));
       response = broadcasthex(httpNode, Hex.toHexString(transaction.build().toByteArray()));
     } catch (Exception e) {
       e.printStackTrace();
@@ -1174,10 +1174,10 @@ public class HttpMethed {
       final String requestUrl = "http://" + httpNode + "/wallet/triggerconstantcontract";
       JsonObject userBaseObj2 = new JsonObject();
       userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
-      if(contractAddress == null) {
+      if (contractAddress == null) {
         String tem = null;
         userBaseObj2.addProperty("contract_address", tem);
-      }else {
+      } else {
         userBaseObj2.addProperty("contract_address", contractAddress);
       }
       userBaseObj2.addProperty("function_selector", functionSelector);
@@ -1323,28 +1323,23 @@ public class HttpMethed {
       Integer frozenDuration,
       Integer resourceCode,
       String fromKey) {
-    if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) != 0
-    && getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+    if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName()) != 0
+        && getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
       return freezeBalance(
           httpNode, ownerAddress, frozenBalance, frozenDuration, resourceCode, null, fromKey);
     }
 
-    if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 0
-        && getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+    if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 0
+        && getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
       return freezeBalance(
           httpNode, ownerAddress, frozenBalance, frozenDuration, resourceCode, null, fromKey);
     }
 
-    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
-      return freezeBalanceV2(
-          httpNode, ownerAddress, frozenBalance, resourceCode, null,fromKey);
+    if (getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
+      return freezeBalanceV2(httpNode, ownerAddress, frozenBalance, resourceCode, null, fromKey);
     }
-
 
     return null;
-
-
-
   }
 
   /** constructor. */
@@ -1356,13 +1351,20 @@ public class HttpMethed {
       Integer resourceCode,
       byte[] receiverAddress,
       String fromKey) {
-    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
-      return freezeBalanceV2(httpNode,ownerAddress,frozenBalance,resourceCode,receiverAddress,fromKey);
+    if (getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
+      return freezeBalanceV2(
+          httpNode, ownerAddress, frozenBalance, resourceCode, receiverAddress, fromKey);
     } else {
-      return freezeBalanceV1(httpNode,ownerAddress,frozenBalance,frozenDuration,resourceCode,receiverAddress,fromKey);
+      return freezeBalanceV1(
+          httpNode,
+          ownerAddress,
+          frozenBalance,
+          frozenDuration,
+          resourceCode,
+          receiverAddress,
+          fromKey);
     }
   }
-
 
   /** constructor. */
   public static HttpResponse freezeBalanceV1(
@@ -1423,12 +1425,12 @@ public class HttpMethed {
         userBaseObj2.addProperty("resource", "ENERGY");
       }
       if (resourceCode == 2) {
-        if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
+        if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName())
+            == 1) {
           userBaseObj2.addProperty("resource", "TRON_POWER");
         } else {
           userBaseObj2.addProperty("resource", "ENERGY");
         }
-
       }
 
       response = createConnect(requestUrl, userBaseObj2);
@@ -1436,10 +1438,17 @@ public class HttpMethed {
       transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
       response = broadcastTransaction(httpNode, transactionSignString);
 
-      if(receiverAddress != null) {
+      if (receiverAddress != null) {
         waitToProduceOneBlock(httpNode);
-        delegateresource(httpNode,ownerAddress,frozenBalance / 2,resourceCode,null,null,receiverAddress,fromKey);
-
+        delegateresource(
+            httpNode,
+            ownerAddress,
+            frozenBalance / 2,
+            resourceCode,
+            null,
+            null,
+            receiverAddress,
+            fromKey);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -1472,7 +1481,8 @@ public class HttpMethed {
         userBaseObj2.addProperty("resource", "ENERGY");
       }
       if (resourceCode == 2) {
-        if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
+        if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName())
+            == 1) {
           userBaseObj2.addProperty("resource", "TRON_POWER");
         } else {
           userBaseObj2.addProperty("resource", "ENERGY");
@@ -1492,7 +1502,6 @@ public class HttpMethed {
       transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
       response = broadcastTransaction(httpNode, transactionSignString);
 
-
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -1500,14 +1509,16 @@ public class HttpMethed {
     }
 
     return response;
-
-
   }
-
 
   /** constructor. */
   public static HttpResponse unDelegateresource(
-      String httpNode, byte[] ownerAddress, Long delegteAmount, Integer resourceCode,byte[] receiverAddress,String fromKey) {
+      String httpNode,
+      byte[] ownerAddress,
+      Long delegteAmount,
+      Integer resourceCode,
+      byte[] receiverAddress,
+      String fromKey) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/undelegateresource";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1521,7 +1532,8 @@ public class HttpMethed {
         userBaseObj2.addProperty("resource", "ENERGY");
       }
       if (resourceCode == 2) {
-        if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
+        if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName())
+            == 1) {
           userBaseObj2.addProperty("resource", "TRON_POWER");
         } else {
           userBaseObj2.addProperty("resource", "ENERGY");
@@ -1543,25 +1555,24 @@ public class HttpMethed {
     }
 
     return response;
-
-
   }
 
   /** constructor. */
   public static HttpResponse unFreezeBalance(
-      String httpNode, byte[] ownerAddress, Long unfreezeBalance,Integer resourceCode, String fromKey) {
-    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
-      return unFreezeBalance(httpNode, ownerAddress, unfreezeBalance,resourceCode, null, fromKey);
+      String httpNode,
+      byte[] ownerAddress,
+      Long unfreezeBalance,
+      Integer resourceCode,
+      String fromKey) {
+    if (getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+      return unFreezeBalance(httpNode, ownerAddress, unfreezeBalance, resourceCode, null, fromKey);
     }
 
-    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
-      return unFreezeBalanceV2(
-          httpNode, ownerAddress,unfreezeBalance, resourceCode, fromKey);
+    if (getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
+      return unFreezeBalanceV2(httpNode, ownerAddress, unfreezeBalance, resourceCode, fromKey);
     }
 
     return null;
-
-
   }
 
   /** constructor. */
@@ -1572,15 +1583,17 @@ public class HttpMethed {
       Integer resourceCode,
       byte[] receiverAddress,
       String fromKey) {
-    if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 0 && resourceCode == 2) {
+    if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 0
+        && resourceCode == 2) {
       resourceCode = 1;
     }
-    if(getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
-      unDelegateresource(httpNode,ownerAddress,unfreezeBalance / 2,resourceCode,receiverAddress,fromKey);
+    if (getProposalValue(httpnode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
+      unDelegateresource(
+          httpNode, ownerAddress, unfreezeBalance / 2, resourceCode, receiverAddress, fromKey);
       waitToProduceOneBlock(httpNode);
-      return unFreezeBalanceV2(httpnode,ownerAddress,unfreezeBalance,resourceCode,fromKey);
+      return unFreezeBalanceV2(httpnode, ownerAddress, unfreezeBalance, resourceCode, fromKey);
     } else {
-      return unFreezeBalanceV1(httpNode,ownerAddress,resourceCode,receiverAddress,fromKey);
+      return unFreezeBalanceV1(httpNode, ownerAddress, resourceCode, receiverAddress, fromKey);
     }
   }
 
@@ -1657,9 +1670,7 @@ public class HttpMethed {
 
   /** constructor. */
   public static HttpResponse cancelAllUnfreezeBalanceV2(
-      String httpNode,
-      byte[] ownerAddress,
-      String fromKey) {
+      String httpNode, byte[] ownerAddress, String fromKey) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/cancelallunfreezev2";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1682,8 +1693,8 @@ public class HttpMethed {
   public static String gettransactionsign(
       String httpNode, String transactionString, String privateKey) {
     boolean visible = transactionString.contains("visible\":true");
-    transactionSignString = TransactionUtils.getTransactionSign(transactionString, privateKey,
-        visible);
+    transactionSignString =
+        TransactionUtils.getTransactionSign(transactionString, privateKey, visible);
     return transactionSignString;
   }
 
@@ -1815,8 +1826,6 @@ public class HttpMethed {
     }
     return response;
   }
-
-
 
   /** constructor. */
   public static Long getAccountForResponse(String httpNode, byte[] queryAddress, Integer times) {
@@ -2796,7 +2805,11 @@ public class HttpMethed {
   public static void waitUntilFixedBlockFromSolidity(int blockNum, String httpSolidityNode) {
     response = HttpMethed.getNowBlockFromSolidity(httpSolidityNode);
     responseContent = HttpMethed.parseResponseContent(response);
-    Integer currentBlockNum = responseContent.getJSONObject("block_header").getJSONObject("raw_data").getIntValue("number");
+    Integer currentBlockNum =
+        responseContent
+            .getJSONObject("block_header")
+            .getJSONObject("raw_data")
+            .getIntValue("number");
     Integer times = 0;
     while (currentBlockNum < blockNum
         && times++ <= ((getWitnessNum() >= 27) ? 27 : getWitnessNum() + 4)) {
@@ -2807,7 +2820,11 @@ public class HttpMethed {
       }
       response = HttpMethed.getNowBlockFromSolidity(httpSolidityNode);
       responseContent = HttpMethed.parseResponseContent(response);
-      currentBlockNum = responseContent.getJSONObject("block_header").getJSONObject("raw_data").getIntValue("number");
+      currentBlockNum =
+          responseContent
+              .getJSONObject("block_header")
+              .getJSONObject("raw_data")
+              .getIntValue("number");
     }
     logger.info("currentBlockNum2:" + currentBlockNum);
   }
@@ -2841,17 +2858,16 @@ public class HttpMethed {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblock";
       JsonObject userBaseObj2 = new JsonObject();
-      if(null != idOrNum) {
+      if (null != idOrNum) {
         userBaseObj2.addProperty("id_or_num", idOrNum);
       }
-      if(null != detail) {
+      if (null != detail) {
         userBaseObj2.addProperty("detail", detail);
       }
 
-      if(userBaseObj2.size() == 0) {
+      if (userBaseObj2.size() == 0) {
         userBaseObj2 = null;
       }
-
 
       response = createConnect(requestUrl, userBaseObj2);
     } catch (Exception e) {
@@ -2861,9 +2877,6 @@ public class HttpMethed {
     }
     return response;
   }
-
-
-
 
   /** constructor. */
   public static HttpResponse getBlockByNum(String httpNode, Long blockNUm) {
@@ -2965,8 +2978,7 @@ public class HttpMethed {
   }
 
   /** constructor. */
-  public static HttpResponse getBlockByLimitNext(
-      String httpNode, Long startNum, Long endNum) {
+  public static HttpResponse getBlockByLimitNext(String httpNode, Long startNum, Long endNum) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblockbylimitnext";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5750,28 +5762,35 @@ public class HttpMethed {
     }
     return response;
   }
+
   /** constructor. */
-  public static HttpResponse getCanDelegatedMaxSize(String httpNode,  byte[] ownerAddress, Long type, boolean visible) {
+  public static HttpResponse getCanDelegatedMaxSize(
+      String httpNode, byte[] ownerAddress, Long type, boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getcandelegatedmaxsize";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("type", type);
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
     } catch (Exception e) {
       e.printStackTrace();
-      httppost.releaseConnection();;
+      httppost.releaseConnection();
+      ;
     }
     return response;
   }
+
   /** constructor. */
-  public static HttpResponse getAvailableUnfreezeCount(String httpNode, byte[] ownerAddress, boolean visible) {
+  public static HttpResponse getAvailableUnfreezeCount(
+      String httpNode, byte[] ownerAddress, boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getavailableunfreezecount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5781,13 +5800,15 @@ public class HttpMethed {
     }
     return response;
   }
+
   /** constructor. */
   public static HttpResponse getCanWithdrawUnfreezeAmount(
       String httpNode, byte[] ownerAddress, Long timestamp, boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getcanwithdrawunfreezeamount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("timestamp", timestamp);
       requestParam.addProperty("visible", visible);
@@ -5798,15 +5819,18 @@ public class HttpMethed {
     }
     return response;
   }
+
   /** constructor. */
   public static HttpResponse getDelegatedResourceV2(
       String httpNode, byte[] fromAddress, byte[] toAddress, boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getdelegatedresourcev2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("fromAddress",
+      requestParam.addProperty(
+          "fromAddress",
           visible ? Base58.encode58Check(fromAddress) : ByteArray.toHexString(fromAddress));
-      requestParam.addProperty("toAddress",
+      requestParam.addProperty(
+          "toAddress",
           visible ? Base58.encode58Check(toAddress) : ByteArray.toHexString(toAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5816,46 +5840,53 @@ public class HttpMethed {
     }
     return response;
   }
+
   /** constructor. */
-  public static HttpResponse getDelegatedResourceAccountIndexV2(String httpNode, byte[] address, boolean visible) {
+  public static HttpResponse getDelegatedResourceAccountIndexV2(
+      String httpNode, byte[] address, boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getdelegatedresourceaccountindexv2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("value",
-          visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
+      requestParam.addProperty(
+          "value", visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
     }
-    return  response;
+    return response;
   }
 
   /** constructor. */
   public static HttpResponse getCanDelegatedMaxSizeSolidity(
-      String httpNodeSolidity,  byte[] ownerAddress, Long type, boolean visible) {
+      String httpNodeSolidity, byte[] ownerAddress, Long type, boolean visible) {
     try {
       String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getcandelegatedmaxsize";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("type", type);
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
-    }catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
-      httppost.releaseConnection();;
+      httppost.releaseConnection();
+      ;
     }
     return response;
   }
+
   /** constructor. */
   public static HttpResponse getAvailableUnfreezeCountSolidity(
-      String httpNodeSolidity, byte[] ownerAddress, boolean visible){
+      String httpNodeSolidity, byte[] ownerAddress, boolean visible) {
     try {
-      String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getavailableunfreezecount";
+      String requestUrl =
+          "http://" + httpNodeSolidity + "/walletsolidity/getavailableunfreezecount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5865,13 +5896,16 @@ public class HttpMethed {
     }
     return response;
   }
+
   /** constructor. */
   public static HttpResponse getCanWithdrawUnfreezeAmountSolidity(
-      String httpNodeSolidity, byte[] ownerAddress, Long timestamp, boolean visible){
+      String httpNodeSolidity, byte[] ownerAddress, Long timestamp, boolean visible) {
     try {
-      String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getcanwithdrawunfreezeamount";
+      String requestUrl =
+          "http://" + httpNodeSolidity + "/walletsolidity/getcanwithdrawunfreezeamount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("timestamp", timestamp);
       requestParam.addProperty("visible", visible);
@@ -5882,15 +5916,18 @@ public class HttpMethed {
     }
     return response;
   }
+
   /** constructor. */
   public static HttpResponse getDelegatedResourceV2Solidity(
-      String httpNodeSolidity, byte[] fromAddress, byte[] toAddress,boolean visible) {
+      String httpNodeSolidity, byte[] fromAddress, byte[] toAddress, boolean visible) {
     try {
       String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getdelegatedresourcev2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("fromAddress",
+      requestParam.addProperty(
+          "fromAddress",
           visible ? Base58.encode58Check(fromAddress) : ByteArray.toHexString(fromAddress));
-      requestParam.addProperty("toAddress",
+      requestParam.addProperty(
+          "toAddress",
           visible ? Base58.encode58Check(toAddress) : ByteArray.toHexString(toAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5905,40 +5942,48 @@ public class HttpMethed {
   public static HttpResponse getDelegatedResourceAccountIndexV2Solidity(
       String httpNodeSolidity, byte[] address, boolean visible) {
     try {
-      String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getdelegatedresourceaccountindexv2";
+      String requestUrl =
+          "http://" + httpNodeSolidity + "/walletsolidity/getdelegatedresourceaccountindexv2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("value",
-          visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
+      requestParam.addProperty(
+          "value", visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
     }
-    return  response;
+    return response;
   }
+
   /** constructor. */
-  public static HttpResponse getCanDelegatedMaxSizePbft(String httpNode,  byte[] ownerAddress, Long type, boolean visible) {
+  public static HttpResponse getCanDelegatedMaxSizePbft(
+      String httpNode, byte[] ownerAddress, Long type, boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getcandelegatedmaxsize";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("type", type);
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
     } catch (Exception e) {
       e.printStackTrace();
-      httppost.releaseConnection();;
+      httppost.releaseConnection();
+      ;
     }
     return response;
   }
+
   /** constructor. */
-  public static HttpResponse getAvailableUnfreezeCountPbft(String httpNode, byte[] ownerAddress, boolean visible) {
+  public static HttpResponse getAvailableUnfreezeCountPbft(
+      String httpNode, byte[] ownerAddress, boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getavailableunfreezecount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5948,13 +5993,15 @@ public class HttpMethed {
     }
     return response;
   }
+
   /** constructor. */
   public static HttpResponse getCanWithdrawUnfreezeAmountPbft(
       String httpNode, byte[] ownerAddress, Long timestamp, boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getcanwithdrawunfreezeamount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("timestamp", timestamp);
       requestParam.addProperty("visible", visible);
@@ -5965,15 +6012,18 @@ public class HttpMethed {
     }
     return response;
   }
+
   /** constructor. */
   public static HttpResponse getDelegatedResourceV2Pbft(
       String httpNode, byte[] fromAddress, byte[] toAddress, boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getdelegatedresourcev2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("fromAddress",
+      requestParam.addProperty(
+          "fromAddress",
           visible ? Base58.encode58Check(fromAddress) : ByteArray.toHexString(fromAddress));
-      requestParam.addProperty("toAddress",
+      requestParam.addProperty(
+          "toAddress",
           visible ? Base58.encode58Check(toAddress) : ByteArray.toHexString(toAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5983,20 +6033,22 @@ public class HttpMethed {
     }
     return response;
   }
+
   /** constructor. */
-  public static HttpResponse getDelegatedResourceAccountIndexV2Pbft(String httpNode, byte[] address, boolean visible) {
+  public static HttpResponse getDelegatedResourceAccountIndexV2Pbft(
+      String httpNode, byte[] address, boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getdelegatedresourceaccountindexv2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("value",
-          visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
+      requestParam.addProperty(
+          "value", visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
     }
-    return  response;
+    return response;
   }
 
   /** constructor. */
@@ -6014,14 +6066,18 @@ public class HttpMethed {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/estimateenergy";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
-      if(contractAddress == null){
+      if (contractAddress == null) {
         String tem = null;
         requestParam.addProperty("contract_address", tem);
-      }else {
-        requestParam.addProperty("contract_address",
-            visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
+      } else {
+        requestParam.addProperty(
+            "contract_address",
+            visible
+                ? Base58.encode58Check(contractAddress)
+                : ByteArray.toHexString(contractAddress));
       }
       requestParam.addProperty("function_selector", functionSelector);
       requestParam.addProperty("parameter", parameter);
@@ -6032,7 +6088,7 @@ public class HttpMethed {
       e.printStackTrace();
       httppost.releaseConnection();
     }
-    return  response;
+    return response;
   }
 
   /** constructor. */
@@ -6046,9 +6102,11 @@ public class HttpMethed {
     try {
       String requestUrl = "http://" + httpNode + "/walletsolidity/estimateenergy";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
-      requestParam.addProperty("contract_address",
+      requestParam.addProperty(
+          "contract_address",
           visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
       requestParam.addProperty("function_selector", functionSelector);
       requestParam.addProperty("parameter", parameter);
@@ -6058,7 +6116,7 @@ public class HttpMethed {
       e.printStackTrace();
       httppost.releaseConnection();
     }
-    return  response;
+    return response;
   }
 
   /** constructor. */
@@ -6072,9 +6130,11 @@ public class HttpMethed {
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/estimateenergy";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
-      requestParam.addProperty("contract_address",
+      requestParam.addProperty(
+          "contract_address",
           visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
       requestParam.addProperty("function_selector", functionSelector);
       requestParam.addProperty("parameter", parameter);
@@ -6084,31 +6144,36 @@ public class HttpMethed {
       e.printStackTrace();
       httppost.releaseConnection();
     }
-    return  response;
+    return response;
   }
+
   /** constructor. */
   public static HttpResponse getEstimateEnergyDeployContract(
-          String httpNode,
-          byte[] ownerAddress,
-          byte[] contractAddress,
-          String functionSelector,
-          String parameter,
-          String data,
-          long call_value,
-          long call_token_value,
-          long token_id,
-          boolean visible) {
+      String httpNode,
+      byte[] ownerAddress,
+      byte[] contractAddress,
+      String functionSelector,
+      String parameter,
+      String data,
+      long call_value,
+      long call_token_value,
+      long token_id,
+      boolean visible) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/estimateenergy";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
-              visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
+      requestParam.addProperty(
+          "owner_address",
+          visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       if (contractAddress == null) {
         String tem = null;
         requestParam.addProperty("contract_address", tem);
       } else {
-        requestParam.addProperty("contract_address",
-                visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
+        requestParam.addProperty(
+            "contract_address",
+            visible
+                ? Base58.encode58Check(contractAddress)
+                : ByteArray.toHexString(contractAddress));
       }
       requestParam.addProperty("function_selector", functionSelector);
       requestParam.addProperty("parameter", parameter);
@@ -6124,29 +6189,13 @@ public class HttpMethed {
       e.printStackTrace();
       httppost.releaseConnection();
     }
-    return  response;
+    return response;
   }
 
-  public static HttpResponse getPaginatedNowWitnessList(String httpNode, Long offset, Long limit, boolean visible){
+  public static HttpResponse getPaginatedNowWitnessList(
+      String httpNode, Long offset, Long limit, boolean visible) {
     HttpResponse response = null;
     final String requestUrl = "http://" + httpNode + "/wallet/getpaginatednowwitnesslist";
-    JsonObject requestParam = new JsonObject();
-    requestParam.addProperty("offset", offset);
-    requestParam.addProperty("limit", limit);
-    requestParam.addProperty("visible", visible);
-    try {
-    response = createConnect(requestUrl, requestParam);
-    } catch (Exception e) {
-      e.printStackTrace();
-      httppost.releaseConnection();
-    }
-    return  response;
-
-  }
-
-  public static HttpResponse getPaginatedNowWitnessListSolidity(String httpNodeSolidity, Long offset, Long limit, boolean visible){
-    HttpResponse response = null;
-    final String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getpaginatednowwitnesslist";
     JsonObject requestParam = new JsonObject();
     requestParam.addProperty("offset", offset);
     requestParam.addProperty("limit", limit);
@@ -6157,10 +6206,24 @@ public class HttpMethed {
       e.printStackTrace();
       httppost.releaseConnection();
     }
-    return  response;
+    return response;
   }
 
-
-
-
+  public static HttpResponse getPaginatedNowWitnessListSolidity(
+      String httpNodeSolidity, Long offset, Long limit, boolean visible) {
+    HttpResponse response = null;
+    final String requestUrl =
+        "http://" + httpNodeSolidity + "/walletsolidity/getpaginatednowwitnesslist";
+    JsonObject requestParam = new JsonObject();
+    requestParam.addProperty("offset", offset);
+    requestParam.addProperty("limit", limit);
+    requestParam.addProperty("visible", visible);
+    try {
+      response = createConnect(requestUrl, requestParam);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return response;
+  }
 }

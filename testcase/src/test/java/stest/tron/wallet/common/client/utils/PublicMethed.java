@@ -11,7 +11,6 @@ import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.netty.util.internal.StringUtil;
-
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -20,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
@@ -67,7 +65,6 @@ import org.tron.api.WalletGrpc.WalletBlockingStub;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
-
 import org.tron.protos.Protocol.Account.FreezeV2;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.ChainParameters;
@@ -88,6 +85,7 @@ import org.tron.protos.contract.AssetIssueContractOuterClass.ParticipateAssetIss
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.UpdateAssetContract;
 import org.tron.protos.contract.BalanceContract;
+import org.tron.protos.contract.BalanceContract.CancelAllUnfreezeV2Contract;
 import org.tron.protos.contract.BalanceContract.DelegateResourceContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
@@ -96,7 +94,6 @@ import org.tron.protos.contract.BalanceContract.UnDelegateResourceContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.WithdrawExpireUnfreezeContract;
-import org.tron.protos.contract.BalanceContract.CancelAllUnfreezeV2Contract;
 import org.tron.protos.contract.ExchangeContract.ExchangeCreateContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeInjectContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeTransactionContract;
@@ -138,7 +135,7 @@ public class PublicMethed {
 
   // //Wallet.setAddressPreFixByte()();
   private static final String FilePath = "Wallet";
-//  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
+  //  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
   // private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   // private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
   public static Map<Long, ShieldNoteInfo> utxoMapNote = new ConcurrentHashMap();
@@ -155,21 +152,20 @@ public class PublicMethed {
   public static AtomicInteger randomFreezeAmount = new AtomicInteger(1);
   public static AtomicInteger randomTimeOffset = new AtomicInteger(1);
 
-  private static final String fullnode2 = Configuration.getByPath("testng.conf")
-          .getStringList("fullnode.ip.list").get(1);
-  private static ManagedChannel channelFull2 = ManagedChannelBuilder.forTarget(fullnode2).usePlaintext().build();
-  private static WalletGrpc.WalletBlockingStub blockingStubFull2 = WalletGrpc.newBlockingStub(channelFull2);
+  private static final String fullnode2 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private static ManagedChannel channelFull2 =
+      ManagedChannelBuilder.forTarget(fullnode2).usePlaintext().build();
+  private static WalletGrpc.WalletBlockingStub blockingStubFull2 =
+      WalletGrpc.newBlockingStub(channelFull2);
   private static final String gRPCurl =
       Configuration.getByPath("testng.conf").getString("defaultParameter.gRPCurl");
 
-
-
-
   /** constructor. */
   public static Integer getWitnessNum(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //if (null == witnessNum) {
-      //witnessNum = PublicMethed.listWitnesses(blockingStubFull).get().getWitnessesList().size();
-    //}
+    // if (null == witnessNum) {
+    // witnessNum = PublicMethed.listWitnesses(blockingStubFull).get().getWitnessesList().size();
+    // }
     witnessNum = PublicMethed.listWitnesses(blockingStubFull).get().getWitnessesList().size();
     return witnessNum;
   }
@@ -741,15 +737,17 @@ public class PublicMethed {
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
 
-    if(getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(),
-        blockingStubFull) <= 0) {
-      return freezeBalanceV1(addRess,freezeBalance,freezeDuration,0,priKey,blockingStubFull);
+    if (getChainParametersValue(
+            ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
+        <= 0) {
+      return freezeBalanceV1(addRess, freezeBalance, freezeDuration, 0, priKey, blockingStubFull);
     } else {
-      return freezeBalanceV2(addRess,freezeBalance,0,priKey,blockingStubFull);
+      return freezeBalanceV2(addRess, freezeBalance, 0, priKey, blockingStubFull);
     }
   }
 
-  public static Boolean freezeBalanceV1ForReceiver(byte[] addRess,
+  public static Boolean freezeBalanceV1ForReceiver(
+      byte[] addRess,
       long freezeBalance,
       long freezeDuration,
       int resourceCode,
@@ -768,7 +766,6 @@ public class PublicMethed {
     }
     final ECKey ecKey = temKey;
 
-
     FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
@@ -778,7 +775,7 @@ public class PublicMethed {
         .setResourceValue(resourceCode)
         .setFrozenDuration(frozenDuration);
 
-    if(null != receiverAddress) {
+    if (null != receiverAddress) {
       builder.setReceiverAddress(ByteString.copyFrom(receiverAddress));
     }
 
@@ -797,7 +794,6 @@ public class PublicMethed {
     return response.getResult();
   }
 
-
   public static Boolean freezeBalanceV1(
       byte[] addRess,
       long freezeBalance,
@@ -805,7 +801,8 @@ public class PublicMethed {
       int resourceCode,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return freezeBalanceV1ForReceiver(addRess,freezeBalance,freezeDuration,resourceCode,null,priKey,blockingStubFull);
+    return freezeBalanceV1ForReceiver(
+        addRess, freezeBalance, freezeDuration, resourceCode, null, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -906,13 +903,12 @@ public class PublicMethed {
       int resourceCode,
       byte[] receiverAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    if(freezeV2ProposalIsOpen(blockingStubFull)) {
-      return unFreezeBalanceV2(address,priKey,0,resourceCode,blockingStubFull);
+    if (freezeV2ProposalIsOpen(blockingStubFull)) {
+      return unFreezeBalanceV2(address, priKey, 0, resourceCode, blockingStubFull);
     } else {
-      return unFreezeBalanceV1(address,priKey,resourceCode,receiverAddress,blockingStubFull);
+      return unFreezeBalanceV1(address, priKey, resourceCode, receiverAddress, blockingStubFull);
     }
   }
-
 
   /** constructor. */
   public static Boolean unFreezeBalanceV1(
@@ -945,7 +941,6 @@ public class PublicMethed {
     return response.getResult();
   }
 
-
   /** constructor. */
   public static Boolean unFreezeBalanceV2(
       byte[] address,
@@ -963,27 +958,31 @@ public class PublicMethed {
     final ECKey ecKey = temKey;
     UnfreezeBalanceV2Contract.Builder builder = UnfreezeBalanceV2Contract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
-    builder.setOwnerAddress(byteAddreess)
-        .setResourceValue(resourceCode).setUnfreezeBalance(unFreezeBalanceAmount);
+    builder
+        .setOwnerAddress(byteAddreess)
+        .setResourceValue(resourceCode)
+        .setUnfreezeBalance(unFreezeBalanceAmount);
 
     UnfreezeBalanceV2Contract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.unfreezeBalanceV2(contract);
     Transaction transaction = transactionExtention.getTransaction();
     transaction = signTransaction(ecKey, transaction);
-    freezeV2Txid = ByteArray.toHexString(
-        Sha256Hash.hash(
-            CommonParameter.getInstance().isECKeyCryptoEngine(),
-            transaction.getRawData().toByteArray()));
+    freezeV2Txid =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
 
     return response.getResult();
   }
+
   public static String unFreezeBalanceV2AndGetTxId(
-          byte[] address,
-          String priKey,
-          long unFreezeBalanceAmount,
-          int resourceCode,
-          WalletGrpc.WalletBlockingStub blockingStubFull) {
+      byte[] address,
+      String priKey,
+      long unFreezeBalanceAmount,
+      int resourceCode,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -994,17 +993,20 @@ public class PublicMethed {
     final ECKey ecKey = temKey;
     UnfreezeBalanceV2Contract.Builder builder = UnfreezeBalanceV2Contract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
-    builder.setOwnerAddress(byteAddreess)
-            .setResourceValue(resourceCode).setUnfreezeBalance(unFreezeBalanceAmount);
+    builder
+        .setOwnerAddress(byteAddreess)
+        .setResourceValue(resourceCode)
+        .setUnfreezeBalance(unFreezeBalanceAmount);
 
     UnfreezeBalanceV2Contract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.unfreezeBalanceV2(contract);
     Transaction transaction = transactionExtention.getTransaction();
     transaction = signTransaction(ecKey, transaction);
-    String txId = ByteArray.toHexString(
+    String txId =
+        ByteArray.toHexString(
             Sha256Hash.hash(
-                    CommonParameter.getInstance().isECKeyCryptoEngine(),
-                    transaction.getRawData().toByteArray()));
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
 
     return txId;
@@ -1012,9 +1014,7 @@ public class PublicMethed {
 
   /** constructor. */
   public static Boolean cancelAllUnFreezeBalanceV2(
-      byte[] address,
-      String priKey,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
+      byte[] address, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -1037,11 +1037,10 @@ public class PublicMethed {
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
+
   /** constructor. */
   public static String cancelAllUnFreezeBalanceV2AndGetTxid(
-      byte[] address,
-      String priKey,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
+      byte[] address, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -1061,20 +1060,18 @@ public class PublicMethed {
       return null;
     }
     transaction = signTransaction(ecKey, transaction);
-    String txId = ByteArray.toHexString(
-        Sha256Hash.hash(
-            CommonParameter.getInstance().isECKeyCryptoEngine(),
-            transaction.getRawData().toByteArray()));
+    String txId =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     broadcastTransaction(transaction, blockingStubFull);
     return txId;
   }
 
-
   /** constructor. */
   public static Boolean withdrawExpireUnfreeze(
-      byte[] address,
-      String priKey,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
+      byte[] address, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -1091,19 +1088,18 @@ public class PublicMethed {
     TransactionExtention transactionExtention = blockingStubFull.withdrawExpireUnfreeze(contract);
     Transaction transaction = transactionExtention.getTransaction();
     transaction = signTransaction(ecKey, transaction);
-    freezeV2Txid = ByteArray.toHexString(
-        Sha256Hash.hash(
-            CommonParameter.getInstance().isECKeyCryptoEngine(),
-            transaction.getRawData().toByteArray()));
+    freezeV2Txid =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
 
     return response.getResult();
   }
 
   public static String withdrawExpireUnfreezeAndGetTxId(
-          byte[] address,
-          String priKey,
-          WalletGrpc.WalletBlockingStub blockingStubFull) {
+      byte[] address, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -1120,40 +1116,45 @@ public class PublicMethed {
     TransactionExtention transactionExtention = blockingStubFull.withdrawExpireUnfreeze(contract);
     Transaction transaction = transactionExtention.getTransaction();
     transaction = signTransaction(ecKey, transaction);
-    String freezeV2Txid = ByteArray.toHexString(
+    String freezeV2Txid =
+        ByteArray.toHexString(
             Sha256Hash.hash(
-                    CommonParameter.getInstance().isECKeyCryptoEngine(),
-                    transaction.getRawData().toByteArray()));
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
 
     return freezeV2Txid;
   }
 
-
   public static Boolean freezeV2ProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return PublicMethed.getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays
-        .getProposalName(), blockingStubFull) > 0;
+    return PublicMethed.getChainParametersValue(
+            ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
+        > 0;
   }
 
-  public static Boolean allowTvmSelfdestructRestrictionIsActive(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return PublicMethed.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1;
+  public static Boolean allowTvmSelfdestructRestrictionIsActive(
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return PublicMethed.getChainParametersValue(
+            ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull)
+        == 1;
   }
 
   public static Boolean tronPowerProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return PublicMethed.getChainParametersValue(ProposalEnum.GetAllowNewResourceModel
-        .getProposalName(), blockingStubFull) == 1;
+    return PublicMethed.getChainParametersValue(
+            ProposalEnum.GetAllowNewResourceModel.getProposalName(), blockingStubFull)
+        == 1;
   }
 
-  public static Boolean getAllowDynamicEnergyProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return PublicMethed.getChainParametersValue(ProposalEnum.GetAllowDynamicEnergy
-        .getProposalName(), blockingStubFull) == 1;
+  public static Boolean getAllowDynamicEnergyProposalIsOpen(
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return PublicMethed.getChainParametersValue(
+            ProposalEnum.GetAllowDynamicEnergy.getProposalName(), blockingStubFull)
+        == 1;
   }
-
-
 
   public static Long getProposalMemoFee(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return PublicMethed.getChainParametersValue(ProposalEnum.GetMemoFee.getProposalName(),blockingStubFull);
+    return PublicMethed.getChainParametersValue(
+        ProposalEnum.GetMemoFee.getProposalName(), blockingStubFull);
   }
 
   public static String getMemoFee(WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -1164,20 +1165,19 @@ public class PublicMethed {
     return blockingStubFull.getEnergyPrices(EmptyMessage.newBuilder().build()).getPrices();
   }
 
-  public static String getEnergyPriceSolidity(WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+  public static String getEnergyPriceSolidity(
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     return blockingStubFull.getEnergyPrices(EmptyMessage.newBuilder().build()).getPrices();
   }
-
 
   public static String getBandwidthPrices(WalletGrpc.WalletBlockingStub blockingStubFull) {
     return blockingStubFull.getBandwidthPrices(EmptyMessage.newBuilder().build()).getPrices();
   }
 
-  public static String getBandwidthPricesSolidity(WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+  public static String getBandwidthPricesSolidity(
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     return blockingStubFull.getBandwidthPrices(EmptyMessage.newBuilder().build()).getPrices();
   }
-
-
 
   /** constructor. */
   public static Boolean sendcoin(
@@ -1505,11 +1505,9 @@ public class PublicMethed {
       long amount,
       byte[] owner,
       String priKey,
-      WalletGrpc.WalletBlockingStub blockingStubFull
-  ) {
-    return sendcoinWithMemoGetTransactionId(to,amount,null,owner,
-        priKey,blockingStubFull);
-}
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return sendcoinWithMemoGetTransactionId(to, amount, null, owner, priKey, blockingStubFull);
+  }
 
   /** constructor. */
   public static String sendcoinWithMemoGetTransactionId(
@@ -1544,14 +1542,13 @@ public class PublicMethed {
       return null;
     }
     // Test raw data
-    if(null != memo) {
+    if (null != memo) {
       Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
       builder1.setData(ByteString.copyFromUtf8(memo));
       Transaction.Builder builder2 = transaction.toBuilder();
       builder2.setRawData(builder1);
       transaction = builder2.build();
     }
-
 
     transaction = signTransaction(ecKey, transaction);
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
@@ -1653,7 +1650,6 @@ public class PublicMethed {
     logger.info("asset balance is " + assetOwnerAssetBalance);
     return assetOwnerAssetBalance;
   }
-
 
   public static Long getAssetBalanceByAssetId(
       ByteString assetId, byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -1910,8 +1906,7 @@ public class PublicMethed {
     Integer wait = 0;
     long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     logger.info("start sync soliditynode, SR number: " + getWitnessNum(blockingStubFull));
-    while (solidityCurrentBlock.getBlockHeader().getRawData().getNumber()
-            <= currentBlockNum + 1
+    while (solidityCurrentBlock.getBlockHeader().getRawData().getNumber() <= currentBlockNum + 1
         && wait
             < ((getWitnessNum(blockingStubFull) >= 27)
                 ? 27
@@ -1929,8 +1924,11 @@ public class PublicMethed {
       }
       wait++;
     }
-    logger.info("Fullnode number: " + currentBlockNum
-    + ", solidity node number: " + solidityCurrentBlock.getBlockHeader().getRawData().getNumber());
+    logger.info(
+        "Fullnode number: "
+            + currentBlockNum
+            + ", solidity node number: "
+            + solidityCurrentBlock.getBlockHeader().getRawData().getNumber());
 
     return true;
   }
@@ -1944,7 +1942,9 @@ public class PublicMethed {
     Long nextNum = nextBlock.getBlockHeader().getRawData().getNumber();
 
     Integer wait = 0;
-    logger.info("start wait produce block, current num: " + currentBlock.getBlockHeader().getRawData().getNumber());
+    logger.info(
+        "start wait produce block, current num: "
+            + currentBlock.getBlockHeader().getRawData().getNumber());
     while (nextNum <= currentNum + 1 && wait <= 45) {
       try {
         Thread.sleep(1000);
@@ -1963,17 +1963,16 @@ public class PublicMethed {
     return true;
   }
 
-
-
   /**
-   * if tx is found, return it
-   * if query timeout,assert failed then return false
+   * if tx is found, return it if query timeout,assert failed then return false
+   *
    * @param blockingStubFull
    * @param txId
    * @param timeout second
    * @return
    */
-  public static void WaitUntilTransactionInfoFound(WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
+  public static void WaitUntilTransactionInfoFound(
+      WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
     Integer wait = 0;
     while (wait++ <= timeout) {
       try {
@@ -1982,14 +1981,14 @@ public class PublicMethed {
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-      Optional<TransactionInfo> infoById = PublicMethed.getTransactionInfoById(txId, blockingStubFull);
-      if(infoById.get().getBlockTimeStamp() > 0){
+      Optional<TransactionInfo> infoById =
+          PublicMethed.getTransactionInfoById(txId, blockingStubFull);
+      if (infoById.get().getBlockTimeStamp() > 0) {
         logger.info("quit normally, wait tx by id: " + txId + " times: " + wait);
         return;
       }
     }
     logger.info("quit timeout, wait tx by id: " + txId + " times: " + wait);
-
   }
 
   /** constructor. */
@@ -2393,7 +2392,7 @@ public class PublicMethed {
       ByteString receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    if(tronPowerProposalIsOpen(blockingStubFull) && !freezeV2ProposalIsOpen(blockingStubFull)) {
+    if (tronPowerProposalIsOpen(blockingStubFull) && !freezeV2ProposalIsOpen(blockingStubFull)) {
       return freezeBalanceForReceiver(
           address,
           freezeBalance,
@@ -2404,52 +2403,38 @@ public class PublicMethed {
           blockingStubFull);
     }
 
-
-    if(!tronPowerProposalIsOpen(blockingStubFull) && !freezeV2ProposalIsOpen(blockingStubFull)) {
+    if (!tronPowerProposalIsOpen(blockingStubFull) && !freezeV2ProposalIsOpen(blockingStubFull)) {
       return freezeBalanceForReceiver(
-          address,
-          freezeBalance,
-          freezeDuration,
-          0,
-          receiverAddress,
-          priKey,
-          blockingStubFull);
+          address, freezeBalance, freezeDuration, 0, receiverAddress, priKey, blockingStubFull);
     }
 
-
-    if(!tronPowerProposalIsOpen(blockingStubFull) && freezeV2ProposalIsOpen(blockingStubFull)
-        && null == receiverAddress) {
-      return freezeBalanceV2(address,freezeBalance,0,priKey,blockingStubFull);
-    }
-
-    if(tronPowerProposalIsOpen(blockingStubFull)
+    if (!tronPowerProposalIsOpen(blockingStubFull)
         && freezeV2ProposalIsOpen(blockingStubFull)
         && null == receiverAddress) {
-      return freezeBalanceV2(address,freezeBalance,resourceCode,priKey,blockingStubFull);
+      return freezeBalanceV2(address, freezeBalance, 0, priKey, blockingStubFull);
+    }
+
+    if (tronPowerProposalIsOpen(blockingStubFull)
+        && freezeV2ProposalIsOpen(blockingStubFull)
+        && null == receiverAddress) {
+      return freezeBalanceV2(address, freezeBalance, resourceCode, priKey, blockingStubFull);
     }
     return false;
-
-
-
-
-
   }
 
-
-  public static Long getChainParametersValue(String proposalName,WalletGrpc.WalletBlockingStub blockingStubFull) {
-    ChainParameters chainParameters = blockingStubFull
-        .getChainParameters(EmptyMessage.newBuilder().build());
+  public static Long getChainParametersValue(
+      String proposalName, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ChainParameters chainParameters =
+        blockingStubFull.getChainParameters(EmptyMessage.newBuilder().build());
     Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
     logger.info(Long.toString(getChainParameters.get().getChainParameterCount()));
     for (Integer i = 0; i < getChainParameters.get().getChainParameterCount(); i++) {
-      if(getChainParameters.get().getChainParameter(i).getKey().equals(proposalName)) {
+      if (getChainParameters.get().getChainParameter(i).getKey().equals(proposalName)) {
         return getChainParameters.get().getChainParameter(i).getValue();
       }
     }
 
     return 0L;
-
-
   }
 
   /** constructor. */
@@ -2460,11 +2445,13 @@ public class PublicMethed {
       int resourceCode,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    if(getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(),
-        blockingStubFull) == 0) {
-      return freezeBalanceV1(addRess,freezeBalance,freezeDuration,resourceCode,priKey,blockingStubFull);
+    if (getChainParametersValue(
+            ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
+        == 0) {
+      return freezeBalanceV1(
+          addRess, freezeBalance, freezeDuration, resourceCode, priKey, blockingStubFull);
     } else {
-      return freezeBalanceV2(addRess,freezeBalance,resourceCode,priKey,blockingStubFull);
+      return freezeBalanceV2(addRess, freezeBalance, resourceCode, priKey, blockingStubFull);
     }
   }
 
@@ -2621,14 +2608,14 @@ public class PublicMethed {
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
 
-
-    //estimateEnergyDeployContract
+    // estimateEnergyDeployContract
     if (null != libraryAddress) {
-      estimateDeployContractEnergy(PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     } else {
-      estimateDeployContractEnergy(code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     }
-
 
     TransactionExtention transactionExtention =
         blockingStubFull.deployContract(contractDeployContract);
@@ -2758,11 +2745,13 @@ public class PublicMethed {
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
 
-    //estimateEnergyDeployContract
+    // estimateEnergyDeployContract
     if (null != libraryAddress) {
-      estimateDeployContractEnergy(PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     } else {
-      estimateDeployContractEnergy(code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     }
 
     TransactionExtention transactionExtention =
@@ -2893,11 +2882,13 @@ public class PublicMethed {
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
 
-    //estimateEnergyDeployContract
+    // estimateEnergyDeployContract
     if (null != libraryAddress) {
-      estimateDeployContractEnergy(PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     } else {
-      estimateDeployContractEnergy(code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     }
 
     TransactionExtention transactionExtention =
@@ -2952,9 +2943,9 @@ public class PublicMethed {
     System.out.println(
         "txid = "
             + ByteArray.toHexString(
-            Sha256Hash.hash(
-                CommonParameter.getInstance().isECKeyCryptoEngine(),
-                transaction.getRawData().toByteArray())));
+                Sha256Hash.hash(
+                    CommonParameter.getInstance().isECKeyCryptoEngine(),
+                    transaction.getRawData().toByteArray())));
     return transaction;
   }
 
@@ -3082,9 +3073,10 @@ public class PublicMethed {
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
 
-    //estimateEnergyDeployContract
+    // estimateEnergyDeployContract
     if (null != libraryAddress) {
-      estimateDeployContractEnergy(PublicMethed.code, value, "0", 0L, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          PublicMethed.code, value, "0", 0L, ownerAddress, blockingStubFull);
     } else {
       estimateDeployContractEnergy(code, value, "0", 0L, ownerAddress, blockingStubFull);
     }
@@ -3247,13 +3239,14 @@ public class PublicMethed {
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
 
-    //estimateEnergyDeployContract
+    // estimateEnergyDeployContract
     if (null != libraryAddress) {
-      estimateDeployContractEnergy(PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     } else {
-      estimateDeployContractEnergy(code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     }
-
 
     TransactionExtention transactionExtention =
         blockingStubFull.deployContract(contractDeployContract);
@@ -4559,11 +4552,13 @@ public class PublicMethed {
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
 
-    //estimateEnergyDeployContract
+    // estimateEnergyDeployContract
     if (null != libraryAddress) {
-      estimateDeployContractEnergy(PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     } else {
-      estimateDeployContractEnergy(code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     }
 
     TransactionExtention transactionExtention =
@@ -4642,11 +4637,25 @@ public class PublicMethed {
       ByteString receiverAddressBytes,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    if(getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull) > 0) {
-      return delegateResourceForReceiver(addRess,freezeBalance,resourceCode,receiverAddressBytes.toByteArray(),priKey,blockingStubFull);
+    if (getChainParametersValue(
+            ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
+        > 0) {
+      return delegateResourceForReceiver(
+          addRess,
+          freezeBalance,
+          resourceCode,
+          receiverAddressBytes.toByteArray(),
+          priKey,
+          blockingStubFull);
     } else {
-      return freezeBalanceV1ForReceiver(addRess,freezeBalance,freezeDuration,resourceCode,
-          null == receiverAddressBytes ? null : receiverAddressBytes.toByteArray(),priKey,blockingStubFull);
+      return freezeBalanceV1ForReceiver(
+          addRess,
+          freezeBalance,
+          freezeDuration,
+          resourceCode,
+          null == receiverAddressBytes ? null : receiverAddressBytes.toByteArray(),
+          priKey,
+          blockingStubFull);
     }
   }
 
@@ -4662,14 +4671,13 @@ public class PublicMethed {
             .setFromAddress(fromAddressBs)
             .setToAddress(toAddressBs)
             .build();
-    if(freezeV2ProposalIsOpen(blockingStubFull)) {
+    if (freezeV2ProposalIsOpen(blockingStubFull)) {
       DelegatedResourceList delegatedResource = blockingStubFull.getDelegatedResourceV2(request);
       return Optional.ofNullable(delegatedResource);
     } else {
       DelegatedResourceList delegatedResource = blockingStubFull.getDelegatedResource(request);
       return Optional.ofNullable(delegatedResource);
     }
-
   }
 
   /** constructor. */
@@ -4695,7 +4703,7 @@ public class PublicMethed {
       byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     BytesMessage bytesMessage = BytesMessage.newBuilder().setValue(addressBs).build();
-    if(freezeV2ProposalIsOpen(blockingStubFull)) {
+    if (freezeV2ProposalIsOpen(blockingStubFull)) {
       DelegatedResourceAccountIndex accountIndex =
           blockingStubFull.getDelegatedResourceAccountIndexV2(bytesMessage);
       return Optional.ofNullable(accountIndex);
@@ -4705,7 +4713,6 @@ public class PublicMethed {
       return Optional.ofNullable(accountIndex);
     }
   }
-
 
   /** constructor. */
   public static Optional<DelegatedResourceAccountIndex>
@@ -4720,6 +4727,7 @@ public class PublicMethed {
         blockingStubFull.getDelegatedResourceAccountIndex(bytesMessage);
     return Optional.ofNullable(accountIndex);
   }
+
   /** constructor. */
   public static Optional<DelegatedResourceList> getDelegatedResourceV2(
       byte[] fromAddress, byte[] toAddress, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -4736,9 +4744,12 @@ public class PublicMethed {
     DelegatedResourceList delegatedResource = blockingStubFull.getDelegatedResourceV2(request);
     return Optional.ofNullable(delegatedResource);
   }
+
   /** constructor. */
   public static Optional<DelegatedResourceList> getDelegatedResourceV2Solidity(
-      byte[] fromAddress, byte[] toAddress, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+      byte[] fromAddress,
+      byte[] toAddress,
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     // Wallet.setAddressPreFixByte()();
     ByteString fromAddressBs = ByteString.copyFrom(fromAddress);
     ByteString toAddressBs = ByteString.copyFrom(toAddress);
@@ -4752,6 +4763,7 @@ public class PublicMethed {
     DelegatedResourceList delegatedResource = blockingStubFull.getDelegatedResourceV2(request);
     return Optional.ofNullable(delegatedResource);
   }
+
   /** constructor. */
   public static Optional<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndexV2(
       byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -4759,9 +4771,10 @@ public class PublicMethed {
     BytesMessage bytesMessage = BytesMessage.newBuilder().setValue(addressBs).build();
 
     DelegatedResourceAccountIndex accountIndex =
-          blockingStubFull.getDelegatedResourceAccountIndexV2(bytesMessage);
+        blockingStubFull.getDelegatedResourceAccountIndexV2(bytesMessage);
     return Optional.ofNullable(accountIndex);
   }
+
   /** constructor. */
   public static Optional<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndexV2Solidity(
       byte[] address, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
@@ -4773,76 +4786,87 @@ public class PublicMethed {
     return Optional.ofNullable(accountIndex);
   }
 
-  public static Optional<CanDelegatedMaxSizeResponseMessage> getCanDelegatedMaxSize(byte[] ownerAddress, int type,
-      WalletGrpc.WalletBlockingStub blockingStub) {
+  public static Optional<CanDelegatedMaxSizeResponseMessage> getCanDelegatedMaxSize(
+      byte[] ownerAddress, int type, WalletGrpc.WalletBlockingStub blockingStub) {
     ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
-    CanDelegatedMaxSizeRequestMessage request = CanDelegatedMaxSizeRequestMessage.newBuilder()
-        .setOwnerAddress(ownerAddressBS)
-        .setType(type)
-        .build();
+    CanDelegatedMaxSizeRequestMessage request =
+        CanDelegatedMaxSizeRequestMessage.newBuilder()
+            .setOwnerAddress(ownerAddressBS)
+            .setType(type)
+            .build();
     CanDelegatedMaxSizeResponseMessage canDelegatedMaxSizeResponseMessage;
     canDelegatedMaxSizeResponseMessage = blockingStub.getCanDelegatedMaxSize(request);
     return Optional.ofNullable(canDelegatedMaxSizeResponseMessage);
   }
 
-  public static Optional<CanDelegatedMaxSizeResponseMessage> getCanDelegatedMaxSizeSolidity(byte[] ownerAddress, int type,
-                                                                                            WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+  public static Optional<CanDelegatedMaxSizeResponseMessage> getCanDelegatedMaxSizeSolidity(
+      byte[] ownerAddress,
+      int type,
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
-    CanDelegatedMaxSizeRequestMessage request = CanDelegatedMaxSizeRequestMessage.newBuilder()
-        .setOwnerAddress(ownerAddressBS)
-        .setType(type)
-        .build();
+    CanDelegatedMaxSizeRequestMessage request =
+        CanDelegatedMaxSizeRequestMessage.newBuilder()
+            .setOwnerAddress(ownerAddressBS)
+            .setType(type)
+            .build();
     CanDelegatedMaxSizeResponseMessage canDelegatedMaxSizeResponseMessage;
     canDelegatedMaxSizeResponseMessage = blockingStubFull.getCanDelegatedMaxSize(request);
     return Optional.ofNullable(canDelegatedMaxSizeResponseMessage);
   }
 
-
   public static Optional<CanWithdrawUnfreezeAmountResponseMessage> getCanWithdrawUnfreezeAmount(
-      byte[] ownerAddress, long timestamp,WalletGrpc.WalletBlockingStub blockingStub) {
+      byte[] ownerAddress, long timestamp, WalletGrpc.WalletBlockingStub blockingStub) {
     ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
-    CanWithdrawUnfreezeAmountRequestMessage request = CanWithdrawUnfreezeAmountRequestMessage.newBuilder()
-        .setOwnerAddress(ownerAddressBS)
-        .setTimestamp(timestamp)
-        .build();
+    CanWithdrawUnfreezeAmountRequestMessage request =
+        CanWithdrawUnfreezeAmountRequestMessage.newBuilder()
+            .setOwnerAddress(ownerAddressBS)
+            .setTimestamp(timestamp)
+            .build();
     CanWithdrawUnfreezeAmountResponseMessage canDelegatedMaxSizeResponseMessage;
     canDelegatedMaxSizeResponseMessage = blockingStub.getCanWithdrawUnfreezeAmount(request);
     return Optional.ofNullable(canDelegatedMaxSizeResponseMessage);
   }
-  public static Optional<CanWithdrawUnfreezeAmountResponseMessage> getCanWithdrawUnfreezeAmountSolidity(
-      byte[] ownerAddress, long timestamp,WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+
+  public static Optional<CanWithdrawUnfreezeAmountResponseMessage>
+      getCanWithdrawUnfreezeAmountSolidity(
+          byte[] ownerAddress,
+          long timestamp,
+          WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
-    CanWithdrawUnfreezeAmountRequestMessage request = CanWithdrawUnfreezeAmountRequestMessage.newBuilder()
-        .setOwnerAddress(ownerAddressBS)
-        .setTimestamp(timestamp)
-        .build();
+    CanWithdrawUnfreezeAmountRequestMessage request =
+        CanWithdrawUnfreezeAmountRequestMessage.newBuilder()
+            .setOwnerAddress(ownerAddressBS)
+            .setTimestamp(timestamp)
+            .build();
     CanWithdrawUnfreezeAmountResponseMessage canDelegatedMaxSizeResponseMessage;
     canDelegatedMaxSizeResponseMessage = blockingStubFull.getCanWithdrawUnfreezeAmount(request);
     return Optional.ofNullable(canDelegatedMaxSizeResponseMessage);
   }
 
-
   public static Optional<GetAvailableUnfreezeCountResponseMessage> getAvailableUnfreezeCount(
-      byte[] ownerAddress,WalletGrpc.WalletBlockingStub blockingStub) {
+      byte[] ownerAddress, WalletGrpc.WalletBlockingStub blockingStub) {
     ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
-    GetAvailableUnfreezeCountRequestMessage request = GetAvailableUnfreezeCountRequestMessage.newBuilder()
-        .setOwnerAddress(ownerAddressBS)
-        .build();
+    GetAvailableUnfreezeCountRequestMessage request =
+        GetAvailableUnfreezeCountRequestMessage.newBuilder()
+            .setOwnerAddress(ownerAddressBS)
+            .build();
     GetAvailableUnfreezeCountResponseMessage getAvailableUnfreezeCountResponseMessage;
     getAvailableUnfreezeCountResponseMessage = blockingStub.getAvailableUnfreezeCount(request);
     return Optional.ofNullable(getAvailableUnfreezeCountResponseMessage);
   }
-  public static Optional<GetAvailableUnfreezeCountResponseMessage> getAvailableUnfreezeCountSolidity(
-      byte[] ownerAddress,WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+
+  public static Optional<GetAvailableUnfreezeCountResponseMessage>
+      getAvailableUnfreezeCountSolidity(
+          byte[] ownerAddress, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
-    GetAvailableUnfreezeCountRequestMessage request = GetAvailableUnfreezeCountRequestMessage.newBuilder()
-        .setOwnerAddress(ownerAddressBS)
-        .build();
+    GetAvailableUnfreezeCountRequestMessage request =
+        GetAvailableUnfreezeCountRequestMessage.newBuilder()
+            .setOwnerAddress(ownerAddressBS)
+            .build();
     GetAvailableUnfreezeCountResponseMessage getAvailableUnfreezeCountResponseMessage;
     getAvailableUnfreezeCountResponseMessage = blockingStubFull.getAvailableUnfreezeCount(request);
     return Optional.ofNullable(getAvailableUnfreezeCountResponseMessage);
   }
-
 
   /** constructor. */
   public static AssetIssueContract getAssetIssueByName(
@@ -5221,14 +5245,14 @@ public class PublicMethed {
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
 
-
-    //estimateEnergyDeployContract
+    // estimateEnergyDeployContract
     if (null != libraryAddress) {
-      estimateDeployContractEnergy(PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     } else {
-      estimateDeployContractEnergy(code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(
+          code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
     }
-
 
     TransactionExtention transactionExtention =
         blockingStubFull.deployContract(contractDeployContract);
@@ -5568,10 +5592,11 @@ public class PublicMethed {
   /** constructor. */
   public static GrpcAPI.Return broadcastTransaction(
       Transaction transaction, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    String txid = ByteArray.toHexString(
-        Sha256Hash.hash(
-            CommonParameter.getInstance().isECKeyCryptoEngine(),
-            transaction.getRawData().toByteArray()));
+    String txid =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     logger.info("broadcastTransaction: " + txid);
     int i = 10;
     GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
@@ -5623,7 +5648,7 @@ public class PublicMethed {
   }
 
   /** constructor. */
-  public synchronized static String exec(String command) throws InterruptedException {
+  public static synchronized String exec(String command) throws InterruptedException {
     String returnString = "";
     String errReturnString = "";
     Process pro = null;
@@ -5643,7 +5668,7 @@ public class PublicMethed {
       InputStreamReader errReader = new InputStreamReader(stderr);
       BufferedReader br = new BufferedReader(errReader);
       String errLine = null;
-      while ((errLine = br.readLine())!=null) {
+      while ((errLine = br.readLine()) != null) {
         errReturnString = errReturnString + errLine + "\n";
       }
       input.close();
@@ -5656,7 +5681,6 @@ public class PublicMethed {
     }
     return returnString.length() >= errReturnString.length() ? returnString : errReturnString;
   }
-
 
   /** constructor. */
   public static HashMap<String, String> getBycodeAbiNoOptimize(
@@ -5717,7 +5741,8 @@ public class PublicMethed {
   }
 
   /** constructor. */
-  public synchronized static HashMap<String, String> getBycodeAbi(String solFile, String contractName) {
+  public static synchronized HashMap<String, String> getBycodeAbi(
+      String solFile, String contractName) {
     final String compile =
         Configuration.getByPath("testng.conf").getString("defaultParameter.solidityCompile");
 
@@ -5753,7 +5778,6 @@ public class PublicMethed {
     String byteCode = null;
     String abI = null;
 
-
     // compile solidity file
     try {
       exec(cmd);
@@ -5775,9 +5799,10 @@ public class PublicMethed {
   }
 
   /** constructor. */
-  public synchronized static HashMap<String, String> getBycodeAbiWithParam(String solFile, String contractName, String param) {
+  public static synchronized HashMap<String, String> getBycodeAbiWithParam(
+      String solFile, String contractName, String param) {
     final String compile =
-            Configuration.getByPath("testng.conf").getString("defaultParameter.solidityCompile");
+        Configuration.getByPath("testng.conf").getString("defaultParameter.solidityCompile");
 
     String dirPath = solFile.substring(solFile.lastIndexOf("/"), solFile.lastIndexOf("."));
     String outputPath = "src/test/resources/soliditycode/output" + dirPath;
@@ -5797,20 +5822,21 @@ public class PublicMethed {
     logger.debug("solFile: " + solFile);
     logger.debug("outputPath: " + outputPath);
     String cmd =
-            compile
-                    + " --optimize " + param +" --bin --abi --overwrite "
-                    + absolutePath
-                    + "/"
-                    + solFile
-                    + " -o "
-                    + absolutePath
-                    + "/"
-                    + outputPath;
+        compile
+            + " --optimize "
+            + param
+            + " --bin --abi --overwrite "
+            + absolutePath
+            + "/"
+            + solFile
+            + " -o "
+            + absolutePath
+            + "/"
+            + outputPath;
     logger.info("cmd: " + cmd);
 
     String byteCode = null;
     String abI = null;
-
 
     // compile solidity file
     try {
@@ -7851,9 +7877,9 @@ public class PublicMethed {
     return Optional.ofNullable(transaction);
   }
 
-
   /** constructor. */
-  public static Boolean freezeBalanceV2(byte[] addressByte,
+  public static Boolean freezeBalanceV2(
+      byte[] addressByte,
       long freezeBalance,
       int resourceCode,
       String priKey,
@@ -7866,7 +7892,7 @@ public class PublicMethed {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-    FreezeBalanceV2Contract.Builder builder =  FreezeBalanceV2Contract.newBuilder();
+    FreezeBalanceV2Contract.Builder builder = FreezeBalanceV2Contract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(addressByte);
     builder
         .setOwnerAddress(byteAddress)
@@ -7880,18 +7906,21 @@ public class PublicMethed {
       return false;
     }
     transaction = TransactionUtils.sign(transaction, ecKey);
-    freezeV2Txid = ByteArray.toHexString(
-        Sha256Hash.hash(
-            CommonParameter.getInstance().isECKeyCryptoEngine(),
-            transaction.getRawData().toByteArray()));
+    freezeV2Txid =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
-  public static String freezeBalanceV2AndGetTxId(byte[] addressByte,
-                                        long freezeBalance,
-                                        int resourceCode,
-                                        String priKey,
-                                        WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+  public static String freezeBalanceV2AndGetTxId(
+      byte[] addressByte,
+      long freezeBalance,
+      int resourceCode,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -7900,12 +7929,12 @@ public class PublicMethed {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-    FreezeBalanceV2Contract.Builder builder =  FreezeBalanceV2Contract.newBuilder();
+    FreezeBalanceV2Contract.Builder builder = FreezeBalanceV2Contract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(addressByte);
     builder
-            .setOwnerAddress(byteAddress)
-            .setFrozenBalance(freezeBalance)
-            .setResourceValue(resourceCode);
+        .setOwnerAddress(byteAddress)
+        .setFrozenBalance(freezeBalance)
+        .setResourceValue(resourceCode);
     FreezeBalanceV2Contract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.freezeBalanceV2(contract);
     Protocol.Transaction transaction = transactionExtention.getTransaction();
@@ -7914,28 +7943,29 @@ public class PublicMethed {
       return null;
     }
     transaction = TransactionUtils.sign(transaction, ecKey);
-    String freezeV2Txid = ByteArray.toHexString(
+    String freezeV2Txid =
+        ByteArray.toHexString(
             Sha256Hash.hash(
-                    CommonParameter.getInstance().isECKeyCryptoEngine(),
-                    transaction.getRawData().toByteArray()));
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return freezeV2Txid;
   }
 
-
-  public static Long getFrozenV2Amount(byte[] address, int resourceCode,WalletGrpc.WalletBlockingStub blockingStubFull) {
-    List<FreezeV2> list = queryAccount(address,blockingStubFull).getFrozenV2List();
-    for(int i = 0; i < list.size();i++) {
-      if(list.get(i).getType().getNumber() == resourceCode) {
+  public static Long getFrozenV2Amount(
+      byte[] address, int resourceCode, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    List<FreezeV2> list = queryAccount(address, blockingStubFull).getFrozenV2List();
+    for (int i = 0; i < list.size(); i++) {
+      if (list.get(i).getType().getNumber() == resourceCode) {
         return list.get(i).getAmount();
       }
     }
     return 0L;
-
   }
 
   /** constructor. */
-  public static Boolean delegateResourceForReceiver(byte[] addressByte,
+  public static Boolean delegateResourceForReceiver(
+      byte[] addressByte,
       long delegateAmount,
       int resourceCode,
       byte[] receiverAddress,
@@ -7949,10 +7979,11 @@ public class PublicMethed {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-    Assert.assertTrue(freezeBalanceV2(addressByte,delegateAmount,resourceCode,priKey,blockingStubFull));
+    Assert.assertTrue(
+        freezeBalanceV2(addressByte, delegateAmount, resourceCode, priKey, blockingStubFull));
     waitProduceNextBlock(blockingStubFull);
 
-    DelegateResourceContract.Builder builder =  DelegateResourceContract.newBuilder();
+    DelegateResourceContract.Builder builder = DelegateResourceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(addressByte);
     ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
     builder
@@ -7972,26 +8003,42 @@ public class PublicMethed {
     return response.getResult();
   }
 
-
   /** constructor. */
-  public static Boolean delegateResourceV2(byte[] addressByte,
+  public static Boolean delegateResourceV2(
+      byte[] addressByte,
       long delegateAmount,
       int resourceCode,
       byte[] receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return delegateResourceV2Lock(addressByte,delegateAmount,resourceCode,false, null, receiverAddress,priKey,
+    return delegateResourceV2Lock(
+        addressByte,
+        delegateAmount,
+        resourceCode,
+        false,
+        null,
+        receiverAddress,
+        priKey,
         blockingStubFull);
   }
+
   /** constructor. */
-  public static String delegateResourceV2AndGetTxId(byte[] addressByte,
-                                           long delegateAmount,
-                                           int resourceCode,
-                                           byte[] receiverAddress,
-                                           String priKey,
-                                           WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return delegateResourceV2LockAndGetTxId(addressByte,delegateAmount,resourceCode,false, null, receiverAddress,priKey,
-            blockingStubFull);
+  public static String delegateResourceV2AndGetTxId(
+      byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return delegateResourceV2LockAndGetTxId(
+        addressByte,
+        delegateAmount,
+        resourceCode,
+        false,
+        null,
+        receiverAddress,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -8014,7 +8061,7 @@ public class PublicMethed {
     }
     final ECKey ecKey = temKey;
 
-    DelegateResourceContract.Builder builder =  DelegateResourceContract.newBuilder();
+    DelegateResourceContract.Builder builder = DelegateResourceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(addressByte);
     ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
     builder
@@ -8034,18 +8081,18 @@ public class PublicMethed {
       return transactionExtention;
     }
     transaction = TransactionUtils.sign(transaction, ecKey);
-    String freezeV2Txid = ByteArray.toHexString(
-        Sha256Hash.hash(
-            CommonParameter.getInstance().isECKeyCryptoEngine(),
-            transaction.getRawData().toByteArray()));
+    String freezeV2Txid =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return transactionExtention;
   }
 
-
-
   /** constructor. */
-  public static Boolean delegateResourceV2Lock(byte[] addressByte,
+  public static Boolean delegateResourceV2Lock(
+      byte[] addressByte,
       long delegateAmount,
       int resourceCode,
       boolean lock,
@@ -8062,7 +8109,7 @@ public class PublicMethed {
     }
     final ECKey ecKey = temKey;
 
-    DelegateResourceContract.Builder builder =  DelegateResourceContract.newBuilder();
+    DelegateResourceContract.Builder builder = DelegateResourceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(addressByte);
     ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
     builder
@@ -8082,22 +8129,24 @@ public class PublicMethed {
       return false;
     }
     transaction = TransactionUtils.sign(transaction, ecKey);
-    freezeV2Txid = ByteArray.toHexString(
-        Sha256Hash.hash(
-            CommonParameter.getInstance().isECKeyCryptoEngine(),
-            transaction.getRawData().toByteArray()));
+    freezeV2Txid =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
 
-  public static String delegateResourceV2LockAndGetTxId(byte[] addressByte,
-                                               long delegateAmount,
-                                               int resourceCode,
-                                               boolean lock,
-                                               Long lockPeriod,
-                                               byte[] receiverAddress,
-                                               String priKey,
-                                               WalletGrpc.WalletBlockingStub blockingStubFull) {
+  public static String delegateResourceV2LockAndGetTxId(
+      byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      boolean lock,
+      Long lockPeriod,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -8107,15 +8156,15 @@ public class PublicMethed {
     }
     final ECKey ecKey = temKey;
 
-    DelegateResourceContract.Builder builder =  DelegateResourceContract.newBuilder();
+    DelegateResourceContract.Builder builder = DelegateResourceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(addressByte);
     ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
     builder
-            .setOwnerAddress(byteAddress)
-            .setBalance(delegateAmount)
-            .setReceiverAddress(byteReceiverAddress)
-            .setResourceValue(resourceCode)
-            .setLock(lock);
+        .setOwnerAddress(byteAddress)
+        .setBalance(delegateAmount)
+        .setReceiverAddress(byteReceiverAddress)
+        .setResourceValue(resourceCode)
+        .setLock(lock);
     if (null != lockPeriod) {
       builder.setLockPeriod(lockPeriod);
     }
@@ -8127,18 +8176,18 @@ public class PublicMethed {
       return null;
     }
     transaction = TransactionUtils.sign(transaction, ecKey);
-    String freezeV2Txid = ByteArray.toHexString(
+    String freezeV2Txid =
+        ByteArray.toHexString(
             Sha256Hash.hash(
-                    CommonParameter.getInstance().isECKeyCryptoEngine(),
-                    transaction.getRawData().toByteArray()));
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return freezeV2Txid;
   }
 
-
-
   /** constructor. */
-  public static Boolean unDelegateResourceV2(byte[] addressByte,
+  public static Boolean unDelegateResourceV2(
+      byte[] addressByte,
       long delegateAmount,
       int resourceCode,
       byte[] receiverAddress,
@@ -8153,7 +8202,7 @@ public class PublicMethed {
     }
     final ECKey ecKey = temKey;
 
-    UnDelegateResourceContract.Builder builder =  UnDelegateResourceContract.newBuilder();
+    UnDelegateResourceContract.Builder builder = UnDelegateResourceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(addressByte);
     ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
     builder
@@ -8169,20 +8218,22 @@ public class PublicMethed {
       return false;
     }
     transaction = TransactionUtils.sign(transaction, ecKey);
-    freezeV2Txid = ByteArray.toHexString(
-        Sha256Hash.hash(
-            CommonParameter.getInstance().isECKeyCryptoEngine(),
-            transaction.getRawData().toByteArray()));
+    freezeV2Txid =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
 
-  public static String unDelegateResourceV2AndGetTxId(byte[] addressByte,
-                                             long delegateAmount,
-                                             int resourceCode,
-                                             byte[] receiverAddress,
-                                             String priKey,
-                                             WalletGrpc.WalletBlockingStub blockingStubFull) {
+  public static String unDelegateResourceV2AndGetTxId(
+      byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -8192,14 +8243,14 @@ public class PublicMethed {
     }
     final ECKey ecKey = temKey;
 
-    UnDelegateResourceContract.Builder builder =  UnDelegateResourceContract.newBuilder();
+    UnDelegateResourceContract.Builder builder = UnDelegateResourceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(addressByte);
     ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
     builder
-            .setOwnerAddress(byteAddress)
-            .setBalance(delegateAmount)
-            .setReceiverAddress(byteReceiverAddress)
-            .setResourceValue(resourceCode);
+        .setOwnerAddress(byteAddress)
+        .setBalance(delegateAmount)
+        .setReceiverAddress(byteReceiverAddress)
+        .setResourceValue(resourceCode);
     UnDelegateResourceContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.unDelegateResource(contract);
     Protocol.Transaction transaction = transactionExtention.getTransaction();
@@ -8208,19 +8259,22 @@ public class PublicMethed {
       return null;
     }
     transaction = TransactionUtils.sign(transaction, ecKey);
-    String freezeV2Txid = ByteArray.toHexString(
+    String freezeV2Txid =
+        ByteArray.toHexString(
             Sha256Hash.hash(
-                    CommonParameter.getInstance().isECKeyCryptoEngine(),
-                    transaction.getRawData().toByteArray()));
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return freezeV2Txid;
   }
-  public static TransactionExtention unDelegateResourceV2AndGetTransactionExtention(byte[] addressByte,
-                                                      long delegateAmount,
-                                                      int resourceCode,
-                                                      byte[] receiverAddress,
-                                                      String priKey,
-                                                      WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+  public static TransactionExtention unDelegateResourceV2AndGetTransactionExtention(
+      byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -8230,7 +8284,7 @@ public class PublicMethed {
     }
     final ECKey ecKey = temKey;
 
-    UnDelegateResourceContract.Builder builder =  UnDelegateResourceContract.newBuilder();
+    UnDelegateResourceContract.Builder builder = UnDelegateResourceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(addressByte);
     ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
     builder
@@ -8246,14 +8300,14 @@ public class PublicMethed {
       return transactionExtention;
     }
     transaction = TransactionUtils.sign(transaction, ecKey);
-    String freezeV2Txid = ByteArray.toHexString(
-        Sha256Hash.hash(
-            CommonParameter.getInstance().isECKeyCryptoEngine(),
-            transaction.getRawData().toByteArray()));
+    String freezeV2Txid =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return transactionExtention;
   }
-
 
   /** constructor. */
   public static Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergy(
@@ -8265,8 +8319,7 @@ public class PublicMethed {
       String argsStr,
       Boolean isHex,
       long tokenValue,
-      String tokenId
-      ) {
+      String tokenId) {
     TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     if (contractAddress != null) {
@@ -8282,7 +8335,8 @@ public class PublicMethed {
       builder.setCallTokenValue(tokenValue);
       builder.setTokenId(Long.parseLong(tokenId));
     }
-    GrpcAPI.EstimateEnergyMessage estimateEnergyMessage = blockingStubFull.estimateEnergy(builder.build());
+    GrpcAPI.EstimateEnergyMessage estimateEnergyMessage =
+        blockingStubFull.estimateEnergy(builder.build());
     return Optional.ofNullable(estimateEnergyMessage);
   }
 
@@ -8296,8 +8350,7 @@ public class PublicMethed {
       String argsStr,
       Boolean isHex,
       long tokenValue,
-      String tokenId
-  ) {
+      String tokenId) {
     TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     if (contractAddress != null) {
@@ -8313,18 +8366,18 @@ public class PublicMethed {
       builder.setCallTokenValue(tokenValue);
       builder.setTokenId(Long.parseLong(tokenId));
     }
-    GrpcAPI.EstimateEnergyMessage estimateEnergyMessage = blockingStubFull.estimateEnergy(builder.build());
+    GrpcAPI.EstimateEnergyMessage estimateEnergyMessage =
+        blockingStubFull.estimateEnergy(builder.build());
     return Optional.ofNullable(estimateEnergyMessage);
   }
 
   public static Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyDeployContract(
-          WalletGrpc.WalletBlockingStub blockingStubFull,
-          byte[] owner,
-          long callValue,
-          long tokenValue,
-          String tokenId,
-          String code
-  ) {
+      WalletGrpc.WalletBlockingStub blockingStubFull,
+      byte[] owner,
+      long callValue,
+      long tokenValue,
+      String tokenId,
+      String code) {
     TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setData(ByteString.copyFrom(Hex.decode(code)));
@@ -8333,88 +8386,86 @@ public class PublicMethed {
       builder.setCallTokenValue(tokenValue);
       builder.setTokenId(Long.parseLong(tokenId));
     }
-    GrpcAPI.EstimateEnergyMessage estimateEnergyMessage = blockingStubFull.estimateEnergy(builder.build());
+    GrpcAPI.EstimateEnergyMessage estimateEnergyMessage =
+        blockingStubFull.estimateEnergy(builder.build());
     return Optional.ofNullable(estimateEnergyMessage);
   }
 
-
   public static void estimateDeployContractEnergy(
-          String code,
-          long value,
-          String tokenId,
-          long tokenValue,
-          byte[] ownerAddress,
-          WalletGrpc.WalletBlockingStub blockingStubFull
-  ) {
-//    String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-//            .get(1);
+      String code,
+      long value,
+      String tokenId,
+      long tokenValue,
+      byte[] ownerAddress,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    //    String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
+    //            .get(1);
     try {
       logger.info("temp skip estimateDeployContractEnergy");
 
-//      logger.info("triggerConstantContract ------------ start -----------");
-//      HttpResponse response = HttpMethed
-//              .triggerConstantContractWithData(
-//                      httpnode,
-//                      ownerAddress, null, null, null, code, value, tokenValue, Long.parseLong(tokenId));
-//      JSONObject jsonObject = HttpMethed.parseResponseContent(response);
-//      HttpMethed.printJsonContent(jsonObject);
-//      Long constantEnergy = jsonObject.getLong("energy_used");
-//      logger.info("constantEnergy:" + constantEnergy);
-//
-//      TransactionExtention trx = PublicMethed
-//              .triggerConstantContractDeployContract(
-//                      code, ownerAddress, value, tokenId, tokenValue, blockingStubFull);
-//      Long grpcConstantEnergy = trx.getEnergyUsed();
-//      logger.info("grpcConstantEnergy:" + grpcConstantEnergy);
-//      Assert.assertEquals(grpcConstantEnergy.longValue(), constantEnergy.longValue());
-//      logger.info("triggerConstantContract ------------ end    -----------");
-//
-//      Long energyFee = PublicMethed.getChainParametersValue(
-//              ProposalEnum.GetEnergyFee.getProposalName(), blockingStubFull);
-//      logger.info("energyFee:" + energyFee);
+      //      logger.info("triggerConstantContract ------------ start -----------");
+      //      HttpResponse response = HttpMethed
+      //              .triggerConstantContractWithData(
+      //                      httpnode,
+      //                      ownerAddress, null, null, null, code, value, tokenValue,
+      // Long.parseLong(tokenId));
+      //      JSONObject jsonObject = HttpMethed.parseResponseContent(response);
+      //      HttpMethed.printJsonContent(jsonObject);
+      //      Long constantEnergy = jsonObject.getLong("energy_used");
+      //      logger.info("constantEnergy:" + constantEnergy);
+      //
+      //      TransactionExtention trx = PublicMethed
+      //              .triggerConstantContractDeployContract(
+      //                      code, ownerAddress, value, tokenId, tokenValue, blockingStubFull);
+      //      Long grpcConstantEnergy = trx.getEnergyUsed();
+      //      logger.info("grpcConstantEnergy:" + grpcConstantEnergy);
+      //      Assert.assertEquals(grpcConstantEnergy.longValue(), constantEnergy.longValue());
+      //      logger.info("triggerConstantContract ------------ end    -----------");
+      //
+      //      Long energyFee = PublicMethed.getChainParametersValue(
+      //              ProposalEnum.GetEnergyFee.getProposalName(), blockingStubFull);
+      //      logger.info("energyFee:" + energyFee);
 
+      //      logger.info("EstimateEnergy -------- start ------");
+      //      response = HttpMethed.getEstimateEnergyDeployContract(httpnode,
+      //              ownerAddress, null, null, null, code, value, tokenValue,
+      // Long.parseLong(tokenId), true);
+      //      jsonObject = HttpMethed.parseResponseContent(response);
+      //      HttpMethed.printJsonContent(jsonObject);
+      //      Long estimateEnergy = jsonObject.getLong("energy_required");
+      //      logger.info("estimateEnergy:" + estimateEnergy);
 
-//      logger.info("EstimateEnergy -------- start ------");
-//      response = HttpMethed.getEstimateEnergyDeployContract(httpnode,
-//              ownerAddress, null, null, null, code, value, tokenValue, Long.parseLong(tokenId), true);
-//      jsonObject = HttpMethed.parseResponseContent(response);
-//      HttpMethed.printJsonContent(jsonObject);
-//      Long estimateEnergy = jsonObject.getLong("energy_required");
-//      logger.info("estimateEnergy:" + estimateEnergy);
+      //      Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
+      //              PublicMethed.estimateEnergyDeployContract(blockingStubFull2,
+      //                      ownerAddress,
+      //                      value,
+      //                      tokenValue,
+      //                      tokenId,
+      //                      code);
+      //      logger.info(estimateEnergyMessage.get().toString());
+      //      Long grpcEstimateEnergy = estimateEnergyMessage.get().getEnergyRequired();
+      //      logger.info("grpcEstimateEnergy: " + grpcEstimateEnergy);
+      //      logger.info("EstimateEnergy ------------ end    -----------");
 
-
-//      Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-//              PublicMethed.estimateEnergyDeployContract(blockingStubFull2,
-//                      ownerAddress,
-//                      value,
-//                      tokenValue,
-//                      tokenId,
-//                      code);
-//      logger.info(estimateEnergyMessage.get().toString());
-//      Long grpcEstimateEnergy = estimateEnergyMessage.get().getEnergyRequired();
-//      logger.info("grpcEstimateEnergy: " + grpcEstimateEnergy);
-//      logger.info("EstimateEnergy ------------ end    -----------");
-
-//      logger.info("(estimateEnergy - constantEnergy) * energyFee: "
-//              + (estimateEnergy - constantEnergy) * energyFee);
-//      Assert.assertEquals(grpcEstimateEnergy.longValue(), estimateEnergy.longValue());
-//      Assert.assertTrue((estimateEnergy - constantEnergy) * energyFee < 1000000L);
+      //      logger.info("(estimateEnergy - constantEnergy) * energyFee: "
+      //              + (estimateEnergy - constantEnergy) * energyFee);
+      //      Assert.assertEquals(grpcEstimateEnergy.longValue(), estimateEnergy.longValue());
+      //      Assert.assertTrue((estimateEnergy - constantEnergy) * energyFee < 1000000L);
 
     } catch (Exception e) {
       logger.error("EnergyEstimateDeploy: catch Exception!!");
       e.printStackTrace();
     }
-
   }
 
   /** constructor. */
   public static TransactionExtention triggerConstantContractDeployContract(
-          String code,
-          byte[] ownerAddress,
-          long callValue,
-          String tokenId,
-          long tokenValue,
-          WalletGrpc.WalletBlockingStub blockingStubFull) {
+      String code,
+      byte[] ownerAddress,
+      long callValue,
+      String tokenId,
+      long tokenValue,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
 
     byte[] owner = ownerAddress;
     TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
@@ -8427,13 +8478,15 @@ public class PublicMethed {
     }
     TriggerSmartContract triggerContract = builder.build();
     TransactionExtention transactionExtention =
-            blockingStubFull.triggerConstantContract(triggerContract);
+        blockingStubFull.triggerConstantContract(triggerContract);
     return transactionExtention;
   }
 
-  public static Long getExchangeIdByCreatorAddress(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    List<Exchange> exchangeList =  PublicMethed.getExchangeList(blockingStubFull).get().getExchangesList();
-    for (int i = 0; i < exchangeList.size(); i++){
+  public static Long getExchangeIdByCreatorAddress(
+      byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    List<Exchange> exchangeList =
+        PublicMethed.getExchangeList(blockingStubFull).get().getExchangesList();
+    for (int i = 0; i < exchangeList.size(); i++) {
       Exchange exchange = exchangeList.get(i);
       if (exchange.getCreatorAddress().equals(ByteString.copyFrom(address))) {
         return exchange.getExchangeId();
@@ -8444,7 +8497,7 @@ public class PublicMethed {
 
   public static String gRPCurlRequest(String data, String requestUrl, String node) {
     String cmd = gRPCurl + " " + "-plaintext";
-    if (data!=null) {
+    if (data != null) {
       cmd = cmd + " -d " + data;
     }
     cmd = cmd + " " + node + " " + requestUrl;
@@ -8461,12 +8514,15 @@ public class PublicMethed {
     return null;
   }
 
-  public static GrpcAPI.WitnessList getPaginatedNowWitnessList(Long offset, Long limit, WalletBlockingStub blockingStubFull){
-    return blockingStubFull.getPaginatedNowWitnessList(GrpcAPI.PaginatedMessage.newBuilder().setLimit(limit).setOffset(offset).build());
+  public static GrpcAPI.WitnessList getPaginatedNowWitnessList(
+      Long offset, Long limit, WalletBlockingStub blockingStubFull) {
+    return blockingStubFull.getPaginatedNowWitnessList(
+        GrpcAPI.PaginatedMessage.newBuilder().setLimit(limit).setOffset(offset).build());
   }
 
-  public static GrpcAPI.WitnessList getPaginatedNowWitnessListSolidity(Long offset, Long limit, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity){
-    return blockingStubSolidity.getPaginatedNowWitnessList(GrpcAPI.PaginatedMessage.newBuilder().setLimit(limit).setOffset(offset).build());
+  public static GrpcAPI.WitnessList getPaginatedNowWitnessListSolidity(
+      Long offset, Long limit, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity) {
+    return blockingStubSolidity.getPaginatedNowWitnessList(
+        GrpcAPI.PaginatedMessage.newBuilder().setLimit(limit).setOffset(offset).build());
   }
-
 }

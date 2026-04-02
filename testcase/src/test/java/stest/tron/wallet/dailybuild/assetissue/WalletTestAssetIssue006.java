@@ -1,20 +1,16 @@
 package stest.tron.wallet.dailybuild.assetissue;
 
-
-import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.WalletGrpc;
-import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
+import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -27,23 +23,23 @@ public class WalletTestAssetIssue006 extends AbstractGrpcFullSolidityTest {
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
   private static String name = "assetissue006" + Long.toString(now);
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
   String description = "test query assetissue by timestamp from soliditynode";
   String url = "https://testqueryassetissue.com/bytimestamp/from/soliditynode/";
-  //get account
+  // get account
   ECKey ecKey = new ECKey(Utils.getRandom());
   byte[] queryAssetIssueFromSoliAddress = ecKey.getAddress();
   String queryAssetIssueKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
-public static String loadPubKey() {
+
+  public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
-
 
   /*  @Test(enabled = true)
   public void testGetAssetIssueListByTimestamp() {
@@ -121,12 +117,7 @@ public static String loadPubKey() {
 
   }*/
 
-  
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -137,14 +128,11 @@ public static String loadPubKey() {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
@@ -160,26 +148,17 @@ public static String loadPubKey() {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 }
-
-

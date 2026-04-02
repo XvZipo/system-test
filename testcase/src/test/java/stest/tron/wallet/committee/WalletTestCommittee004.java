@@ -1,7 +1,5 @@
 package stest.tron.wallet.committee;
 
-
-import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import java.util.HashMap;
@@ -19,10 +17,11 @@ import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.Proposal;
+import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray; import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
-
 
 @Slf4j
 public class WalletTestCommittee004 extends AbstractGrpcFullSolidityTest {

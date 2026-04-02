@@ -3,10 +3,11 @@ package stest.tron.wallet.dailybuild.grpcurl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -14,32 +15,25 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
-import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 @Slf4j
 public class GrpcReflectionTest001 {
 
-  private final String foundationKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String foundationKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] foundationAddress = PublicMethed.getFinalAddress(foundationKey);
 
-  private final String witnessKey = Configuration.getByPath("testng.conf")
-      .getString("witness.key1");
+  private final String witnessKey =
+      Configuration.getByPath("testng.conf").getString("witness.key1");
   private final byte[] witnessAddress = PublicMethed.getFinalAddress(witnessKey);
 
   ECKey key = new ECKey(Utils.getRandom());
   private final byte[] receiverAddress = key.getAddress();
-
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -49,42 +43,34 @@ public class GrpcReflectionTest001 {
 
   private ManagedChannel channelRealSolidity = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubRealSolidity = null;
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
-  private final Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
+  private final Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
 
   private String realSoliditynode =
       Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(1);
 
   private String pbftnode =
-      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
-          .get(3);
-  private String fullnode2 = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(1);
-  private String contractBase64Address = null; //use for some cases query
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(3);
+  private String fullnode2 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private String contractBase64Address = null; // use for some cases query
   private String contractOwnerBase64Address = null;
-  private String transferTxIdBase64 = null; //use for some cases query
-
-
+  private String transferTxIdBase64 = null; // use for some cases query
 
   @BeforeClass(enabled = true)
   public void beforeClass() throws Exception {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
 
-    channelRealSolidity =
-        ManagedChannelBuilder.forTarget(realSoliditynode).usePlaintext().build();
+    channelRealSolidity = ManagedChannelBuilder.forTarget(realSoliditynode).usePlaintext().build();
     blockingStubRealSolidity = WalletSolidityGrpc.newBlockingStub(channelRealSolidity);
     ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
   }
@@ -92,12 +78,13 @@ public class GrpcReflectionTest001 {
   @Test(enabled = true, description = "test GetAccount use gRPCurl")
   public void test001GetAccount() {
     Long transferValue = 1000000000L;
-    PublicMethed.sendcoin(receiverAddress, transferValue, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethed.sendcoin(
+        receiverAddress, transferValue, foundationAddress, foundationKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String receiverAddressBase64 = Base64.getEncoder().encodeToString(receiverAddress);
     /*
-      important！data can not contain space " " in json String
-     */
+     important！data can not contain space " " in json String
+    */
     String data = String.format("{\"address\":\"%s\"}", receiverAddressBase64);
     String requestUrl = "protocol.Wallet/GetAccount";
     String returnData = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
@@ -120,26 +107,40 @@ public class GrpcReflectionTest001 {
     String returnData = PublicMethed.gRPCurlRequest(null, requestUrl, fullnode);
     logger.info("block data : " + returnData);
     JSONObject parametersData = JSONObject.parseObject(returnData);
-    Long blockId = parametersData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Long blockId =
+        parametersData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
     Assert.assertTrue(blockId > 0);
 
     String requestUrlSolidity = "protocol.WalletSolidity/GetNowBlock";
     String returnDataSolidity = PublicMethed.gRPCurlRequest(null, requestUrlSolidity, soliditynode);
     logger.info("block data : " + returnDataSolidity);
     JSONObject parametersDataSolidity = JSONObject.parseObject(returnDataSolidity);
-    Long blockIdSolidity = parametersDataSolidity.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Long blockIdSolidity =
+        parametersDataSolidity
+            .getJSONObject("block_header")
+            .getJSONObject("raw_data")
+            .getLong("number");
     Assert.assertTrue(blockIdSolidity > 0);
 
-    String returnDataRealSolidity = PublicMethed.gRPCurlRequest(null, requestUrlSolidity, realSoliditynode);
+    String returnDataRealSolidity =
+        PublicMethed.gRPCurlRequest(null, requestUrlSolidity, realSoliditynode);
     logger.info("block data : " + returnDataRealSolidity);
     JSONObject parametersDataRealSolidity = JSONObject.parseObject(returnDataRealSolidity);
-    Long blockIdRealSolidity = parametersDataRealSolidity.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Long blockIdRealSolidity =
+        parametersDataRealSolidity
+            .getJSONObject("block_header")
+            .getJSONObject("raw_data")
+            .getLong("number");
     Assert.assertTrue(blockIdRealSolidity > 0);
 
     String returnDataPbft = PublicMethed.gRPCurlRequest(null, requestUrlSolidity, pbftnode);
     logger.info("block data : " + returnDataPbft);
     JSONObject parametersDataPbft = JSONObject.parseObject(returnDataPbft);
-    Long blockIdPbft = parametersDataPbft.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Long blockIdPbft =
+        parametersDataPbft
+            .getJSONObject("block_header")
+            .getJSONObject("raw_data")
+            .getLong("number");
     Assert.assertTrue(blockIdPbft > 0);
   }
 
@@ -147,31 +148,41 @@ public class GrpcReflectionTest001 {
   public void test004TriggerConstantContract() {
     ECKey deployer = new ECKey(Utils.getRandom());
     String deployerKey = ByteArray.toHexString(deployer.getPrivKeyBytes());
-    PublicMethed.sendcoin(deployer.getAddress(), 1000000000L, foundationAddress,
-        foundationKey, blockingStubFull);
+    PublicMethed.sendcoin(
+        deployer.getAddress(), 1000000000L, foundationAddress, foundationKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    String abi = "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"value\","
-        + "\"type\":\"uint256\"}],\"name\":\"foo\",\"outputs\":[{\"internalType\":\"uint256\","
-        + "\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\""
-        + ":\"nonpayable\",\"type\":\"function\"}]";
-    String code = "608060405234801561001057600080fd5b50d3801561001d57600080fd5b50d2801561002a5760"
-        + "0080fd5b5060b8806100396000396000f3fe6080604052348015600f57600080fd5b50d38015601b576000"
-        + "80fd5b50d28015602757600080fd5b506004361060405760003560e01c80632fbebd38146045575b600080f"
-        + "d5b60586050366004606a565b600081905590565b60405190815260200160405180910390f35b60006020828"
-        + "4031215607b57600080fd5b503591905056fea26474726f6e58221220c8669715fe95381ee315e1119"
-        + "064ff80a8121ddfc52747a55161d0d4f4dda2a564736f6c63430008120033";
-    byte[] contractAddress = PublicMethed.deployContract(
-        "MyContract", abi, code,"", maxFeeLimit, 0L,
-        100, null, deployerKey,
-        deployer.getAddress(), blockingStubFull
-    );
+    String abi =
+        "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"value\","
+            + "\"type\":\"uint256\"}],\"name\":\"foo\",\"outputs\":[{\"internalType\":\"uint256\","
+            + "\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\""
+            + ":\"nonpayable\",\"type\":\"function\"}]";
+    String code =
+        "608060405234801561001057600080fd5b50d3801561001d57600080fd5b50d2801561002a5760"
+            + "0080fd5b5060b8806100396000396000f3fe6080604052348015600f57600080fd5b50d38015601b576000"
+            + "80fd5b50d28015602757600080fd5b506004361060405760003560e01c80632fbebd38146045575b600080f"
+            + "d5b60586050366004606a565b600081905590565b60405190815260200160405180910390f35b60006020828"
+            + "4031215607b57600080fd5b503591905056fea26474726f6e58221220c8669715fe95381ee315e1119"
+            + "064ff80a8121ddfc52747a55161d0d4f4dda2a564736f6c63430008120033";
+    byte[] contractAddress =
+        PublicMethed.deployContract(
+            "MyContract",
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            deployerKey,
+            deployer.getAddress(),
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String contractAddressBase64 = Base64.getEncoder().encodeToString(contractAddress);
     contractBase64Address = contractAddressBase64; // for other cases easily test
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(deployer.getAddress());
     contractOwnerBase64Address = ownerAddressBase64;
-    String data = String
-        .format(
+    String data =
+        String.format(
             "{\"owner_address\":\"%s\",\"contract_address\":\"%s\",\"data\":\"aH2qOgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB\"}",
             ownerAddressBase64, contractAddressBase64);
     String requestUrl = "protocol.Wallet/TriggerConstantContract";
@@ -181,7 +192,8 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(triggerResult.getBoolean("result"));
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     String requestUrlSolidity = "protocol.WalletSolidity/TriggerConstantContract";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
     triggerResult = JSONObject.parseObject(returnStringSolidity).getJSONObject("result");
     Assert.assertTrue(triggerResult.getBoolean("result"));
     String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
@@ -192,9 +204,9 @@ public class GrpcReflectionTest001 {
   @Test(enabled = true, description = "test getTransactionById")
   public void test005GetTransactionById() {
     ECKey newAccount = new ECKey(Utils.getRandom());
-    String txId = PublicMethed
-        .sendcoinGetTransactionId(newAccount.getAddress(),
-            10000000L, foundationAddress, foundationKey, blockingStubFull);
+    String txId =
+        PublicMethed.sendcoinGetTransactionId(
+            newAccount.getAddress(), 10000000L, foundationAddress, foundationKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String requestUrl = "protocol.Wallet/GetTransactionById";
     String txIdBase64 = Base64.getEncoder().encodeToString(ByteArray.fromHexString(txId));
@@ -204,21 +216,16 @@ public class GrpcReflectionTest001 {
     JSONObject txData = JSONObject.parseObject(returnString);
     logger.info(txData.toJSONString());
     Assert.assertEquals(
-        txData.getJSONArray("ret")
-            .getJSONObject(0)
-            .getString("contractRet"),
-        "SUCCESS");
+        txData.getJSONArray("ret").getJSONObject(0).getString("contractRet"), "SUCCESS");
     // query solidity
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String requestUrlSolidity = "protocol.WalletSolidity/GetTransactionById";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
     JSONObject txDataSolidity = JSONObject.parseObject(returnStringSolidity);
     logger.info(txDataSolidity.toJSONString());
     Assert.assertEquals(
-        txDataSolidity.getJSONArray("ret")
-            .getJSONObject(0)
-            .getString("contractRet"),
-        "SUCCESS");
+        txDataSolidity.getJSONArray("ret").getJSONObject(0).getString("contractRet"), "SUCCESS");
     String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
     Assert.assertEquals(returnStringPBFT, returnStringSolidity);
   }
@@ -239,11 +246,13 @@ public class GrpcReflectionTest001 {
     String returnString = PublicMethed.gRPCurlRequest(null, requestUrl, fullnode);
     JSONObject blockData = JSONObject.parseObject(returnString);
     logger.info(blockData.toJSONString());
-    Long blockId = blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Long blockId =
+        blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
     Assert.assertTrue(blockId > 0);
 
     String requestUrlSolidity = "protocol.WalletSolidity/GetNowBlock2";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(null, requestUrlSolidity, soliditynode);
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(null, requestUrlSolidity, soliditynode);
     blockData = JSONObject.parseObject(returnStringSolidity);
     logger.info(blockData.toJSONString());
     blockId = blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
@@ -263,7 +272,8 @@ public class GrpcReflectionTest001 {
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     JSONObject blockData = JSONObject.parseObject(returnString);
     logger.info(blockData.toJSONString());
-    Long blockId = blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Long blockId =
+        blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
     Assert.assertEquals(blockId.longValue(), 1L);
   }
 
@@ -274,13 +284,16 @@ public class GrpcReflectionTest001 {
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     JSONObject blockData = JSONObject.parseObject(returnString);
     logger.info(blockData.toJSONString());
-    Long blockId = blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Long blockId =
+        blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
     Assert.assertEquals(blockId.longValue(), 1L);
 
     String requestUrlSolidity = "protocol.WalletSolidity/GetBlockByNum2";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
     JSONObject blockDataSolidity = JSONObject.parseObject(returnStringSolidity);
-    Long blockIdSolidity = blockDataSolidity.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Long blockIdSolidity =
+        blockDataSolidity.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
     Assert.assertEquals(blockIdSolidity.longValue(), 1L);
     String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
     Assert.assertEquals(returnStringPBFT, returnString);
@@ -317,7 +330,8 @@ public class GrpcReflectionTest001 {
     Assert.assertEquals(txData.getString("id"), transferTxIdBase64);
 
     String requestUrlSolidity = "protocol.WalletSolidity/GetTransactionInfoById";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
     Assert.assertEquals(returnStringSolidity, returnString);
     String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
     Assert.assertEquals(returnStringPBFT, returnString);
@@ -329,10 +343,9 @@ public class GrpcReflectionTest001 {
     String requestUrl = "protocol.Wallet/CreateTransaction2";
     String from = Base64.getEncoder().encodeToString(foundationAddress);
     String to = Base64.getEncoder().encodeToString(newAccount.getAddress());
-    String data = String
-        .format("{\"owner_address\":\"%s\",\"to_address\":\"%s\",\"amount\":100000000}",
-            from,
-            to);
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"to_address\":\"%s\",\"amount\":100000000}", from, to);
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     JSONObject txData = JSONObject.parseObject(returnString);
     logger.info(txData.toJSONString());
@@ -343,8 +356,8 @@ public class GrpcReflectionTest001 {
   public void test013TriggerContract() {
     ECKey owner = new ECKey(Utils.getRandom());
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(owner.getAddress());
-    String data = String
-        .format(
+    String data =
+        String.format(
             "{\"owner_address\":\"%s\",\"contract_address\":\"%s\",\"data\":\"aH2qOgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB\"}",
             ownerAddressBase64, contractBase64Address);
     String requestUrl = "protocol.Wallet/TriggerContract";
@@ -355,8 +368,11 @@ public class GrpcReflectionTest001 {
   }
 
   @Test(enabled = true, description = "test ClearContractABI")
-  public void test014ClearContractABI(){
-    String data = String.format("{\"owner_address\":\"%s\",\"contract_address\":\"%s\"}",contractOwnerBase64Address, contractBase64Address);
+  public void test014ClearContractABI() {
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"contract_address\":\"%s\"}",
+            contractOwnerBase64Address, contractBase64Address);
     String requestUrl = "protocol.Wallet/ClearContractABI";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
@@ -373,10 +389,9 @@ public class GrpcReflectionTest001 {
     String requestUrl = "protocol.Wallet/CreateTransaction";
     String from = Base64.getEncoder().encodeToString(foundationAddress);
     String to = Base64.getEncoder().encodeToString(newAccount.getAddress());
-    String data = String
-        .format("{\"owner_address\":\"%s\",\"to_address\":\"%s\",\"amount\":100000000}",
-            from,
-            to);
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"to_address\":\"%s\",\"amount\":100000000}", from, to);
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     JSONObject txData = JSONObject.parseObject(returnString);
     logger.info(txData.toJSONString());
@@ -387,8 +402,8 @@ public class GrpcReflectionTest001 {
 
   @Test(enabled = true, description = "test EstimateEnergy")
   public void test016EstimateEnergy() {
-    String data = String
-        .format(
+    String data =
+        String.format(
             "{\"owner_address\":\"%s\",\"contract_address\":\"%s\",\"data\":\"aH2qOgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB\"}",
             contractOwnerBase64Address, contractBase64Address);
     String requestUrl = "protocol.Wallet/EstimateEnergy";
@@ -396,16 +411,17 @@ public class GrpcReflectionTest001 {
     Assert.assertNotNull(returnString);
     logger.info(returnString);
     Assert.assertTrue(returnString.contains("CONTRACT_EXE_ERROR"));
-    Assert.assertTrue(returnString.contains("UkVWRVJUIG9wY29kZSBleGVjdXRlZA=="));// REVERT
+    Assert.assertTrue(returnString.contains("UkVWRVJUIG9wY29kZSBleGVjdXRlZA==")); // REVERT
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     String requestUrlSolidity = "protocol.WalletSolidity/EstimateEnergy";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
-    Assert.assertTrue(returnStringSolidity.contains("" +
-        "Q29udHJhY3QgdmFsaWRhdGUgZXJyb3IgOiB0aGlzIG5vZGUgZG9lcyBub3Qgc3VwcG9ydCBlc3RpbWF0ZSBlbmVyZ3k="));
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
+    Assert.assertTrue(
+        returnStringSolidity.contains(
+            "Q29udHJhY3QgdmFsaWRhdGUgZXJyb3IgOiB0aGlzIG5vZGUgZG9lcyBub3Qgc3VwcG9ydCBlc3RpbWF0ZSBlbmVyZ3k="));
     // this node does not support estimateEnergy
     String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
     Assert.assertEquals(returnStringPBFT, returnString);
-
   }
 
   @Test(enabled = true, description = "test GetContractInfo")
@@ -429,7 +445,8 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(returnString.contains("420"));
 
     String requestUrlSolidity = "protocol.WalletSolidity/GetEnergyPrices";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(null, requestUrlSolidity, soliditynode);
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(null, requestUrlSolidity, soliditynode);
     Assert.assertEquals(returnStringSolidity, returnString);
     String returnStringPBFT = PublicMethed.gRPCurlRequest(null, requestUrlSolidity, pbftnode);
     Assert.assertEquals(returnStringPBFT, returnString);
@@ -467,7 +484,8 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(returnString.contains("total_supply"));
 
     String requestUrlSolidity = "protocol.WalletSolidity/GetPaginatedAssetIssueList";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
     logger.info(returnStringSolidity);
     Assert.assertTrue(returnStringSolidity.contains("assetIssue"));
     Assert.assertTrue(returnStringSolidity.contains("total_supply"));
@@ -513,7 +531,8 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(rewardData.getLongValue("num") > 0);
 
     String requestUrlSolidity = "protocol.WalletSolidity/GetRewardInfo";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
     logger.info(returnStringSolidity);
     Assert.assertTrue(returnStringSolidity.contains("num"));
     rewardData = JSONObject.parseObject(returnStringSolidity);
@@ -531,17 +550,18 @@ public class GrpcReflectionTest001 {
     Assert.assertNotNull(trxData);
     JSONObject returnTrx = JSONObject.parseObject(trxData);
     requestUrl = "protocol.Wallet/GetTransactionApprovedList";
-    String returnString = PublicMethed.gRPCurlRequest(returnTrx.toJSONString(), requestUrl, fullnode);
+    String returnString =
+        PublicMethed.gRPCurlRequest(returnTrx.toJSONString(), requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info(returnString);
     Assert.assertTrue(returnString.contains("approved_list"));
   }
 
-
   @Test(enabled = true, description = "test GetTransactionFromPending")
   public void test025GetTransactionFromPending() {
     String requestUrl = "protocol.Wallet/GetTransactionFromPending";
-    String data = String.format("{\"value\":\"%s\"}", "K0bj5EjrlNB8BNWh1Jmg/Bybke87zZJCIJmu8Zwz9xg=");
+    String data =
+        String.format("{\"value\":\"%s\"}", "K0bj5EjrlNB8BNWh1Jmg/Bybke87zZJCIJmu8Zwz9xg=");
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info(returnString);
@@ -558,11 +578,11 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(returnString.contains("num"));
 
     String requestUrlSolidity = "protocol.WalletSolidity/GetTransactionCountByBlockNum";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
     Assert.assertTrue(returnStringSolidity.contains("num"));
     String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
     Assert.assertTrue(returnStringPBFT.contains("num"));
-
   }
 
   @Test(enabled = true, description = "test GetTransactionInfoByBlockNum")
@@ -582,11 +602,12 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(returnString.contains(blockNumber.toString()));
 
     String requestUrlSolidity = "protocol.WalletSolidity/GetTransactionInfoByBlockNum";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
     logger.info(returnStringSolidity);
     Assert.assertTrue(returnStringSolidity.contains("transactionInfo"));
-//    String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
-//    Assert.assertEquals(returnStringPBFT, returnString);
+    //    String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
+    //    Assert.assertEquals(returnStringPBFT, returnString);
   }
 
   @Test(enabled = true, description = "test GetTransactionSignWeight")
@@ -597,7 +618,8 @@ public class GrpcReflectionTest001 {
     Assert.assertNotNull(trxData);
     JSONObject returnTrx = JSONObject.parseObject(trxData);
     requestUrl = "protocol.Wallet/GetTransactionSignWeight";
-    String returnString = PublicMethed.gRPCurlRequest(returnTrx.toJSONString(), requestUrl, fullnode);
+    String returnString =
+        PublicMethed.gRPCurlRequest(returnTrx.toJSONString(), requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info(returnString);
     Assert.assertTrue(returnString.contains("current_weight"));
@@ -605,7 +627,6 @@ public class GrpcReflectionTest001 {
     JSONObject weightData = JSONObject.parseObject(returnString);
     Assert.assertEquals(weightData.getLongValue("current_weight"), 1L);
   }
-
 
   @Test(enabled = true, description = "test ListProposals")
   public void test029ListProposals() {
@@ -616,7 +637,6 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(returnString.contains("proposals"));
     Assert.assertTrue(returnString.contains("APPROVED"));
   }
-
 
   @Test(enabled = true, description = "test ListWitnesses")
   public void test030ListWitnesses() {
@@ -629,7 +649,8 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(returnString.contains("totalProduced"));
 
     String requestUrlSolidity = "protocol.WalletSolidity/ListWitnesses";
-    String returnStringSolidity = PublicMethed.gRPCurlRequest(null, requestUrlSolidity, soliditynode);
+    String returnStringSolidity =
+        PublicMethed.gRPCurlRequest(null, requestUrlSolidity, soliditynode);
     Assert.assertTrue(returnStringSolidity.contains("witnesses"));
     Assert.assertTrue(returnStringSolidity.contains("voteCount"));
     Assert.assertTrue(returnStringSolidity.contains("totalProduced"));
@@ -639,12 +660,13 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(returnStringPBFT.contains("totalProduced"));
   }
 
-
   @Test(enabled = true, description = "test ProposalCreate")
   public void test031ProposalCreate() {
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(witnessAddress);
     String requestUrl = "protocol.Wallet/ProposalCreate";
-    String data =String.format("{\"owner_address\":\"%s\",\"parameters\":{\"62\":43200000000}}", ownerAddressBase64)  ;
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"parameters\":{\"62\":43200000000}}", ownerAddressBase64);
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info(returnString);
@@ -652,38 +674,39 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(returnString.contains("43200000000"));
   }
 
-
   @Test(enabled = true, description = "test ProposalApprove")
   public void test031ProposalApprove() {
     HashMap<Long, Long> proposalMap = new HashMap();
     proposalMap.put(62L, 43200000000L);
     PublicMethed.createProposal(witnessAddress, witnessKey, proposalMap, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    GrpcAPI.ProposalList proposalList = blockingStubFull.listProposals(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.ProposalList proposalList =
+        blockingStubFull.listProposals(GrpcAPI.EmptyMessage.newBuilder().build());
     Long newProposalId = proposalList.getProposals(0).getProposalId();
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(witnessAddress);
     String requestUrl = "protocol.Wallet/ProposalApprove";
-    String data =String.format("{\"owner_address\":\"%s\",\"proposal_id\":\"%d\",\"is_add_approval\":true}",
-        ownerAddressBase64,
-        newProposalId
-        );
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"proposal_id\":\"%d\",\"is_add_approval\":true}",
+            ownerAddressBase64, newProposalId);
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info(returnString);
-    Assert.assertTrue(returnString.contains("type.googleapis.com/protocol.ProposalApproveContract"));
+    Assert.assertTrue(
+        returnString.contains("type.googleapis.com/protocol.ProposalApproveContract"));
     Assert.assertTrue(returnString.contains("is_add_approval"));
   }
 
   @Test(enabled = true, description = "test ProposalDelete")
   public void test032ProposalDelete() {
-    GrpcAPI.ProposalList proposalList = blockingStubFull.listProposals(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.ProposalList proposalList =
+        blockingStubFull.listProposals(GrpcAPI.EmptyMessage.newBuilder().build());
     Long newProposalId = proposalList.getProposals(0).getProposalId();
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(witnessAddress);
     String requestUrl = "protocol.Wallet/ProposalDelete";
-    String data =String.format("{\"owner_address\":\"%s\",\"proposal_id\":\"%d\"}",
-        ownerAddressBase64,
-        newProposalId
-    );
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"proposal_id\":\"%d\"}", ownerAddressBase64, newProposalId);
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info(returnString);
@@ -691,14 +714,13 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(returnString.contains("proposal_id"));
   }
 
-
   @Test(enabled = true, description = "test SetAccountId")
   public void test033SetAccountId() {
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(foundationAddress);
     String requestUrl = "protocol.Wallet/SetAccountId";
-    String data =String.format("{\"owner_address\":\"%s\",\"account_id\":\"dGVzdEdycGN1cmw=\"}",
-        ownerAddressBase64
-    );
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"account_id\":\"dGVzdEdycGN1cmw=\"}", ownerAddressBase64);
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info(returnString);
@@ -709,9 +731,12 @@ public class GrpcReflectionTest001 {
   @Test(enabled = true, description = "test UpdateAccount2")
   public void test034UpdateAccount2() {
     ECKey newAccount = new ECKey(Utils.getRandom());
-    PublicMethed.sendcoin(newAccount.getAddress(), 10000000, foundationAddress,foundationKey,blockingStubFull);
+    PublicMethed.sendcoin(
+        newAccount.getAddress(), 10000000, foundationAddress, foundationKey, blockingStubFull);
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(newAccount.getAddress());
-    String data = String.format("{\"owner_address\":\"%s\",\"account_name\":\"Y2NjdGVzdA==\"}", ownerAddressBase64) ;
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"account_name\":\"Y2NjdGVzdA==\"}", ownerAddressBase64);
     String requestUrl = "protocol.Wallet/UpdateAccount2";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
@@ -729,9 +754,12 @@ public class GrpcReflectionTest001 {
   @Test(enabled = true, description = "test UpdateAccount")
   public void test035UpdateAccount() {
     ECKey newAccount = new ECKey(Utils.getRandom());
-    PublicMethed.sendcoin(newAccount.getAddress(), 10000000, foundationAddress,foundationKey,blockingStubFull);
+    PublicMethed.sendcoin(
+        newAccount.getAddress(), 10000000, foundationAddress, foundationKey, blockingStubFull);
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(newAccount.getAddress());
-    String data = String.format("{\"owner_address\":\"%s\",\"account_name\":\"Y2NjdGVzdA==\"}", ownerAddressBase64) ;
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"account_name\":\"Y2NjdGVzdA==\"}", ownerAddressBase64);
     String requestUrl = "protocol.Wallet/UpdateAccount";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
@@ -739,40 +767,40 @@ public class GrpcReflectionTest001 {
     Assert.assertTrue(returnString.contains("type.googleapis.com/protocol.AccountUpdateContract"));
   }
 
-
   @Test(enabled = true, description = "test UpdateBrokerage")
   public void test036UpdateBrokerage() {
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(witnessAddress);
-    String data = String.format("{\"owner_address\":\"%s\",\"brokerage\":1}", ownerAddressBase64) ;
+    String data = String.format("{\"owner_address\":\"%s\",\"brokerage\":1}", ownerAddressBase64);
     String requestUrl = "protocol.Wallet/UpdateBrokerage";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info(returnString);
     Assert.assertTrue(returnString.contains("transaction"));
-    Assert.assertTrue(returnString.contains("type.googleapis.com/protocol.UpdateBrokerageContract"));
+    Assert.assertTrue(
+        returnString.contains("type.googleapis.com/protocol.UpdateBrokerageContract"));
   }
-
 
   @Test(enabled = true, description = "test UpdateEnergyLimit")
   public void test037UpdateEnergyLimit() {
-    String data = String.format("{\"owner_address\":\"%s\",\"contract_address\":\"%s\",\"origin_energy_limit\":1000}",
-        contractOwnerBase64Address,
-        contractBase64Address
-        );
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"contract_address\":\"%s\",\"origin_energy_limit\":1000}",
+            contractOwnerBase64Address, contractBase64Address);
     String requestUrl = "protocol.Wallet/UpdateEnergyLimit";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info(returnString);
     Assert.assertTrue(returnString.contains("transaction"));
-    Assert.assertTrue(returnString.contains("type.googleapis.com/protocol.UpdateEnergyLimitContract"));
+    Assert.assertTrue(
+        returnString.contains("type.googleapis.com/protocol.UpdateEnergyLimitContract"));
   }
 
   @Test(enabled = true, description = "test UpdateSetting")
   public void test038UpdateSetting() {
-    String data = String.format("{\"owner_address\":\"%s\",\"contract_address\":\"%s\",\"consume_user_resource_percent\":37}",
-        contractOwnerBase64Address,
-        contractBase64Address
-    );
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"contract_address\":\"%s\",\"consume_user_resource_percent\":37}",
+            contractOwnerBase64Address, contractBase64Address);
     String requestUrl = "protocol.Wallet/UpdateSetting";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
@@ -784,9 +812,9 @@ public class GrpcReflectionTest001 {
   @Test(enabled = true, description = "test UpdateWitness")
   public void test039UpdateWitness() {
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(witnessAddress);
-    String data = String.format("{\"owner_address\":\"%s\",\"update_url\":\"d3d3LmNjLmNvbQ==\"}",
-        ownerAddressBase64
-    );
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"update_url\":\"d3d3LmNjLmNvbQ==\"}", ownerAddressBase64);
     String requestUrl = "protocol.Wallet/UpdateWitness";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
@@ -798,9 +826,9 @@ public class GrpcReflectionTest001 {
   @Test(enabled = true, description = "test UpdateWitness2")
   public void test040UpdateWitness2() {
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(witnessAddress);
-    String data = String.format("{\"owner_address\":\"%s\",\"update_url\":\"d3d3LmNjLmNvbQ==\"}",
-        ownerAddressBase64
-    );
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"update_url\":\"d3d3LmNjLmNvbQ==\"}", ownerAddressBase64);
     String requestUrl = "protocol.Wallet/UpdateWitness2";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
@@ -812,25 +840,22 @@ public class GrpcReflectionTest001 {
   @Test(enabled = true, description = "test WithdrawBalance2")
   public void test041WithdrawBalance2() {
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(witnessAddress);
-    String data = String.format("{\"owner_address\":\"%s\"}",
-        ownerAddressBase64
-    );
+    String data = String.format("{\"owner_address\":\"%s\"}", ownerAddressBase64);
     String requestUrl = "protocol.Wallet/WithdrawBalance2";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info(returnString);
-    Assert.assertTrue(returnString.contains(
-        "Q29udHJhY3QgdmFsaWRhdGUgZXJyb3IgOiBBY2NvdW50WzQxMGJlODhhOTE4ZDc0ZDBkZ" +
-            "mQ3MWRjODRiZDRhYmYwMzZkMDU2Mjk5MV0gaXMgYSBndWFyZCByZXByZXNlbnRhdGl2" +
-            "ZSBhbmQgaXMgbm90IGFsbG93ZWQgdG8gd2l0aGRyYXcgQmFsYW5jZQ"));
+    Assert.assertTrue(
+        returnString.contains(
+            "Q29udHJhY3QgdmFsaWRhdGUgZXJyb3IgOiBBY2NvdW50WzQxMGJlODhhOTE4ZDc0ZDBkZ"
+                + "mQ3MWRjODRiZDRhYmYwMzZkMDU2Mjk5MV0gaXMgYSBndWFyZCByZXByZXNlbnRhdGl2"
+                + "ZSBhbmQgaXMgbm90IGFsbG93ZWQgdG8gd2l0aGRyYXcgQmFsYW5jZQ"));
   }
 
   @Test(enabled = true, description = "test WithdrawBalance")
   public void test042WithdrawBalance() {
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(witnessAddress);
-    String data = String.format("{\"owner_address\":\"%s\"}",
-        ownerAddressBase64
-    );
+    String data = String.format("{\"owner_address\":\"%s\"}", ownerAddressBase64);
     String requestUrl = "protocol.Wallet/WithdrawBalance";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
@@ -841,34 +866,37 @@ public class GrpcReflectionTest001 {
   @Test(enabled = true, description = "test WithdrawExpireUnfreeze")
   public void test043WithdrawExpireUnfreeze() {
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(foundationAddress);
-    String data = String.format("{\"owner_address\":\"%s\"}",
-        ownerAddressBase64
-    );
+    String data = String.format("{\"owner_address\":\"%s\"}", ownerAddressBase64);
     String requestUrl = "protocol.Wallet/WithdrawExpireUnfreeze";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info(returnString);
     Assert.assertTrue(returnString.contains("CONTRACT_VALIDATE_ERROR"));
-    Assert.assertTrue(returnString.contains(
-        "Q29udHJhY3QgdmFsaWRhdGUgZXJyb3IgOiBubyB1bkZyZWV6ZSBiYWxhbmNlIHRvIHdpdGhkcmF3IA=="));
+    Assert.assertTrue(
+        returnString.contains(
+            "Q29udHJhY3QgdmFsaWRhdGUgZXJyb3IgOiBubyB1bkZyZWV6ZSBiYWxhbmNlIHRvIHdpdGhkcmF3IA=="));
   }
 
   @Test(enabled = true, description = "test VoteWitnessAccount2")
   public void test044VoteWitnessAccount2() {
     ECKey newAccount = new ECKey(Utils.getRandom());
-    PublicMethed.sendcoin(newAccount.getAddress(), 100000000L, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethed.sendcoin(
+        newAccount.getAddress(), 100000000L, foundationAddress, foundationKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.freezeBalanceV2(newAccount.getAddress(), 100000000L, 1,
+    PublicMethed.freezeBalanceV2(
+        newAccount.getAddress(),
+        100000000L,
+        1,
         ByteArray.toHexString(newAccount.getPrivKeyBytes()),
         blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(newAccount.getAddress());
     String voteAddressBase64 = Base64.getEncoder().encodeToString(witnessAddress);
 
-    String data = String.format("{\"owner_address\":\"%s\",\"votes\":[{\"vote_address\":\"%s\",\"vote_count\":1}]}",
-        ownerAddressBase64,
-        voteAddressBase64
-    );
+    String data =
+        String.format(
+            "{\"owner_address\":\"%s\",\"votes\":[{\"vote_address\":\"%s\",\"vote_count\":1}]}",
+            ownerAddressBase64, voteAddressBase64);
     String requestUrl = "protocol.Wallet/VoteWitnessAccount2";
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
@@ -891,7 +919,8 @@ public class GrpcReflectionTest001 {
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     JSONObject blockData = JSONObject.parseObject(returnString);
     logger.info(blockData.toJSONString());
-    Long blockId = blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Long blockId =
+        blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
     Assert.assertEquals(blockId.longValue(), 1L);
   }
 
@@ -901,7 +930,8 @@ public class GrpcReflectionTest001 {
     String returnString = PublicMethed.gRPCurlRequest(null, requestUrl, fullnode);
     JSONObject blockData = JSONObject.parseObject(returnString);
     logger.info(blockData.toJSONString());
-    Long blockId = blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Long blockId =
+        blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
     Assert.assertTrue(blockId.longValue() > 0L);
   }
 
@@ -924,5 +954,4 @@ public class GrpcReflectionTest001 {
     Long blockId = blockData.getLongValue("block_num");
     Assert.assertTrue(blockId > 0L);
   }
-
 }

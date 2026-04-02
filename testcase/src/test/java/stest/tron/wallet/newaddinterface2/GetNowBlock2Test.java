@@ -1,9 +1,6 @@
 package stest.tron.wallet.newaddinterface2;
 
-
-import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
 import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -15,13 +12,12 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.WalletGrpc;
-import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
-import stest.tron.wallet.common.client.Configuration;
+import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import stest.tron.wallet.common.client.utils.ECKey;
 
-//import stest.tron.wallet.common.client.AccountComparator;
+// import stest.tron.wallet.common.client.AccountComparator;
 
 @Slf4j
 public class GetNowBlock2Test extends AbstractGrpcFullSolidityTest {
@@ -33,9 +29,9 @@ public class GetNowBlock2Test extends AbstractGrpcFullSolidityTest {
 
   @Test
   public void testCurrentBlock2() {
-    //Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-    GrpcAPI.BlockExtention currentBlock = blockingStubFull
-        .getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
+    // Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.BlockExtention currentBlock =
+        blockingStubFull.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
     Assert.assertTrue(currentBlock.hasBlockHeader());
     Assert.assertFalse(currentBlock.getBlockHeader().getWitnessSignature().isEmpty());
     Assert.assertTrue(currentBlock.getBlockHeader().getRawData().getTimestamp() > 0);
@@ -43,15 +39,16 @@ public class GetNowBlock2Test extends AbstractGrpcFullSolidityTest {
     Assert.assertTrue(currentBlock.getBlockHeader().getRawData().getNumber() > 0);
     Assert.assertFalse(currentBlock.getBlockHeader().getRawData().getParentHash().isEmpty());
     Assert.assertTrue(currentBlock.getBlockHeader().getRawData().getWitnessId() >= 0);
-    logger.info("test getcurrentblock is " + Long
-        .toString(currentBlock.getBlockHeader().getRawData().getNumber()));
+    logger.info(
+        "test getcurrentblock is "
+            + Long.toString(currentBlock.getBlockHeader().getRawData().getNumber()));
     Assert.assertFalse(currentBlock.getBlockid().isEmpty());
 
-    //Improve coverage.
+    // Improve coverage.
     currentBlock.equals(currentBlock);
-    //Block newBlock = blockingStubFull.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
-    GrpcAPI.BlockExtention newBlock = blockingStubFull
-        .getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
+    // Block newBlock = blockingStubFull.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.BlockExtention newBlock =
+        blockingStubFull.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
     newBlock.equals(currentBlock);
     newBlock.hashCode();
     newBlock.getSerializedSize();
@@ -62,8 +59,8 @@ public class GetNowBlock2Test extends AbstractGrpcFullSolidityTest {
 
   @Test
   public void testCurrentBlockFromSolidity2() {
-    GrpcAPI.BlockExtention currentBlock = blockingStubSolidity
-        .getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.BlockExtention currentBlock =
+        blockingStubSolidity.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
     Assert.assertTrue(currentBlock.hasBlockHeader());
     Assert.assertFalse(currentBlock.getBlockHeader().getWitnessSignature().isEmpty());
     Assert.assertTrue(currentBlock.getBlockHeader().getRawData().getTimestamp() > 0);
@@ -71,14 +68,12 @@ public class GetNowBlock2Test extends AbstractGrpcFullSolidityTest {
     Assert.assertTrue(currentBlock.getBlockHeader().getRawData().getNumber() > 0);
     Assert.assertFalse(currentBlock.getBlockHeader().getRawData().getParentHash().isEmpty());
     Assert.assertTrue(currentBlock.getBlockHeader().getRawData().getWitnessId() >= 0);
-    logger.info("test getcurrentblock in soliditynode is " + Long
-        .toString(currentBlock.getBlockHeader().getRawData().getNumber()));
+    logger.info(
+        "test getcurrentblock in soliditynode is "
+            + Long.toString(currentBlock.getBlockHeader().getRawData().getNumber()));
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -89,11 +84,7 @@ public class GetNowBlock2Test extends AbstractGrpcFullSolidityTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
-
+  /** constructor. */
   public Account queryAccount(String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     ECKey temKey = null;
@@ -105,7 +96,7 @@ public class GetNowBlock2Test extends AbstractGrpcFullSolidityTest {
     }
     ECKey ecKey = temKey;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
@@ -121,26 +112,17 @@ public class GetNowBlock2Test extends AbstractGrpcFullSolidityTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 }
-
-

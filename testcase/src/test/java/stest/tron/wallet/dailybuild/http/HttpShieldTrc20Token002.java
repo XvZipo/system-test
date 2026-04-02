@@ -7,7 +7,6 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
-import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.AbstractZenTrc20HttpNodes012;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 
@@ -45,68 +44,90 @@ public class HttpShieldTrc20Token002 extends AbstractZenTrc20HttpNodes012 {
 
   @Test(enabled = true, description = "Create mint parameters by http")
   public void test02MintByHttp() {
-    shieldedReceives = getHttpShieldedReceivesJsonArray(shieldedReceives, publicFromAmount,
-        shieldAccountInfo.getString("payment_address"), getRcm((httpnode)));
-    response = createShieldContractParameters(httpnode, publicFromAmount, shieldAccountInfo,
-        shieldedReceives);
+    shieldedReceives =
+        getHttpShieldedReceivesJsonArray(
+            shieldedReceives,
+            publicFromAmount,
+            shieldAccountInfo.getString("payment_address"),
+            getRcm((httpnode)));
+    response =
+        createShieldContractParameters(
+            httpnode, publicFromAmount, shieldAccountInfo, shieldedReceives);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
 
-    txid = HttpMethed.triggerContractGetTxidWithVisibleTrue(httpnode,anotherHttpnode,
-        zenTrc20TokenOwnerAddressString, shieldAddress, mint, responseContent
-            .getString("trigger_contract_input"), maxFeeLimit, 0L, 0, 0L,
-        zenTrc20TokenOwnerKey);
+    txid =
+        HttpMethed.triggerContractGetTxidWithVisibleTrue(
+            httpnode,
+            anotherHttpnode,
+            zenTrc20TokenOwnerAddressString,
+            shieldAddress,
+            mint,
+            responseContent.getString("trigger_contract_input"),
+            maxFeeLimit,
+            0L,
+            0,
+            0L,
+            zenTrc20TokenOwnerKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
-//    HttpMethed.waitToProduceOneBlock(httpnode);
+    //    HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.getTransactionInfoById(httpnode, txid, true);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    Assert.assertTrue(responseContent.getJSONObject("receipt")
-        .getLong("energy_usage_total") > 250000L);
+    Assert.assertTrue(
+        responseContent.getJSONObject("receipt").getLong("energy_usage_total") > 250000L);
     Assert.assertEquals(responseContent.getString("contract_address"), shieldAddress);
-    Assert.assertEquals(responseContent.getJSONObject("receipt").getString("result"),
-        "SUCCESS");
+    Assert.assertEquals(responseContent.getJSONObject("receipt").getString("result"), "SUCCESS");
 
     shieldedReceives.clear();
-    shieldedReceives = getHttpShieldedReceivesJsonArray(shieldedReceives, publicFromAmount,
-        shieldAccountInfo.getString("payment_address"), getRcm(httpnode));
-    response = createShieldContractParameters(httpnode, publicFromAmount, shieldAccountInfo,
-        shieldedReceives);
+    shieldedReceives =
+        getHttpShieldedReceivesJsonArray(
+            shieldedReceives,
+            publicFromAmount,
+            shieldAccountInfo.getString("payment_address"),
+            getRcm(httpnode));
+    response =
+        createShieldContractParameters(
+            httpnode, publicFromAmount, shieldAccountInfo, shieldedReceives);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
 
-    txid = HttpMethed.triggerContractGetTxidWithVisibleTrue(httpnode,anotherHttpnode,
-        zenTrc20TokenOwnerAddressString, shieldAddress, mint, responseContent
-            .getString("trigger_contract_input"), maxFeeLimit, 0L, 0, 0L,
-        zenTrc20TokenOwnerKey);
+    txid =
+        HttpMethed.triggerContractGetTxidWithVisibleTrue(
+            httpnode,
+            anotherHttpnode,
+            zenTrc20TokenOwnerAddressString,
+            shieldAddress,
+            mint,
+            responseContent.getString("trigger_contract_input"),
+            maxFeeLimit,
+            0L,
+            0,
+            0L,
+            zenTrc20TokenOwnerKey);
 
     HttpMethed.waitToProduceOneBlock(httpnode);
-//    HttpMethed.waitToProduceOneBlock(httpnode);
+    //    HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.getTransactionInfoById(httpnode, txid, true);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    Assert.assertTrue(responseContent.getJSONObject("receipt")
-        .getLong("energy_usage_total") > 250000L);
+    Assert.assertTrue(
+        responseContent.getJSONObject("receipt").getLong("energy_usage_total") > 250000L);
     Assert.assertEquals(responseContent.getString("contract_address"), shieldAddress);
-    Assert.assertEquals(responseContent.getJSONObject("receipt").getString("result"),
-        "SUCCESS");
-
-
+    Assert.assertEquals(responseContent.getJSONObject("receipt").getString("result"), "SUCCESS");
   }
-
 
   @Test(enabled = true, description = "Scan shield TRC20 note by http")
   public void test03ScanTrc20NodeByHttp() {
     noteTxs = scanShieldTrc20NoteByIvk(httpnode, shieldAccountInfo);
     logger.info(noteTxs.toJSONString());
     Assert.assertEquals(noteTxs.size(), 2);
-    Assert.assertEquals(noteTxs.getJSONObject(1)
-        .getJSONObject("note").getLong("value"), publicFromAmount);
-    Assert.assertEquals(noteTxs.getJSONObject(1)
-            .getJSONObject("note").getString("payment_address"),
+    Assert.assertEquals(
+        noteTxs.getJSONObject(1).getJSONObject("note").getLong("value"), publicFromAmount);
+    Assert.assertEquals(
+        noteTxs.getJSONObject(1).getJSONObject("note").getString("payment_address"),
         shieldAccountInfo.getString("payment_address"));
-    Assert.assertEquals(noteTxs.getJSONObject(1)
-        .getString("txid"), txid);
+    Assert.assertEquals(noteTxs.getJSONObject(1).getString("txid"), txid);
   }
 
   @Test(enabled = true, description = "Shield trc20 burn by http")
@@ -116,35 +137,48 @@ public class HttpShieldTrc20Token002 extends AbstractZenTrc20HttpNodes012 {
 
     logger.info(shieldSpends.toJSONString());
 
-    response = createShieldContractParametersForBurn(httpnode, shieldAccountInfo, shieldSpends,
-        zenTrc20TokenOwnerAddressString, publicFromAmount);
+    response =
+        createShieldContractParametersForBurn(
+            httpnode,
+            shieldAccountInfo,
+            shieldSpends,
+            zenTrc20TokenOwnerAddressString,
+            publicFromAmount);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
 
-    txid = HttpMethed.triggerContractGetTxidWithVisibleTrue(httpnode,anotherHttpnode,
-        zenTrc20TokenOwnerAddressString, shieldAddress, burn, responseContent
-            .getString("trigger_contract_input"), maxFeeLimit, 0L, 0, 0L,
-        zenTrc20TokenOwnerKey);
+    txid =
+        HttpMethed.triggerContractGetTxidWithVisibleTrue(
+            httpnode,
+            anotherHttpnode,
+            zenTrc20TokenOwnerAddressString,
+            shieldAddress,
+            burn,
+            responseContent.getString("trigger_contract_input"),
+            maxFeeLimit,
+            0L,
+            0,
+            0L,
+            zenTrc20TokenOwnerKey);
 
     HttpMethed.waitToProduceOneBlock(httpnode);
-//    HttpMethed.waitToProduceOneBlock(httpnode);
+    //    HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.getTransactionInfoById(httpnode, txid, true);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    Assert.assertTrue(responseContent.getJSONObject("receipt")
-        .getLong("energy_usage_total") > 150000L);
+    Assert.assertTrue(
+        responseContent.getJSONObject("receipt").getLong("energy_usage_total") > 150000L);
     Assert.assertEquals(responseContent.getString("contract_address"), shieldAddress);
-    Assert.assertEquals(responseContent.getJSONObject("receipt").getString("result"),
-        "SUCCESS");
+    Assert.assertEquals(responseContent.getJSONObject("receipt").getString("result"), "SUCCESS");
 
     noteTxs = scanShieldTrc20NoteByOvk(httpnode, shieldAccountInfo);
     logger.info("noteTxs ovk:" + noteTxs);
     Assert.assertEquals(noteTxs.getJSONObject(0).getLong("to_amount"), publicFromAmount);
-    Assert.assertEquals(noteTxs.getJSONObject(0).getString("transparent_to_address"),
+    Assert.assertEquals(
+        noteTxs.getJSONObject(0).getString("transparent_to_address"),
         zenTrc20TokenOwnerAddressString);
     Assert.assertEquals(noteTxs.getJSONObject(0).getString("txid"), txid);
   }
-
 
   @Test(enabled = true, description = "Shield trc20 burn with ask by http")
   public void test05ShiledTrc20BurnWithoutAskByHttp() {
@@ -154,41 +188,59 @@ public class HttpShieldTrc20Token002 extends AbstractZenTrc20HttpNodes012 {
 
     logger.info(shieldSpends.toJSONString());
 
-    response = createShieldContractParametersWithoutAskForBurn(httpnode, shieldAccountInfo,
-        shieldSpends, zenTrc20TokenOwnerAddressString, publicFromAmount);
+    response =
+        createShieldContractParametersWithoutAskForBurn(
+            httpnode,
+            shieldAccountInfo,
+            shieldSpends,
+            zenTrc20TokenOwnerAddressString,
+            publicFromAmount);
     JSONObject shieldedTrc20Parameters = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(shieldedTrc20Parameters);
-    JSONObject spendAuthSig = createSpendAuthSig(httpnode, shieldAccountInfo,
-        shieldedTrc20Parameters.getString("message_hash"), noteTxs.getJSONObject(1)
-            .getJSONObject("note").getString("rcm"));
+    JSONObject spendAuthSig =
+        createSpendAuthSig(
+            httpnode,
+            shieldAccountInfo,
+            shieldedTrc20Parameters.getString("message_hash"),
+            noteTxs.getJSONObject(1).getJSONObject("note").getString("rcm"));
     HttpMethed.printJsonContent(spendAuthSig);
     JSONArray spendAuthSigArray = new JSONArray();
     spendAuthSigArray.add(spendAuthSig);
 
-    response = getTriggerInputForShieldedTrc20BurnContract(httpnode,
-        shieldedTrc20Parameters, spendAuthSigArray, publicFromAmount,
-        zenTrc20TokenOwnerAddressString);
+    response =
+        getTriggerInputForShieldedTrc20BurnContract(
+            httpnode,
+            shieldedTrc20Parameters,
+            spendAuthSigArray,
+            publicFromAmount,
+            zenTrc20TokenOwnerAddressString);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
 
-    txid = HttpMethed.triggerContractGetTxidWithVisibleTrue(httpnode,anotherHttpnode,
-        zenTrc20TokenOwnerAddressString, shieldAddress, burn, responseContent
-            .getString("value"), maxFeeLimit, 0L, 0, 0L,
-        zenTrc20TokenOwnerKey);
+    txid =
+        HttpMethed.triggerContractGetTxidWithVisibleTrue(
+            httpnode,
+            anotherHttpnode,
+            zenTrc20TokenOwnerAddressString,
+            shieldAddress,
+            burn,
+            responseContent.getString("value"),
+            maxFeeLimit,
+            0L,
+            0,
+            0L,
+            zenTrc20TokenOwnerKey);
 
     HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.getTransactionInfoById(httpnode, txid, true);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    Assert.assertTrue(responseContent.getJSONObject("receipt")
-        .getLong("energy_usage_total") > 150000L);
+    Assert.assertTrue(
+        responseContent.getJSONObject("receipt").getLong("energy_usage_total") > 150000L);
     Assert.assertEquals(responseContent.getString("contract_address"), shieldAddress);
     Assert.assertEquals(responseContent.getJSONObject("receipt").getString("result"), "SUCCESS");
-
   }
-
 
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {
-  }
+  public void shutdown() throws InterruptedException {}
 }

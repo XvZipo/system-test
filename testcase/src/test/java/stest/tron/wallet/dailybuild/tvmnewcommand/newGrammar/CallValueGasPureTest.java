@@ -20,22 +20,23 @@ import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.ECKey;
+
 @Slf4j
 public class CallValueGasPureTest {
 
-  private final String foundationKey001 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String foundationKey001 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] foundationAddress001 = PublicMethed.getFinalAddress(foundationKey001);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(1);
-  private long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
   private byte[] contractAddress = null;
 
@@ -43,11 +44,7 @@ public class CallValueGasPureTest {
   private byte[] testAddress001 = ecKey1.getAddress();
   private String testKey001 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
@@ -59,17 +56,27 @@ public class CallValueGasPureTest {
 
   @Test(enabled = true, description = "call.value.gas be pure")
   public void test01DeployContract() {
-    Assert.assertTrue(PublicMethed
-        .sendcoin(testAddress001, 1000_000_000L, foundationAddress001, foundationKey001,
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            testAddress001,
+            1000_000_000L,
+            foundationAddress001,
+            foundationKey001,
             blockingStubFull));
-    Assert.assertTrue(PublicMethed
-        .freezeBalanceForReceiver(foundationAddress001, 100_000_000L, 0, 0,
-            ByteString.copyFrom(testAddress001), foundationKey001, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.freezeBalanceForReceiver(
+            foundationAddress001,
+            100_000_000L,
+            0,
+            0,
+            ByteString.copyFrom(testAddress001),
+            foundationKey001,
+            blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethed
-        .getAccountResource(testAddress001, blockingStubFull);
+    // before deploy, check account resource
+    AccountResourceMessage accountResource =
+        PublicMethed.getAccountResource(testAddress001, blockingStubFull);
     Protocol.Account info = PublicMethed.queryAccount(testKey001, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = accountResource.getEnergyUsed();
@@ -86,9 +93,22 @@ public class CallValueGasPureTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    final String txid = PublicMethed
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit, 0L, 0,
-            10000, "0", 0, null, testKey001, testAddress001, blockingStubFull);
+    final String txid =
+        PublicMethed.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            0,
+            10000,
+            "0",
+            0,
+            null,
+            testKey001,
+            testAddress001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
@@ -107,26 +127,32 @@ public class CallValueGasPureTest {
     Assert.assertNotNull(smartContract.getAbi());
 
     String param = "\"" + Base58.encode58Check(testAddress001) + "\"";
-    TransactionExtention extention = PublicMethed
-        .triggerConstantContractForExtention(contractAddress, "check(address)",
-            param, false, 0, 1000000000L, "0", 0, testAddress001,
-            testKey001, blockingStubFull);
+    TransactionExtention extention =
+        PublicMethed.triggerConstantContractForExtention(
+            contractAddress,
+            "check(address)",
+            param,
+            false,
+            0,
+            1000000000L,
+            "0",
+            0,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
     Assert.assertNotNull(extention);
     Assert.assertTrue(extention.hasResult());
     Assert.assertTrue(extention.getResult().getResult());
-
   }
 
   @AfterClass
   public void shutdown() throws InterruptedException {
     long balance = PublicMethed.queryAccount(testKey001, blockingStubFull).getBalance();
-    PublicMethed
-        .sendcoin(foundationAddress001, balance, testAddress001, testKey001, blockingStubFull);
+    PublicMethed.sendcoin(
+        foundationAddress001, balance, testAddress001, testKey001, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
 }
-
-

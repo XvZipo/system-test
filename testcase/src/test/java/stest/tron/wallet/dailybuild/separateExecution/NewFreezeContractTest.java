@@ -23,18 +23,16 @@ import org.tron.protos.contract.SmartContractOuterClass;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.*;
 
-
-
 @Slf4j
 public class NewFreezeContractTest {
 
-  private String testFoundationKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private String testFoundationKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private byte[] testFoundationAddress = PublicMethed.getFinalAddress(testFoundationKey);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -49,12 +47,9 @@ public class NewFreezeContractTest {
   private String create2Add58;
   private String create2Add41;
 
-
-
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] testAddress002 = ecKey2.getAddress();
   String testKey002 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-
 
   long delegatebleNet = 0;
   long delegatebleEnergy = 0;
@@ -63,10 +58,7 @@ public class NewFreezeContractTest {
   private long frozenAmount = 0L;
   private long frozenAmountCreate2 = 10000000L;
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(testKey001);
@@ -74,11 +66,21 @@ public class NewFreezeContractTest {
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    Assert.assertTrue(PublicMethed.sendcoin(testAddress001, 100000_000000L,
-        testFoundationAddress, testFoundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            testAddress001,
+            100000_000000L,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull));
 
-    Assert.assertTrue(PublicMethed.sendcoin(testAddress002, 20000_000000L,
-        testFoundationAddress, testFoundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            testAddress002,
+            20000_000000L,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     String filePath = "src/test/resources/soliditycode/newFreezeContract.sol";
@@ -86,22 +88,40 @@ public class NewFreezeContractTest {
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed
-        .deployContractFallback(contractName, abi, code, "", maxFeeLimit, 1000000000L,
-            100, null, testKey001,
-            testAddress001, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContractFallback(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            1000000000L,
+            100,
+            null,
+            testKey001,
+            testAddress001,
+            blockingStubFull);
     contractAddress58 = Base58.encode58Check(contractAddress);
     contractName = "D";
     retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     code = retMap.get("byteCode").toString();
     abi = retMap.get("abI").toString();
-    contractAddressD = PublicMethed
-        .deployContractFallback(contractName, abi, code, "", maxFeeLimit, 0L,
-            100, null, testKey001,
-            testAddress001, blockingStubFull);
+    contractAddressD =
+        PublicMethed.deployContractFallback(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKey001,
+            testAddress001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    SmartContractOuterClass.SmartContract smartContract = PublicMethed
-        .getContract(contractAddress, blockingStubFull);
+    SmartContractOuterClass.SmartContract smartContract =
+        PublicMethed.getContract(contractAddress, blockingStubFull);
     Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
     smartContract = PublicMethed.getContract(contractAddressD, blockingStubFull);
@@ -109,29 +129,65 @@ public class NewFreezeContractTest {
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
   }
 
-
-  @Test(enabled = true, description = "freezebalancev2 amount cant not be 0,-1,"
-      + " or number bigger than balance")
+  @Test(
+      enabled = true,
+      description = "freezebalancev2 amount cant not be 0,-1," + " or number bigger than balance")
   void test01FreezeAmountException() {
-    AccountResourceMessage contractResourceBefore = PublicMethed
-        .getAccountResource(contractAddress, blockingStubFull);
+    AccountResourceMessage contractResourceBefore =
+        PublicMethed.getAccountResource(contractAddress, blockingStubFull);
     Account contractAccountBefore = PublicMethed.queryAccount(contractAddress, blockingStubFull);
     String methedStr = "freezeBalanceV2(uint256,uint256)";
     String argsStr = "0,0";
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
     argsStr = "0,1";
-    String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
     argsStr = "-1,1";
-    String txid2 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid2 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
     argsStr = contractAccountBefore.getBalance() + 1 + ",1";
-    String txid3 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid3 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
@@ -143,20 +199,17 @@ public class NewFreezeContractTest {
     info = PublicMethed.getTransactionInfoById(txid3, blockingStubFull).get();
     Assert.assertEquals(info.getReceipt().getResult(), contractResult.REVERT);
 
-    AccountResourceMessage contractResourceAfter = PublicMethed
-        .getAccountResource(contractAddress, blockingStubFull);
+    AccountResourceMessage contractResourceAfter =
+        PublicMethed.getAccountResource(contractAddress, blockingStubFull);
     Account contractAccountAfter = PublicMethed.queryAccount(contractAddress, blockingStubFull);
 
-    logger.info("contractResourceBefore.getEnergyLimit : "
-        + contractResourceBefore.getEnergyLimit());
-    logger.info("contractResourceAfter.getEnergyLimit : "
-        + contractResourceAfter.getEnergyLimit());
-    Assert.assertTrue(contractResourceBefore.getEnergyLimit()
-        == contractResourceAfter.getEnergyLimit());
+    logger.info(
+        "contractResourceBefore.getEnergyLimit : " + contractResourceBefore.getEnergyLimit());
+    logger.info("contractResourceAfter.getEnergyLimit : " + contractResourceAfter.getEnergyLimit());
+    Assert.assertTrue(
+        contractResourceBefore.getEnergyLimit() == contractResourceAfter.getEnergyLimit());
 
-    Assert.assertEquals(contractAccountBefore.getBalance(),
-        contractAccountAfter.getBalance());
-
+    Assert.assertEquals(contractAccountBefore.getBalance(), contractAccountAfter.getBalance());
   }
 
   @Test(enabled = true, description = "freeze 5trx v2 net and 5trx v2 energy")
@@ -165,24 +218,44 @@ public class NewFreezeContractTest {
     long temAmt = frozenAmount + 1000000;
     String methedStr = "freezeBalanceV2(uint256,uint256)";
     String argsStr = temAmt + ",0";
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     argsStr = frozenAmount + ",1";
-    String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info(info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals("freezeBalanceV2ForBandwidth", info.getInternalTransactions(0).getNote().toStringUtf8());
+    Assert.assertEquals(
+        "freezeBalanceV2ForBandwidth", info.getInternalTransactions(0).getNote().toStringUtf8());
 
     info = PublicMethed.getTransactionInfoById(txid1, blockingStubFull).get();
     logger.info(info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals("freezeBalanceV2ForEnergy", info.getInternalTransactions(0).getNote().toStringUtf8());
+    Assert.assertEquals(
+        "freezeBalanceV2ForEnergy", info.getInternalTransactions(0).getNote().toStringUtf8());
 
     HashMap<String, Long> map = getResource(contractAddress58, blockingStubFull);
     Assert.assertEquals(temAmt, map.get("netFrozenBalanceV2").longValue());
@@ -197,27 +270,55 @@ public class NewFreezeContractTest {
     Assert.assertEquals(32, size);
     long expireUnfreezeBalance = getExpireUnfreezeBalanceV2(contractAddress, contractAddress58);
     Assert.assertEquals(0, expireUnfreezeBalance);
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr + 0,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr + 0,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("unfreeze 1trx info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals("unfreezeBalanceV2ForBandwidth", info.getInternalTransactions(0).getNote().toStringUtf8());
+    Assert.assertEquals(
+        "unfreezeBalanceV2ForBandwidth", info.getInternalTransactions(0).getNote().toStringUtf8());
   }
 
   @Test(enabled = true, description = "cannot delegate resource to self")
   void test04CannotDelegateToSelf() {
 
     String methedStr = "delegateResource(uint256,uint256,address)";
-    String argsStr = frozenAmount + ",0,\"" + contractAddress58 + "\"";   //delegate net
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
-    argsStr = frozenAmount + ",1,\"" + contractAddress58 + "\"";   //delegate energy
-    String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String argsStr = frozenAmount + ",0,\"" + contractAddress58 + "\""; // delegate net
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
+    argsStr = frozenAmount + ",1,\"" + contractAddress58 + "\""; // delegate energy
+    String txid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("delegate net to self: " + info.toString());
@@ -231,8 +332,6 @@ public class NewFreezeContractTest {
     HashMap<String, Long> map = getResource(contractAddress58, blockingStubFull);
     Assert.assertEquals(frozenAmount, map.get("netFrozenBalanceV2").longValue());
     Assert.assertEquals(frozenAmount, map.get("energyFrozenBalanceV2").longValue());
-
-
   }
 
   @Test(enabled = true, description = "cannot delegate resource to contract")
@@ -243,20 +342,46 @@ public class NewFreezeContractTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    byte[] newContract = PublicMethed
-        .deployContract(contractName, abi, code, "", maxFeeLimit, 0L,
-            100, null, testFoundationKey,
-            testFoundationAddress, blockingStubFull);
+    byte[] newContract =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testFoundationKey,
+            testFoundationAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-
     String methedStr = "delegateResource(uint256,uint256,address)";
-    String argsStr = frozenAmount + ",0,\"" + contractAddress58 + "\"";   //delegate net
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
-    argsStr = frozenAmount + ",1,\"" + contractAddress58 + "\"";   //delegate energy
-    String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String argsStr = frozenAmount + ",0,\"" + contractAddress58 + "\""; // delegate net
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
+    argsStr = frozenAmount + ",1,\"" + contractAddress58 + "\""; // delegate energy
+    String txid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("delegate net to contract: " + info.toString());
@@ -270,7 +395,6 @@ public class NewFreezeContractTest {
     HashMap<String, Long> map = getResource(contractAddress58, blockingStubFull);
     Assert.assertEquals(frozenAmount, map.get("netFrozenBalanceV2").longValue());
     Assert.assertEquals(frozenAmount, map.get("energyFrozenBalanceV2").longValue());
-
   }
 
   @Test(enabled = true, description = "delegate all net and energy to normal address")
@@ -282,25 +406,45 @@ public class NewFreezeContractTest {
 
     String receiver = Base58.encode58Check(testAddress002);
     String methedStr = "delegateResource(uint256,uint256,address)";
-    String argsStr = frozenAmount + ",0,\"" + receiver + "\"";   //delegate net
+    String argsStr = frozenAmount + ",0,\"" + receiver + "\""; // delegate net
     logger.info("methedStr: " + methedStr);
     logger.info("argsStr: " + argsStr);
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
-    argsStr = frozenAmount + ",1,\"" + receiver + "\"";   //delegate energy
-    String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
+    argsStr = frozenAmount + ",1,\"" + receiver + "\""; // delegate energy
+    String txid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("delegate net info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals("delegateResourceOfBandwidth", info.getInternalTransactions(0).getNote().toStringUtf8());
+    Assert.assertEquals(
+        "delegateResourceOfBandwidth", info.getInternalTransactions(0).getNote().toStringUtf8());
     info = PublicMethed.getTransactionInfoById(txid1, blockingStubFull).get();
     logger.info("delegate energy info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    Assert.assertEquals("delegateResourceOfEnergy", info.getInternalTransactions(0).getNote().toStringUtf8());
+    Assert.assertEquals(
+        "delegateResourceOfEnergy", info.getInternalTransactions(0).getNote().toStringUtf8());
     delegatebleNet = getDelegatableResource(contractAddress58, contractAddress58, 0);
     delegatebleEnergy = getDelegatableResource(contractAddress58, contractAddress58, 1);
     Assert.assertEquals(0, delegatebleNet);
@@ -316,7 +460,6 @@ public class NewFreezeContractTest {
     getTotalResource(contractAddress58, contractAddress58);
     getTotalResource(receiver, contractAddress58);
     getTotalAcquiredResource(contractAddress, receiver);
-
   }
 
   @Test(enabled = true, description = "can not unfreeze delegated resource")
@@ -327,11 +470,29 @@ public class NewFreezeContractTest {
     Assert.assertEquals(0, unfreezableEnergy);
     String methedStr = "unfreezeBalanceV2(uint256,uint256)";
     String argsStr = frozenAmount + ",0";
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     String argsStr1 = frozenAmount + ",1";
-    String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr1,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr1,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("unfreeze delegated net: " + info.toString());
@@ -350,20 +511,47 @@ public class NewFreezeContractTest {
     String receiver = Base58.encode58Check(testAddress002);
     long amount = frozenAmount + 1;
     String argsStr = amount + ",1,\"" + receiver + "\"";
-    String txid0 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid0 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
     argsStr = amount + ",0,\"" + receiver + "\"";
-    String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
-    //undelegate with wrong address
+    // undelegate with wrong address
     ECKey ecKey3 = new ECKey(Utils.getRandom());
     byte[] testAddress003 = ecKey3.getAddress();
     receiver = Base58.encode58Check(testAddress003);
     argsStr = frozenAmount + ",1,\"" + receiver + "\"";
-    String txid2 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid2 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info0 = PublicMethed.getTransactionInfoById(txid0, blockingStubFull).get();
@@ -380,52 +568,78 @@ public class NewFreezeContractTest {
     logger.info("info0: " + info2.toString());
     Assert.assertEquals(code.FAILED, info2.getResult());
     Assert.assertEquals(contractResult.REVERT, info2.getReceipt().getResult());
-
   }
 
   @Test(enabled = true, description = "normal account consume energy and bandwidth")
   void test09ConsumeResource() {
     String methedStr = "testConsumeEnergy(int256,int256)";
     String argsStr = "1,1";
-    for(int i = 0; i < 1; i++){
-      PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-          false, 0, maxFeeLimit, testAddress002, testKey002, blockingStubFull);
+    for (int i = 0; i < 1; i++) {
+      PublicMethed.triggerContract(
+          contractAddress,
+          methedStr,
+          argsStr,
+          false,
+          0,
+          maxFeeLimit,
+          testAddress002,
+          testKey002,
+          blockingStubFull);
     }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    checkUnDelegateResource(contractAddress, Base58.encode58Check(testAddress002),
-        "0", frozenAmount);
-    checkUnDelegateResource(contractAddress, Base58.encode58Check(testAddress002),
-        "1", frozenAmount);
+    checkUnDelegateResource(
+        contractAddress, Base58.encode58Check(testAddress002), "0", frozenAmount);
+    checkUnDelegateResource(
+        contractAddress, Base58.encode58Check(testAddress002), "1", frozenAmount);
   }
 
   @Test(enabled = true, description = "undelegate net and energy success")
   void test10UndelegateResource() {
-    //todo : calculate usage (contract and receiver)
+    // todo : calculate usage (contract and receiver)
 
     String methedStr = "unDelegateResource(uint256,uint256,address)";
     String receiver = Base58.encode58Check(testAddress002);
 
     String argsStr = frozenAmount + ",1,\"" + receiver + "\"";
-    String txid0 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid0 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
     argsStr = frozenAmount + ",0,\"" + receiver + "\"";
-    String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info0 = PublicMethed.getTransactionInfoById(txid0, blockingStubFull).get();
     logger.info("undelegate energy info0: " + info0.toString());
     Assert.assertEquals(code.SUCESS, info0.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info0.getReceipt().getResult());
-    Assert.assertEquals("unDelegateResourceOfEnergy", info0.getInternalTransactions(0).getNote().toStringUtf8());
-
+    Assert.assertEquals(
+        "unDelegateResourceOfEnergy", info0.getInternalTransactions(0).getNote().toStringUtf8());
 
     TransactionInfo info1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull).get();
     logger.info("undelegate bandwidth info1: " + info1.toString());
     Assert.assertEquals(code.SUCESS, info1.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info1.getReceipt().getResult());
-    Assert.assertEquals("unDelegateResourceOfBandwidth", info1.getInternalTransactions(0).getNote().toStringUtf8());
+    Assert.assertEquals(
+        "unDelegateResourceOfBandwidth", info1.getInternalTransactions(0).getNote().toStringUtf8());
 
     long resourceV2Net = getResourceV2(contractAddress58, receiver, "0", contractAddress);
     long resourceV2Energy = getResourceV2(contractAddress58, receiver, "1", contractAddress);
@@ -434,30 +648,59 @@ public class NewFreezeContractTest {
     Assert.assertEquals(0, resourceV2Net);
     Assert.assertEquals(0, resourceV2Energy);
     resourceUsage(contractAddress58, contractAddress);
-    //todo : calculate usage (contract and receiver)
+    // todo : calculate usage (contract and receiver)
   }
 
   @Test(enabled = true, description = "delegate resource when usage>0")
   void test11DelegateWithUsage() {
     delegatebleNet = getDelegatableResource(contractAddress58, contractAddress58, 0);
-    maxNet = PublicMethed.getCanDelegatedMaxSize(contractAddress, 0, blockingStubFull)
-        .get().getMaxSize();
+    maxNet =
+        PublicMethed.getCanDelegatedMaxSize(contractAddress, 0, blockingStubFull)
+            .get()
+            .getMaxSize();
     delegatebleEnergy = getDelegatableResource(contractAddress58, contractAddress58, 1);
-    maxEnergy = PublicMethed.getCanDelegatedMaxSize(contractAddress, 1, blockingStubFull)
-        .get().getMaxSize();
-    logger.info("delegatebleNet: " + delegatebleNet + "  maxNet: " + maxNet
-        + "\n delegatebleEnergy: " + delegatebleEnergy + "  maxEnergy: " + maxEnergy);
-    logger.info(PublicMethed.queryAccount(contractAddress,blockingStubFull).toString());
-    logger.info(PublicMethed.getAccountResource(contractAddress,blockingStubFull).toString());
+    maxEnergy =
+        PublicMethed.getCanDelegatedMaxSize(contractAddress, 1, blockingStubFull)
+            .get()
+            .getMaxSize();
+    logger.info(
+        "delegatebleNet: "
+            + delegatebleNet
+            + "  maxNet: "
+            + maxNet
+            + "\n delegatebleEnergy: "
+            + delegatebleEnergy
+            + "  maxEnergy: "
+            + maxEnergy);
+    logger.info(PublicMethed.queryAccount(contractAddress, blockingStubFull).toString());
+    logger.info(PublicMethed.getAccountResource(contractAddress, blockingStubFull).toString());
     String receiver = Base58.encode58Check(testAddress002);
     String methedStr = "delegateResource(uint256,uint256,address)";
-    String argsStr = delegatebleNet + ",0,\"" + receiver + "\"";   //delegate net
+    String argsStr = delegatebleNet + ",0,\"" + receiver + "\""; // delegate net
 
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
-    argsStr = delegatebleEnergy + ",1,\"" + receiver + "\"";   //delegate energy
-    String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
+    argsStr = delegatebleEnergy + ",1,\"" + receiver + "\""; // delegate energy
+    String txid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("delegate with usage net info: " + info.toString());
@@ -482,56 +725,88 @@ public class NewFreezeContractTest {
     getTotalResource(contractAddress58, contractAddress58);
     getTotalResource(receiver, contractAddress58);
     getTotalAcquiredResource(contractAddress, receiver);
-
   }
 
   @Test(enabled = true, description = "normal account consume energy and bandwidth again")
   void test12ConsumeResourceAgain() {
     String methedStr = "testConsumeEnergy(int256,int256)";
     String argsStr = "1,1";
-    for(int i = 0; i < 1; i++){
-      PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-          false, 0, maxFeeLimit, testAddress002, testKey002, blockingStubFull);
+    for (int i = 0; i < 1; i++) {
+      PublicMethed.triggerContract(
+          contractAddress,
+          methedStr,
+          argsStr,
+          false,
+          0,
+          maxFeeLimit,
+          testAddress002,
+          testKey002,
+          blockingStubFull);
     }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    checkUnDelegateResource(contractAddress, Base58.encode58Check(testAddress002), "0", 
-        delegatebleNet / 2);
-    checkUnDelegateResource(contractAddress, Base58.encode58Check(testAddress002), "1", 
-        delegatebleEnergy / 2);
+    checkUnDelegateResource(
+        contractAddress, Base58.encode58Check(testAddress002), "0", delegatebleNet / 2);
+    checkUnDelegateResource(
+        contractAddress, Base58.encode58Check(testAddress002), "1", delegatebleEnergy / 2);
   }
 
   @Test(enabled = true, description = "")
   void test13CannotKillWithDelegate() {
     String methedStr = "killme(address)";
     String argsStr = "\"" + Base58.encode58Check(testAddress002) + "\"";
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     logger.info("kill me revert WithDelegate txid: " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     Assert.assertEquals(code.FAILED, info.getResult());
     Assert.assertEquals(contractResult.REVERT, info.getReceipt().getResult());
-
   }
 
   @Test(enabled = true, description = "undelegate net and energy success again")
   void test14UndelegateResourceAgain() {
-    //todo : calculate usage (contract and receiver)
+    // todo : calculate usage (contract and receiver)
 
     String methedStr = "unDelegateResource(uint256,uint256,address)";
     String receiver = Base58.encode58Check(testAddress002);
 
     PublicMethed.freezeBalanceV2(testAddress002, maxNet, 0, testKey002, blockingStubFull);
-    PublicMethed.freezeBalanceV2(testAddress002, maxEnergy,
-        1, testKey002, blockingStubFull);
+    PublicMethed.freezeBalanceV2(testAddress002, maxEnergy, 1, testKey002, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String argsStr = delegatebleEnergy + ",1,\"" + receiver + "\"";
-    String txid0 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid0 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
     argsStr = delegatebleNet + ",0,\"" + receiver + "\"";
-    String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info0 = PublicMethed.getTransactionInfoById(txid0, blockingStubFull).get();
@@ -551,7 +826,7 @@ public class NewFreezeContractTest {
     Assert.assertEquals(0, resourceV2Net);
     Assert.assertEquals(0, resourceV2Energy);
     resourceUsage(contractAddress58, contractAddress);
-    //todo : calculate usage (contract and receiver)
+    // todo : calculate usage (contract and receiver)
   }
 
   @Test(description = "")
@@ -576,7 +851,7 @@ public class NewFreezeContractTest {
     byte[] testAddress = ecKey.getAddress();
     String testKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
     long balanceCon = PublicMethed.queryAccount(create2AddBytes, blockingStubFull).getBalance();
-    AccountResourceMessage resource = 
+    AccountResourceMessage resource =
         PublicMethed.getAccountResource(create2AddBytes, blockingStubFull);
     long netUsedCon = resource.getNetUsed();
     long energyUsedCon = resource.getEnergyUsed();
@@ -590,8 +865,15 @@ public class NewFreezeContractTest {
     long netUsedReceiver = resource.getNetUsed();
     long energyUsedReceiver = resource.getEnergyUsed();
 
-    logger.info("netUsedCon: " + netUsedCon + "  energyUsedCon: " + energyUsedCon
-        + "\nnetUsedReceiver: " + netUsedReceiver + "  energyUsedReceiver: " + energyUsedReceiver);
+    logger.info(
+        "netUsedCon: "
+            + netUsedCon
+            + "  energyUsedCon: "
+            + energyUsedCon
+            + "\nnetUsedReceiver: "
+            + netUsedReceiver
+            + "  energyUsedReceiver: "
+            + energyUsedReceiver);
     Account receiverAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     long balanceReceiver = receiverAccount.getBalance();
     Assert.assertEquals(balanceCon, balanceReceiver);
@@ -599,12 +881,12 @@ public class NewFreezeContractTest {
     Assert.assertEquals(0, li.size());
 
     Account killCreate2 = PublicMethed.queryAccount(create2AddBytes, blockingStubFull);
-    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+    if (PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(0L, killCreate2.getBalance());
       Assert.assertEquals(0L, killCreate2.getFrozenV2(0).getAmount());
       Assert.assertEquals(0L, killCreate2.getFrozenV2(1).getAmount());
       Assert.assertEquals(0L, killCreate2.getFrozenV2(2).getAmount());
-    }else {
+    } else {
       String str = killCreate2.toString();
       Assert.assertEquals("", str);
     }
@@ -621,14 +903,22 @@ public class NewFreezeContractTest {
     long balanceBefore = PublicMethed.queryAccount(contractAddress, blockingStubFull).getBalance();
     String methedStr = "withdrawExpireUnfreeze()";
     String argsStr = "#";
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
-    long withdrawAmount =
-        ByteArray.toLong(info.getContractResult(0).toByteArray());
+    long withdrawAmount = ByteArray.toLong(info.getContractResult(0).toByteArray());
     logger.info("withdrawAmount: " + withdrawAmount);
     Assert.assertEquals(expireUnfreezeBalance, withdrawAmount);
 
@@ -646,8 +936,17 @@ public class NewFreezeContractTest {
     withdrawReward(contractAddress);
     String methedStr = "unfreezeBalanceV2(uint256,uint256)";
     String argsStr = "10000000,0";
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("unfreeze  10trx to unvote info: " + info.toString());
@@ -666,16 +965,33 @@ public class NewFreezeContractTest {
     String argsStr = ",1";
     for (int i = 0; i < 33; i++) {
       String argsStr1 = i + argsStr;
-      PublicMethed.triggerContract(contractAddress, methedStr, argsStr1,
-          false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+      PublicMethed.triggerContract(
+          contractAddress,
+          methedStr,
+          argsStr1,
+          false,
+          0,
+          maxFeeLimit,
+          testAddress001,
+          testKey001,
+          blockingStubFull);
     }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     long size = getAvailableUnfreezeV2Size(contractAddress, contractAddress58);
     Assert.assertEquals(0, size);
     long expireUnfreezeBalance = getExpireUnfreezeBalanceV2(contractAddress, contractAddress58);
     Assert.assertEquals(0, expireUnfreezeBalance);
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, 1 + argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            1 + argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
@@ -688,14 +1004,22 @@ public class NewFreezeContractTest {
   void test20CannotKillWithUnfreeze() {
     String methedStr = "killme(address)";
     String argsStr = "\"" + Base58.encode58Check(testAddress002) + "\"";
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     logger.info("kill me revert WithUnfreeze txid: " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     Assert.assertEquals(code.FAILED, info.getResult());
     Assert.assertEquals(contractResult.REVERT, info.getReceipt().getResult());
-
   }
 
   @Test(enabled = true, description = "cancel all unfreeze")
@@ -704,8 +1028,17 @@ public class NewFreezeContractTest {
     Assert.assertEquals(0, size);
     String methedStr = "cancelAllUnfreezeV2()";
     String argsStr = "#";
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
@@ -713,7 +1046,8 @@ public class NewFreezeContractTest {
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
     Assert.assertTrue(info.getInternalTransactions(0).toString().contains("extra"));
-    Assert.assertEquals("cancelAllUnfreezeV2", info.getInternalTransactions(0).getNote().toStringUtf8());
+    Assert.assertEquals(
+        "cancelAllUnfreezeV2", info.getInternalTransactions(0).getNote().toStringUtf8());
 
     size = getAvailableUnfreezeV2Size(contractAddress, contractAddress58);
     Assert.assertEquals(32, size);
@@ -729,25 +1063,37 @@ public class NewFreezeContractTest {
     String methedStr = "getChainParameters()";
     String argsStr = "#";
 
-    TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-        contractAddress, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    TransactionExtention exten =
+        PublicMethed.triggerConstantContractForExtention(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     byte[] res = exten.getConstantResult(0).toByteArray();
 
-    long totalNetLimit =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
-    long totalNetWeight =
-        ByteArray.toLong(ByteArray.subArray(res, 32, 64));
-    long totalEnergyCurrentLimit =
-        ByteArray.toLong(ByteArray.subArray(res, 64, 96));
-    long totalEnergyWeight =
-        ByteArray.toLong(ByteArray.subArray(res, 96, 128));
-    long unfreezeDelayDays =
-        ByteArray.toLong(ByteArray.subArray(res, 128, 160));
-    logger.info("totalNetLimit: " + totalNetLimit + "  \ntotalNetWeight: " + totalNetWeight
-        + "   \ntotalEnergyCurrentLimit: " + totalEnergyCurrentLimit 
-        + "  \ntotalEnergyWeight: " + totalEnergyWeight
-        + "  \nunfreezeDelayDays: " + unfreezeDelayDays);
+    long totalNetLimit = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    long totalNetWeight = ByteArray.toLong(ByteArray.subArray(res, 32, 64));
+    long totalEnergyCurrentLimit = ByteArray.toLong(ByteArray.subArray(res, 64, 96));
+    long totalEnergyWeight = ByteArray.toLong(ByteArray.subArray(res, 96, 128));
+    long unfreezeDelayDays = ByteArray.toLong(ByteArray.subArray(res, 128, 160));
+    logger.info(
+        "totalNetLimit: "
+            + totalNetLimit
+            + "  \ntotalNetWeight: "
+            + totalNetWeight
+            + "   \ntotalEnergyCurrentLimit: "
+            + totalEnergyCurrentLimit
+            + "  \ntotalEnergyWeight: "
+            + totalEnergyWeight
+            + "  \nunfreezeDelayDays: "
+            + unfreezeDelayDays);
 
     Assert.assertEquals(netTotalLimit, totalNetLimit);
     Assert.assertEquals(netTotalWeight, totalNetWeight);
@@ -757,16 +1103,34 @@ public class NewFreezeContractTest {
   }
 
   @Test(description = "")
-  void test23UnfreezeAll(){
+  void test23UnfreezeAll() {
     long net = getDelegatableResource(contractAddress58, contractAddress58, 0);
     long energy = getDelegatableResource(contractAddress58, contractAddress58, 1);
     String methedStr = "unfreezeBalanceV2(uint256,uint256)";
     String argsStr = net + ",0";
-    String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     argsStr = energy + ",1";
-    String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("unfreeze  all net info: " + info.toString());
@@ -779,87 +1143,147 @@ public class NewFreezeContractTest {
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
   }
 
-
-
   String killCon(byte[] con, byte[] receiverAdd) {
     String receiver = Base58.encode58Check(receiverAdd);
     String methedStr = "killme(address)";
     String argsStr = "\"" + receiver + "\"";
 
-    String txid = PublicMethed.triggerContract(con, methedStr, argsStr,
-        false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     return txid;
-
   }
-
 
   public void voteWitness(byte[] con, String args) {
     logger.info("vote args: " + args);
     String methodStr = "voteWitness(address[],uint256[])";
 
-    String triggerTxid = PublicMethed.triggerContract(con, methodStr, args, false,
-        0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
+    String triggerTxid =
+        PublicMethed.triggerContract(
+            con,
+            methodStr,
+            args,
+            false,
+            0,
+            maxFeeLimit,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    TransactionInfo transactionInfo = PublicMethed
-        .getTransactionInfoById(triggerTxid, blockingStubFull).get();
+    TransactionInfo transactionInfo =
+        PublicMethed.getTransactionInfoById(triggerTxid, blockingStubFull).get();
     Assert.assertEquals(0, transactionInfo.getResultValue());
-    Assert.assertEquals(contractResult.SUCCESS,
-        transactionInfo.getReceipt().getResult());
-    Assert.assertEquals("voteWitness", transactionInfo.getInternalTransactions(0).getNote().toStringUtf8());
+    Assert.assertEquals(contractResult.SUCCESS, transactionInfo.getReceipt().getResult());
+    Assert.assertEquals(
+        "voteWitness", transactionInfo.getInternalTransactions(0).getNote().toStringUtf8());
     logger.info("transactionInfo:  " + transactionInfo.toString());
   }
 
   public void withdrawReward(byte[] con) {
     String methodStr = "withdrawReward()";
 
-    String triggerTxid = PublicMethed.triggerContract(con, methodStr, "#", false,
-            0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
+    String triggerTxid =
+        PublicMethed.triggerContract(
+            con,
+            methodStr,
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    TransactionInfo transactionInfo = PublicMethed
-            .getTransactionInfoById(triggerTxid, blockingStubFull).get();
+    TransactionInfo transactionInfo =
+        PublicMethed.getTransactionInfoById(triggerTxid, blockingStubFull).get();
     Assert.assertEquals(0, transactionInfo.getResultValue());
-    Assert.assertEquals(contractResult.SUCCESS,
-            transactionInfo.getReceipt().getResult());
-
+    Assert.assertEquals(contractResult.SUCCESS, transactionInfo.getReceipt().getResult());
   }
-
 
   void create2NewFreezeContract() {
     String methedStr = "getPredictedAddress(bytes32)";
     String argsStr = "1232";
-    GrpcAPI.TransactionExtention transactionExtention = 
-        PublicMethed.triggerConstantContractForExtention(contractAddressD, methedStr, argsStr,
-        false, 0, maxFeeLimit, "0", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    GrpcAPI.TransactionExtention transactionExtention =
+        PublicMethed.triggerConstantContractForExtention(
+            contractAddressD,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
 
     logger.info("getPredictedAddress transactionExtention: " + transactionExtention.toString());
-    create2Add41 = "41" + ByteArray.toHexString(transactionExtention.getConstantResult(0)
-        .toByteArray()).substring(24);
+    create2Add41 =
+        "41"
+            + ByteArray.toHexString(transactionExtention.getConstantResult(0).toByteArray())
+                .substring(24);
     create2AddBytes = ByteArray.fromHexString(create2Add41);
     create2Add58 = Base58.encode58Check(create2AddBytes);
-    PublicMethed.sendcoin(create2AddBytes, 100000000, testFoundationAddress, testFoundationKey, blockingStubFull);
+    PublicMethed.sendcoin(
+        create2AddBytes, 100000000, testFoundationAddress, testFoundationKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     methedStr = "createDSalted(bytes32)";
-    PublicMethed.triggerContract(contractAddressD, methedStr, argsStr,
-        false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
+    PublicMethed.triggerContract(
+        contractAddressD,
+        methedStr,
+        argsStr,
+        false,
+        0,
+        maxFeeLimit,
+        testFoundationAddress,
+        testFoundationKey,
+        blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    SmartContractOuterClass.SmartContract smartContract = PublicMethed.getContract(create2AddBytes, blockingStubFull);
-//    Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
+    SmartContractOuterClass.SmartContract smartContract =
+        PublicMethed.getContract(create2AddBytes, blockingStubFull);
+    //    Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
   }
 
   void onlyFreeze(byte[] con, long amount) {
-    logger.info("onlyFreeze con: " +  PublicMethed.queryAccount(con, blockingStubFull).toString());
+    logger.info("onlyFreeze con: " + PublicMethed.queryAccount(con, blockingStubFull).toString());
     String methedStr = "freezeBalanceV2(uint256,uint256)";
     String argsStr = amount + ",0";
-    String txid = PublicMethed.triggerContract(con, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     argsStr = amount + ",1";
-    String txid1 = PublicMethed.triggerContract(con, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid1 =
+        PublicMethed.triggerContract(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info(info.toString());
@@ -875,11 +1299,20 @@ public class NewFreezeContractTest {
   void onlyDelegate(byte[] con, byte[] receiverAdd, int type, long amount) {
     String receiver = Base58.encode58Check(receiverAdd);
     String methedStr = "delegateResource(uint256,uint256,address)";
-    String argsStr = amount + "," + type + ",\"" + receiver + "\"";   //delegate net
+    String argsStr = amount + "," + type + ",\"" + receiver + "\""; // delegate net
     logger.info("methedStr: " + methedStr);
     logger.info("argsStr: " + argsStr);
-    String txid = PublicMethed.triggerContract(con, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("delegate net info: " + info.toString());
@@ -892,8 +1325,17 @@ public class NewFreezeContractTest {
     String receiver = Base58.encode58Check(receiverAdd);
 
     String argsStr = amount + "," + type + ",\"" + receiver + "\"";
-    String txid0 = PublicMethed.triggerContract(con, methedStr, argsStr,
-        false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String txid0 =
+        PublicMethed.triggerContract(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info0 = PublicMethed.getTransactionInfoById(txid0, blockingStubFull).get();
@@ -902,18 +1344,27 @@ public class NewFreezeContractTest {
     Assert.assertEquals(contractResult.SUCCESS, info0.getReceipt().getResult());
   }
 
-
   //  @Test(description = "test Available UnfreezeV2 Size")
   long getAvailableUnfreezeV2Size(byte[] con, String queryAdd) {
     String methedStr = "getAvailableUnfreezeV2Size(address)";
     String argsStr = "\"" + queryAdd + "\"";
 
-    TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-        con, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    TransactionExtention exten =
+        PublicMethed.triggerConstantContractForExtention(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
 
     long unfreezeSize = ByteArray.toLong(exten.getConstantResult(0).toByteArray());
-//    logger.info("unfreezeSize: " + unfreezeSize);
+    //    logger.info("unfreezeSize: " + unfreezeSize);
     return unfreezeSize;
   }
 
@@ -923,11 +1374,20 @@ public class NewFreezeContractTest {
     String methedStr = "getUnfreezableBalanceV2(address,uint256)";
     String argsStr = "\"" + queryAdd + "\"," + type;
 
-    TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-        con, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
-    long unfreezableBalance =
-        ByteArray.toLong(exten.getConstantResult(0).toByteArray());
+    TransactionExtention exten =
+        PublicMethed.triggerConstantContractForExtention(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
+    long unfreezableBalance = ByteArray.toLong(exten.getConstantResult(0).toByteArray());
     logger.info("unfreezableBalanceNet: " + unfreezableBalance);
     return unfreezableBalance;
   }
@@ -937,12 +1397,21 @@ public class NewFreezeContractTest {
     String methedStr = "getExpireUnfreezeBalanceV2(address,uint256)";
     String argsStr = "\"" + queryAdd + "\"," + System.currentTimeMillis() / 1000;
     logger.info("argsStr: " + argsStr);
-    TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-        con, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    TransactionExtention exten =
+        PublicMethed.triggerConstantContractForExtention(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
 
-    long ExpireUnfreezeBalance =
-        ByteArray.toLong(exten.getConstantResult(0).toByteArray());
+    long ExpireUnfreezeBalance = ByteArray.toLong(exten.getConstantResult(0).toByteArray());
     logger.info("ExpireUnfreezeBalance: " + ExpireUnfreezeBalance);
     return ExpireUnfreezeBalance;
   }
@@ -952,15 +1421,23 @@ public class NewFreezeContractTest {
     String methedStr = "getDelegatableResource(address,uint256)";
     String argsStr = "\"" + queryAdd + "\"," + type;
     byte[] contract = PublicMethed.decode58Check(con);
-    TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-        contract, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    TransactionExtention exten =
+        PublicMethed.triggerConstantContractForExtention(
+            contract,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     byte[] res = exten.getConstantResult(0).toByteArray();
-    long delegatableResource =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    long delegatableResource = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
     logger.info("delegatable " + type + " : " + delegatableResource);
     return delegatableResource;
-
   }
 
   //  @Test(description = "equal with api wallet/getdelegatedresourcev2")
@@ -969,12 +1446,21 @@ public class NewFreezeContractTest {
     String methedStr = "getResourceV2(address,address,uint256)";
     String argsStr = "\"" + receiveAdd + "\",\"" + fromAdd + "\"," + type;
 
-    TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-        con, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    TransactionExtention exten =
+        PublicMethed.triggerConstantContractForExtention(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     byte[] res = exten.getConstantResult(0).toByteArray();
-    long delegatedResource =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    long delegatedResource = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
     logger.info("getResourceV2  delegatedResource: " + delegatedResource);
 
     return delegatedResource;
@@ -982,22 +1468,29 @@ public class NewFreezeContractTest {
 
   //  @Test(description = "how much can be undelegate")
   void checkUnDelegateResource(byte[] con, String receiveAdd, String type, long amount) {
-//    String amount = "1";
+    //    String amount = "1";
     String methedStr = "checkUnDelegateResource(address,uint256,uint256)";
     String argsStr = "\"" + receiveAdd + "\"," + amount + "," + type;
 
-    TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-            con, methedStr, argsStr, false, 0, maxFeeLimit,
-            "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    TransactionExtention exten =
+        PublicMethed.triggerConstantContractForExtention(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
 
     HashMap<String, Long> map = getResource(receiveAdd, blockingStubFull);
     byte[] res = exten.getConstantResult(0).toByteArray();
-    long cleanAmount =
-            ByteArray.toLong(ByteArray.subArray(res, 0, 32));
-    long dirtyAmount =
-            ByteArray.toLong(ByteArray.subArray(res, 32, 64));
-    long storeTime =
-            ByteArray.toLong(ByteArray.subArray(res, 64, 96));
+    long cleanAmount = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    long dirtyAmount = ByteArray.toLong(ByteArray.subArray(res, 32, 64));
+    long storeTime = ByteArray.toLong(ByteArray.subArray(res, 64, 96));
 
     long returnAmount = cleanAmount + dirtyAmount;
     long frozenBalanceV1 = 0;
@@ -1029,16 +1522,24 @@ public class NewFreezeContractTest {
     }
 
     long sumNetFrozen = frozenBalanceV1 + frozenBalanceV2 + acquiredBalanceV1 + acquiredBalanceV2;
-    long recycleNet = (long)((double)used * totalWeight * 1000000 / totalLimit );
-    long cleanSun = (long) ( amount* ((double)(sumNetFrozen-recycleNet) / sumNetFrozen ));
+    long recycleNet = (long) ((double) used * totalWeight * 1000000 / totalLimit);
+    long cleanSun = (long) (amount * ((double) (sumNetFrozen - recycleNet) / sumNetFrozen));
     long dirtySun = amount - cleanSun;
-    logger.info("storeTime: " + storeTime/3 + "  windowSize: " + windowSize);
-    logger.info("clean amount net: " + cleanAmount + "  dirty amount net: " + dirtyAmount + ": sum: "
-            + returnAmount + " compute cleanSun: " + cleanSun + "  compute dirtySun: " + dirtySun);
+    logger.info("storeTime: " + storeTime / 3 + "  windowSize: " + windowSize);
+    logger.info(
+        "clean amount net: "
+            + cleanAmount
+            + "  dirty amount net: "
+            + dirtyAmount
+            + ": sum: "
+            + returnAmount
+            + " compute cleanSun: "
+            + cleanSun
+            + "  compute dirtySun: "
+            + dirtySun);
     Assert.assertEquals(amount, returnAmount);
-//    Assert.assertEquals(cleanAmount, cleanSun);
-//    Assert.assertEquals(dirtyAmount, dirtySun);
-
+    //    Assert.assertEquals(cleanAmount, cleanSun);
+    //    Assert.assertEquals(dirtyAmount, dirtySun);
 
   }
 
@@ -1047,12 +1548,21 @@ public class NewFreezeContractTest {
     String methedStr = "getResourceUsage(address,uint256)";
     String argsStr = "\"" + queryAdd + "\",0";
 
-    TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-        con, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    TransactionExtention exten =
+        PublicMethed.triggerConstantContractForExtention(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     byte[] res = exten.getConstantResult(0).toByteArray();
-    long usageAmount =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    long usageAmount = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
 
     HashMap<String, Long> map = getResource(queryAdd, blockingStubFull);
     long netTotalWeight = map.get("netTotalWeight");
@@ -1061,21 +1571,46 @@ public class NewFreezeContractTest {
     long energyTotalWeight = map.get("energyTotalWeight");
     long energyTotalLimit = map.get("energyTotalLimit");
     long energyUsed = map.get("energyUsed");
-    logger.info(netTotalWeight + " : " + netTotalLimit + " : " + netUsed + "  : " + energyTotalWeight
-        + " : " + energyTotalLimit + " : " + energyUsed);
-    logger.info("ResourceUsage net: " + usageAmount + "   :  "
-        + netUsed * netTotalWeight / netTotalLimit * 1000000);
+    logger.info(
+        netTotalWeight
+            + " : "
+            + netTotalLimit
+            + " : "
+            + netUsed
+            + "  : "
+            + energyTotalWeight
+            + " : "
+            + energyTotalLimit
+            + " : "
+            + energyUsed);
+    logger.info(
+        "ResourceUsage net: "
+            + usageAmount
+            + "   :  "
+            + netUsed * netTotalWeight / netTotalLimit * 1000000);
 
     argsStr = "\"" + queryAdd + "\",1";
-    exten = PublicMethed.triggerConstantContractForExtention(
-        con, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    exten =
+        PublicMethed.triggerConstantContractForExtention(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     res = exten.getConstantResult(0).toByteArray();
-    usageAmount =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    usageAmount = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
 
-    logger.info("ResourceUsage energy: " + usageAmount + "   :  " + energyUsed * energyTotalWeight / energyTotalLimit * 1000000);
-
+    logger.info(
+        "ResourceUsage energy: "
+            + usageAmount
+            + "   :  "
+            + energyUsed * energyTotalWeight / energyTotalLimit * 1000000);
   }
 
   //  @Test(description = "return freeze plus acquired")
@@ -1093,35 +1628,71 @@ public class NewFreezeContractTest {
     String argsStr = "\"" + queryAdd + "\",0";
     byte[] contract = PublicMethed.decode58Check(con);
 
-    TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-        contract, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    TransactionExtention exten =
+        PublicMethed.triggerConstantContractForExtention(
+            contract,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     byte[] res = exten.getConstantResult(0).toByteArray();
-    long resourceAmount =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    long resourceAmount = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
 
-    logger.info("resourceAmount net: " + resourceAmount + "  netAcquiredBalanceV1: " + netAcquiredBalanceV1
-        + "   netAcquiredBalanceV2: " + netAcquiredBalanceV2
-        + " netFrozenBalanceV1: " + netFrozenBalanceV1 + " netFrozenBalanceV2: " + netFrozenBalanceV2);
-    Assert.assertEquals(resourceAmount, netAcquiredBalanceV1 + netAcquiredBalanceV2
-        + netFrozenBalanceV1 + netFrozenBalanceV2);
+    logger.info(
+        "resourceAmount net: "
+            + resourceAmount
+            + "  netAcquiredBalanceV1: "
+            + netAcquiredBalanceV1
+            + "   netAcquiredBalanceV2: "
+            + netAcquiredBalanceV2
+            + " netFrozenBalanceV1: "
+            + netFrozenBalanceV1
+            + " netFrozenBalanceV2: "
+            + netFrozenBalanceV2);
+    Assert.assertEquals(
+        resourceAmount,
+        netAcquiredBalanceV1 + netAcquiredBalanceV2 + netFrozenBalanceV1 + netFrozenBalanceV2);
 
     argsStr = "\"" + queryAdd + "\",1";
-    exten = PublicMethed.triggerConstantContractForExtention(
-        contract, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    exten =
+        PublicMethed.triggerConstantContractForExtention(
+            contract,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     res = exten.getConstantResult(0).toByteArray();
-    resourceAmount =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    resourceAmount = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
 
-
-    logger.info("resourceAmount energy: " + resourceAmount
-        + "  energyFrozenBalanceV1: " + energyFrozenBalanceV1 + "energyFrozenBalanceV2: "
-        + energyFrozenBalanceV2 + " energyAcquiredBalanceV1: " + energyAcquiredBalanceV1
-        + " energyAcquiredBalanceV2: " + energyAcquiredBalanceV2);
-    Assert.assertEquals(resourceAmount, energyFrozenBalanceV1 + energyFrozenBalanceV2
-        + energyAcquiredBalanceV1 + energyAcquiredBalanceV2);
-
+    logger.info(
+        "resourceAmount energy: "
+            + resourceAmount
+            + "  energyFrozenBalanceV1: "
+            + energyFrozenBalanceV1
+            + "energyFrozenBalanceV2: "
+            + energyFrozenBalanceV2
+            + " energyAcquiredBalanceV1: "
+            + energyAcquiredBalanceV1
+            + " energyAcquiredBalanceV2: "
+            + energyAcquiredBalanceV2);
+    Assert.assertEquals(
+        resourceAmount,
+        energyFrozenBalanceV1
+            + energyFrozenBalanceV2
+            + energyAcquiredBalanceV1
+            + energyAcquiredBalanceV2);
   }
 
   //  @Test(description = "get the amount that has been delegated to others")
@@ -1131,75 +1702,140 @@ public class NewFreezeContractTest {
 
     byte[] contract = PublicMethed.decode58Check(con);
 
-    TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-        contract, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    TransactionExtention exten =
+        PublicMethed.triggerConstantContractForExtention(
+            contract,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     byte[] res = exten.getConstantResult(0).toByteArray();
-    long delegatedAmount =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
-    long accountDelegateV2 = PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd), blockingStubFull)
-        .getDelegatedFrozenV2BalanceForBandwidth();
-    long accountDelegateV1 = PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd), blockingStubFull)
-        .getDelegatedFrozenBalanceForBandwidth();
-    logger.info("delegatedAmount net: " + delegatedAmount + "    accountDelegateV2: " + accountDelegateV2
-        + " accountDelegateV1: " + accountDelegateV1);
+    long delegatedAmount = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    long accountDelegateV2 =
+        PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd), blockingStubFull)
+            .getDelegatedFrozenV2BalanceForBandwidth();
+    long accountDelegateV1 =
+        PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd), blockingStubFull)
+            .getDelegatedFrozenBalanceForBandwidth();
+    logger.info(
+        "delegatedAmount net: "
+            + delegatedAmount
+            + "    accountDelegateV2: "
+            + accountDelegateV2
+            + " accountDelegateV1: "
+            + accountDelegateV1);
     Assert.assertEquals(delegatedAmount, accountDelegateV2 + accountDelegateV1);
 
     argsStr = "\"" + queryAdd + "\",1";
-    exten = PublicMethed.triggerConstantContractForExtention(
-        contract, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    exten =
+        PublicMethed.triggerConstantContractForExtention(
+            contract,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     res = exten.getConstantResult(0).toByteArray();
-    delegatedAmount =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
-    accountDelegateV2 = PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd), blockingStubFull)
-        .getAccountResource().getDelegatedFrozenV2BalanceForEnergy();
-    accountDelegateV1 = PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd), blockingStubFull)
-        .getAccountResource().getDelegatedFrozenBalanceForEnergy();
-    logger.info("delegatedAmount energy: " + delegatedAmount + "    accountDelegateV2: " + accountDelegateV2
-        + " accountDelegateV1: " + accountDelegateV1);
+    delegatedAmount = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    accountDelegateV2 =
+        PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd), blockingStubFull)
+            .getAccountResource()
+            .getDelegatedFrozenV2BalanceForEnergy();
+    accountDelegateV1 =
+        PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd), blockingStubFull)
+            .getAccountResource()
+            .getDelegatedFrozenBalanceForEnergy();
+    logger.info(
+        "delegatedAmount energy: "
+            + delegatedAmount
+            + "    accountDelegateV2: "
+            + accountDelegateV2
+            + " accountDelegateV1: "
+            + accountDelegateV1);
     Assert.assertEquals(delegatedAmount, accountDelegateV2 + accountDelegateV1);
   }
-
 
   void getTotalAcquiredResource(byte[] con, String queryAdd) {
     String methedStr = "getTotalAcquiredResource(address,uint256)";
     String argsStr = "\"" + queryAdd + "\",0";
-    TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-        con, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    TransactionExtention exten =
+        PublicMethed.triggerConstantContractForExtention(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     byte[] res = exten.getConstantResult(0).toByteArray();
-    long acquiredAmount =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    long acquiredAmount = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
     HashMap<String, Long> map = getResource(queryAdd, blockingStubFull);
     long accountAcquiredV1 = map.get("netAcquiredBalanceV1");
     long accountAcquiredV2 = map.get("netAcquiredBalanceV2");
-//    long accountAcquiredV2 = PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd),blockingStubFull).getAcquiredDelegatedFrozenV2BalanceForBandwidth();
-//    long accountAcquiredV1 = PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd),blockingStubFull).getAcquiredDelegatedFrozenBalanceForBandwidth();
-    logger.info("acquiredAmount net: " + acquiredAmount + "    accountAcquiredV2: " + accountAcquiredV2 + "  accountAcquiredV1: " + accountAcquiredV1);
+    //    long accountAcquiredV2 =
+    // PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd),blockingStubFull).getAcquiredDelegatedFrozenV2BalanceForBandwidth();
+    //    long accountAcquiredV1 =
+    // PublicMethed.queryAccount(PublicMethed.decode58Check(queryAdd),blockingStubFull).getAcquiredDelegatedFrozenBalanceForBandwidth();
+    logger.info(
+        "acquiredAmount net: "
+            + acquiredAmount
+            + "    accountAcquiredV2: "
+            + accountAcquiredV2
+            + "  accountAcquiredV1: "
+            + accountAcquiredV1);
     Assert.assertEquals(acquiredAmount, accountAcquiredV2 + accountAcquiredV1);
-
 
     argsStr = "\"" + queryAdd + "\",1";
-    exten = PublicMethed.triggerConstantContractForExtention(
-        con, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
+    exten =
+        PublicMethed.triggerConstantContractForExtention(
+            con,
+            methedStr,
+            argsStr,
+            false,
+            0,
+            maxFeeLimit,
+            "#",
+            0,
+            testFoundationAddress,
+            testFoundationKey,
+            blockingStubFull);
     res = exten.getConstantResult(0).toByteArray();
-    acquiredAmount =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    acquiredAmount = ByteArray.toLong(ByteArray.subArray(res, 0, 32));
     accountAcquiredV1 = map.get("energyAcquiredBalanceV1");
     accountAcquiredV2 = map.get("energyAcquiredBalanceV2");
-    logger.info("acquiredAmount energy: " + acquiredAmount + "    accountAcquiredV2: " + accountAcquiredV2 + "  accountAcquiredV1: " + accountAcquiredV1);
+    logger.info(
+        "acquiredAmount energy: "
+            + acquiredAmount
+            + "    accountAcquiredV2: "
+            + accountAcquiredV2
+            + "  accountAcquiredV1: "
+            + accountAcquiredV1);
     Assert.assertEquals(acquiredAmount, accountAcquiredV2 + accountAcquiredV1);
-
   }
 
-
-  public HashMap<String, Long> getResource(String address, WalletGrpc.WalletBlockingStub blockingStub) {
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(PublicMethed.decode58Check(address), blockingStub);
+  public HashMap<String, Long> getResource(
+      String address, WalletGrpc.WalletBlockingStub blockingStub) {
+    AccountResourceMessage accountResource =
+        PublicMethed.getAccountResource(PublicMethed.decode58Check(address), blockingStub);
     Account account = PublicMethed.queryAccount(PublicMethed.decode58Check(address), blockingStub);
 
-    long netFrozenBalanceV1 = account.getFrozenCount() != 0 ? account.getFrozen(0).getFrozenBalance() : 0;
+    long netFrozenBalanceV1 =
+        account.getFrozenCount() != 0 ? account.getFrozen(0).getFrozenBalance() : 0;
     List<Account.FreezeV2> liV2 = account.getFrozenV2List();
     long netFrozenBalanceV2 = 0;
     for (Account.FreezeV2 tmp : liV2) {
@@ -1211,7 +1847,8 @@ public class NewFreezeContractTest {
     long netAcquiredBalanceV1 = account.getAcquiredDelegatedFrozenBalanceForBandwidth();
     long netAcquiredBalanceV2 = account.getAcquiredDelegatedFrozenV2BalanceForBandwidth();
 
-    long energyFrozenBalanceV1 = account.getAccountResource().getFrozenBalanceForEnergy().getFrozenBalance();
+    long energyFrozenBalanceV1 =
+        account.getAccountResource().getFrozenBalanceForEnergy().getFrozenBalance();
     long energyFrozenBalanceV2 = 0;
     for (Account.FreezeV2 tmp : liV2) {
       if (tmp.getType().getNumber() == 1) {
@@ -1219,8 +1856,10 @@ public class NewFreezeContractTest {
         break;
       }
     }
-    long energyAcquiredBalanceV1 = account.getAccountResource().getAcquiredDelegatedFrozenBalanceForEnergy();
-    long energyAcquiredBalanceV2 = account.getAccountResource().getAcquiredDelegatedFrozenV2BalanceForEnergy();
+    long energyAcquiredBalanceV1 =
+        account.getAccountResource().getAcquiredDelegatedFrozenBalanceForEnergy();
+    long energyAcquiredBalanceV2 =
+        account.getAccountResource().getAcquiredDelegatedFrozenV2BalanceForEnergy();
     long netTotalWeight = accountResource.getTotalNetWeight();
     long netTotalLimit = accountResource.getTotalNetLimit();
     long netUsed = accountResource.getNetUsed();
@@ -1252,35 +1891,36 @@ public class NewFreezeContractTest {
   void consumeResource(byte[] con, long amount) {
     String methedStr = "testConsumeEnergy(int256,int256)";
     String argsStr = "1,1";
-    for(int i = 0; i < 1; i++){
-      PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
-          false, 0, maxFeeLimit, testAddress002, testKey002, blockingStubFull);
+    for (int i = 0; i < 1; i++) {
+      PublicMethed.triggerContract(
+          contractAddress,
+          methedStr,
+          argsStr,
+          false,
+          0,
+          maxFeeLimit,
+          testAddress002,
+          testKey002,
+          blockingStubFull);
     }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    checkUnDelegateResource(con, Base58.encode58Check(testAddress002),
-        "0", amount);
-    checkUnDelegateResource(con, Base58.encode58Check(testAddress002),
-        "1", amount);
+    checkUnDelegateResource(con, Base58.encode58Check(testAddress002), "0", amount);
+    checkUnDelegateResource(con, Base58.encode58Check(testAddress002), "1", amount);
   }
 
-//  public void printGetAccount(byte[] address, WalletGrpc.WalletBlockingStub full) {
-//    logger.info("----getaccount begin --address" + Base58.encode58Check(address));
-//    logger.info(System.currentTimeMillis() + "");
-//    logger.info(PublicMethed.queryAccount(address, full).toString());
-//    logger.info(PublicMethed.getAccountResource(address, full).toString());
-//    logger.info("----getaccount end----");
-//  }
+  //  public void printGetAccount(byte[] address, WalletGrpc.WalletBlockingStub full) {
+  //    logger.info("----getaccount begin --address" + Base58.encode58Check(address));
+  //    logger.info(System.currentTimeMillis() + "");
+  //    logger.info(PublicMethed.queryAccount(address, full).toString());
+  //    logger.info(PublicMethed.getAccountResource(address, full).toString());
+  //    logger.info("----getaccount end----");
+  //  }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-
-
 }

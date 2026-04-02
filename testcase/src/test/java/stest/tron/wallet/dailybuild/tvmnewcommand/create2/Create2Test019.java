@@ -1,11 +1,8 @@
 package stest.tron.wallet.dailybuild.tvmnewcommand.create2;
 
-
-import stest.tron.wallet.common.client.AbstractGrpcDualFullAndSolidityTest;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.tron.protos.Protocol.Transaction.Result.contractResult.SUCCESS_VALUE;
 
-import io.grpc.ManagedChannel;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -16,64 +13,67 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.TransactionExtention;
-import org.tron.api.WalletGrpc;
-import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result.contractResult;
 import org.tron.protos.Protocol.TransactionInfo;
+import stest.tron.wallet.common.client.AbstractGrpcDualFullAndSolidityTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.ProposalEnum;
+
 @Slf4j
 public class Create2Test019 extends AbstractGrpcDualFullAndSolidityTest {
 
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
-
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(contractExcKey);
   }
 
-  @Test(enabled = true, description = "seted Value of Contract that created by create2,"
-      + " should not be stored after contact suicided ande create2 again")
+  @Test(
+      enabled = true,
+      description =
+          "seted Value of Contract that created by create2,"
+              + " should not be stored after contact suicided ande create2 again")
   public void testTriggerContract() {
-    String sendcoin = PublicMethed
-        .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
+    String sendcoin =
+        PublicMethed.sendcoinGetTransactionId(
+            contractExcAddress,
+            1000000000L,
+            testNetAccountAddress,
             testNetAccountKey,
             blockingStubFull);
 
-    Assert.assertTrue(PublicMethed
-        .sendcoin(contractExcAddress, 1000000000L, testNetAccountAddress, testNetAccountKey,
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            contractExcAddress,
+            1000000000L,
+            testNetAccountAddress,
+            testNetAccountKey,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById0 = null;
     infoById0 = PublicMethed.getTransactionInfoById(sendcoin, blockingStubFull);
     logger.info("infoById0   " + infoById0.get());
-    Assert.assertEquals(ByteArray.toHexString(infoById0.get().getContractResult(0).toByteArray()),
-        "");
+    Assert.assertEquals(
+        ByteArray.toHexString(infoById0.get().getContractResult(0).toByteArray()), "");
     Assert.assertEquals(infoById0.get().getResult().getNumber(), 0);
     Optional<Transaction> ById = PublicMethed.getTransactionById(sendcoin, blockingStubFull);
-    Assert.assertEquals(ById.get().getRet(0).getContractRet().getNumber(),
-        SUCCESS_VALUE);
+    Assert.assertEquals(ById.get().getRet(0).getContractRet().getNumber(), SUCCESS_VALUE);
     Assert.assertEquals(ById.get().getRet(0).getContractRetValue(), SUCCESS_VALUE);
     Assert.assertEquals(ById.get().getRet(0).getContractRet(), contractResult.SUCCESS);
     String filePath = "src/test/resources/soliditycode/create2contractn2.sol";
@@ -82,14 +82,24 @@ public class Create2Test019 extends AbstractGrpcDualFullAndSolidityTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -106,10 +116,19 @@ public class Create2Test019 extends AbstractGrpcDualFullAndSolidityTest {
     String abi1 = retMap1.get("abI").toString();
     String txid = "";
     String num = "\"" + code1 + "\"" + "," + 1;
-    txid = PublicMethed
-        .triggerContract(contractAddress,
-            "deploy(bytes,uint256)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "deploy(bytes,uint256)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -127,8 +146,8 @@ public class Create2Test019 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -143,14 +162,23 @@ public class Create2Test019 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    byte[] returnAddressBytes = infoById.get().getInternalTransactions(0).getTransferToAddress()
-        .toByteArray();
+    byte[] returnAddressBytes =
+        infoById.get().getInternalTransactions(0).getTransferToAddress().toByteArray();
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
-    txid = PublicMethed
-        .triggerContract(returnAddressBytes,
-            "i()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            returnAddressBytes,
+            "i()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById1 = null;
     infoById1 = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -167,8 +195,8 @@ public class Create2Test019 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal1:" + energyUsageTotal1);
 
     Account infoafter1 = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter1 = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter1 =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance1 = infoafter1.getBalance();
     Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
     Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
@@ -181,86 +209,145 @@ public class Create2Test019 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     Assert.assertTrue(afterBalance1 + fee1 == afterBalance);
     Assert.assertTrue(afterEnergyUsed + energyUsed1 >= afterEnergyUsed1);
-    Long returnnumber = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    Long returnnumber =
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
-    txid = PublicMethed
-        .triggerContract(returnAddressBytes,
-            "set()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            returnAddressBytes,
+            "set()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    txid = PublicMethed
-        .triggerContract(returnAddressBytes,
-            "i()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            returnAddressBytes,
+            "i()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById1 = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-    returnnumber = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    returnnumber =
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(5 == returnnumber);
 
     String param1 = "\"" + Base58.encode58Check(returnAddressBytes) + "\"";
 
-    txid = PublicMethed
-        .triggerContract(returnAddressBytes,
-            "testSuicideNonexistentTarget(address)", param1, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            returnAddressBytes,
+            "testSuicideNonexistentTarget(address)",
+            param1,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById2 = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
+    Optional<TransactionInfo> infoById2 =
+        PublicMethed.getTransactionInfoById(txid, blockingStubFull);
 
-    Assert.assertEquals("suicide", ByteArray
-        .toStr(infoById2.get().getInternalTransactions(0).getNote().toByteArray()));
-    TransactionExtention transactionExtention = PublicMethed
-        .triggerContractForExtention(returnAddressBytes,
-            "i()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertEquals(
+        "suicide",
+        ByteArray.toStr(infoById2.get().getInternalTransactions(0).getNote().toByteArray()));
+    TransactionExtention transactionExtention =
+        PublicMethed.triggerContractForExtention(
+            returnAddressBytes,
+            "i()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
+    //    PublicMethed.waitProduceNextBlock(blockingStubFull);
     System.out.println(transactionExtention.toString());
-    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+    if (PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       Assert.assertEquals(true, transactionExtention.getResult().getResult());
-    }else {
-      Assert.assertThat(transactionExtention.getResult().getCode().toString(),
-                      containsString("CONTRACT_VALIDATE_ERROR"));
-      Assert.assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
-                      containsString("Contract validate error : No contract or not a valid smart contract"));
+    } else {
+      Assert.assertThat(
+          transactionExtention.getResult().getCode().toString(),
+          containsString("CONTRACT_VALIDATE_ERROR"));
+      Assert.assertThat(
+          transactionExtention.getResult().getMessage().toStringUtf8(),
+          containsString("Contract validate error : No contract or not a valid smart contract"));
     }
 
-    txid = PublicMethed
-        .triggerContract(contractAddress,
-            "deploy(bytes,uint256)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "deploy(bytes,uint256)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> infoById3 = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
-    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+    Optional<TransactionInfo> infoById3 =
+        PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    if (PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
       System.out.println(infoById3);
       Assert.assertEquals(TransactionInfo.code.FAILED, infoById3.get().getResult());
-    }else {
-      byte[] returnAddressBytes1 = infoById3.get().getInternalTransactions(0).getTransferToAddress()
-              .toByteArray();
+    } else {
+      byte[] returnAddressBytes1 =
+          infoById3.get().getInternalTransactions(0).getTransferToAddress().toByteArray();
       String returnAddress1 = Base58.encode58Check(returnAddressBytes1);
       Assert.assertEquals(returnAddress1, returnAddress);
-      txid = PublicMethed
-              .triggerContract(returnAddressBytes1,
-                      "i()", "#", false,
-                      0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+      txid =
+          PublicMethed.triggerContract(
+              returnAddressBytes1,
+              "i()",
+              "#",
+              false,
+              0,
+              maxFeeLimit,
+              "0",
+              0,
+              contractExcAddress,
+              contractExcKey,
+              blockingStubFull);
 
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       infoById1 = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-      returnnumber = ByteArray.toLong(ByteArray
-              .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+      returnnumber =
+          ByteArray.toLong(
+              ByteArray.fromHexString(
+                  ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
       Assert.assertTrue(1 == returnnumber);
     }
-
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
 
@@ -274,6 +361,4 @@ public class Create2Test019 extends AbstractGrpcDualFullAndSolidityTest {
       channelSolidity.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-
-
 }

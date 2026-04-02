@@ -17,10 +17,6 @@ import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
-
-
-
-
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
@@ -28,7 +24,7 @@ import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.ByteArray; import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
@@ -46,7 +42,6 @@ public class WalletTestAccount004 {
   //just test key
   private final String noFrozenBalanceTestKey =
       "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";
-
 
   private final byte[] noFrozenAddress = PublicMethed.getFinalAddress(noFrozenBalanceTestKey);
   Long freezeAmount = 2000000L;
@@ -80,8 +75,6 @@ public class WalletTestAccount004 {
         .usePlaintext()
         .build();
     searchBlockingStubFull = WalletGrpc.newBlockingStub(searchChannelFull);
-
-
   }
 
   @Test(enabled = true)

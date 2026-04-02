@@ -18,22 +18,23 @@ import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.ECKey;
+
 @Slf4j
 public class CallvalueTest {
 
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-  private long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
   private byte[] contractAddress = null;
 
@@ -41,17 +42,11 @@ public class CallvalueTest {
   private byte[] dev001Address = ecKey1.getAddress();
   private String dev001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     PublicMethed.printAddress(dev001Key);
@@ -59,15 +54,23 @@ public class CallvalueTest {
 
   @Test(enabled = true, description = "Deploy contract")
   public void test01DeployContract() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 3147483647L, fromAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 100_000_000L + PublicMethed.randomFreezeAmount.getAndAdd(1),
-        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            dev001Address, 3147483647L, fromAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.freezeBalanceForReceiver(
+            fromAddress,
+            100_000_000L + PublicMethed.randomFreezeAmount.getAndAdd(1),
+            0,
+            0,
+            ByteString.copyFrom(dev001Address),
+            testKey002,
+            blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
-        blockingStubFull);
+    // before deploy, check account resource
+    AccountResourceMessage accountResource =
+        PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     Protocol.Account info = PublicMethed.queryAccount(dev001Key, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = accountResource.getEnergyUsed();
@@ -84,11 +87,22 @@ public class CallvalueTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    final String txid = PublicMethed
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, 0L, 0, 10000,
-            "0", 0, null, dev001Key,
-            dev001Address, blockingStubFull);
+    final String txid =
+        PublicMethed.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            0,
+            10000,
+            "0",
+            0,
+            null,
+            dev001Key,
+            dev001Address,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
@@ -103,8 +117,7 @@ public class CallvalueTest {
     logger.info("NetUsage: " + transactionInfo.getReceipt().getNetUsage());
 
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(contractAddress,
-        blockingStubFull);
+    SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
 
     Long fee = infoById.get().getFee();
@@ -119,9 +132,8 @@ public class CallvalueTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Protocol.Account infoafter = PublicMethed.queryAccount(dev001Key, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed
-        .getAccountResource(dev001Address,
-            blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -141,11 +153,20 @@ public class CallvalueTest {
   public void test02TriggerContract() {
     String methodStr = "check()";
     // 15
-    String triggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, "", true,
-        15, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String triggerTxid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            "",
+            true,
+            15,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethed.getTransactionInfoById(triggerTxid, blockingStubFull);
     if (infoById.get().getResultValue() != 0) {
       Assert.fail("trigger contract failed with message: " + infoById.get().getResMessage());
     }
@@ -156,11 +177,20 @@ public class CallvalueTest {
     Assert.assertEquals(Long.parseLong(contractResult, 16), 15);
 
     // 0
-    String triggerTxid1 = PublicMethed.triggerContract(contractAddress, methodStr, "", true,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String triggerTxid1 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            "",
+            true,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById1 = PublicMethed
-        .getTransactionInfoById(triggerTxid1, blockingStubFull);
+    Optional<TransactionInfo> infoById1 =
+        PublicMethed.getTransactionInfoById(triggerTxid1, blockingStubFull);
     if (infoById1.get().getResultValue() != 0) {
       Assert.fail("trigger contract failed with message: " + infoById1.get().getResMessage());
     }
@@ -171,11 +201,20 @@ public class CallvalueTest {
     Assert.assertEquals(Long.parseLong(contractResult1, 16), 0);
 
     // Integer.MAX_VALUE
-    String triggerTxid2 = PublicMethed.triggerContract(contractAddress, methodStr, "", true,
-        Integer.MAX_VALUE, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String triggerTxid2 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            "",
+            true,
+            Integer.MAX_VALUE,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById2 = PublicMethed
-        .getTransactionInfoById(triggerTxid2, blockingStubFull);
+    Optional<TransactionInfo> infoById2 =
+        PublicMethed.getTransactionInfoById(triggerTxid2, blockingStubFull);
     if (infoById2.get().getResultValue() != 0) {
       Assert.fail("trigger contract failed with message: " + infoById2.get().getResMessage());
     }
@@ -189,13 +228,9 @@ public class CallvalueTest {
   @AfterClass
   public void shutdown() throws InterruptedException {
     long balance = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
-    PublicMethed.sendcoin(fromAddress, balance, dev001Address, dev001Key,
-        blockingStubFull);
+    PublicMethed.sendcoin(fromAddress, balance, dev001Address, dev001Key, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
 }
-
-
-

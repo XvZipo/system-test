@@ -10,9 +10,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.Note;
-import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.AbstractZenTrc20HttpNodes02;
+import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.ShieldAddressInfo;
@@ -57,14 +56,12 @@ public class HttpShieldTrc20Token001 extends AbstractZenTrc20HttpNodes02 {
   private JSONObject responseContent;
   private HttpResponse response;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    //Args.getInstance().setFullNodeAllowShieldedTransaction(true);
-    //PublicMethed.printAddress(foundationZenTokenKey);
-    //PublicMethed.printAddress(zenTokenOwnerKey);
+    // Args.getInstance().setFullNodeAllowShieldedTransaction(true);
+    // PublicMethed.printAddress(foundationZenTokenKey);
+    // PublicMethed.printAddress(zenTokenOwnerKey);
   }
 
   @Test(enabled = true, description = "Get spending key by http")
@@ -74,7 +71,6 @@ public class HttpShieldTrc20Token001 extends AbstractZenTrc20HttpNodes02 {
     HttpMethed.printJsonContent(responseContent);
     sk = responseContent.getString("value");
     logger.info("sk: " + sk);
-
   }
 
   @Test(enabled = true, description = "Get diversifier by http")
@@ -192,10 +188,7 @@ public class HttpShieldTrc20Token001 extends AbstractZenTrc20HttpNodes02 {
     logger.info("rcm: " + rcm);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {
-  }
+  public void shutdown() throws InterruptedException {}
 }

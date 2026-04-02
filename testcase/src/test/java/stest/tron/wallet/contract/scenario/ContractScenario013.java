@@ -15,14 +15,15 @@ import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.ECKey;
+
 @Slf4j
 public class ContractScenario013 {
 
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   byte[] contractAddress = null;
   String txid = "";
@@ -32,32 +33,26 @@ public class ContractScenario013 {
   String contract013Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
-
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(contract013Key);
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
   @Test(enabled = true)
   public void deployTronTrxAndSunContract() {
-    Assert.assertTrue(PublicMethed.sendcoin(contract013Address, 20000000000L, fromAddress,
-        testKey002, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(contract013Address,
-        blockingStubFull);
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            contract013Address, 20000000000L, fromAddress, testKey002, blockingStubFull));
+    AccountResourceMessage accountResource =
+        PublicMethed.getAccountResource(contract013Address, blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
 
@@ -71,8 +66,19 @@ public class ContractScenario013 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    txid = PublicMethed.deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-        maxFeeLimit, 0L, 100, null, contract013Key, contract013Address, blockingStubFull);
+    txid =
+        PublicMethed.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contract013Key,
+            contract013Address,
+            blockingStubFull);
     logger.info(txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -84,8 +90,8 @@ public class ContractScenario013 {
 
   @Test(enabled = true)
   public void triggerTronTrxAndSunContract() {
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(contract013Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethed.getAccountResource(contract013Address, blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
 
@@ -99,9 +105,19 @@ public class ContractScenario013 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    String txid = PublicMethed
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, contract013Key, contract013Address, blockingStubFull);
+    String txid =
+        PublicMethed.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contract013Key,
+            contract013Address,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
@@ -109,9 +125,17 @@ public class ContractScenario013 {
 
     contractAddress = infoById.get().getContractAddress().toByteArray();
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "time()", "#", false,
-        0, 100000000L, contract013Address, contract013Key, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "time()",
+            "#",
+            false,
+            0,
+            100000000L,
+            contract013Address,
+            contract013Key,
+            blockingStubFull);
     logger.info(txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -123,10 +147,7 @@ public class ContractScenario013 {
     Assert.assertFalse(infoById.get().getContractAddress().isEmpty());
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -134,5 +155,3 @@ public class ContractScenario013 {
     }
   }
 }
-
-

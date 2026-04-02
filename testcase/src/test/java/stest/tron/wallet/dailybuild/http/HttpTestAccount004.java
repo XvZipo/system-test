@@ -1,6 +1,5 @@
 package stest.tron.wallet.dailybuild.http;
 
-
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -18,8 +17,8 @@ import stest.tron.wallet.common.client.utils.Utils;
 @Slf4j
 public class HttpTestAccount004 extends AbstractHttpEndpoints024 {
 
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] setAccountIdAddress = ecKey1.getAddress();
@@ -29,30 +28,30 @@ public class HttpTestAccount004 extends AbstractHttpEndpoints024 {
   private JSONObject responseContent;
   private HttpResponse response;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Set account by http")
   public void test1setAccountId() {
     response = HttpMethed.sendCoin(httpnode, fromAddress, setAccountIdAddress, amount, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
 
-    response = HttpMethed
-        .setAccountId(httpnode, setAccountIdAddress, System.currentTimeMillis() + "id", false,
+    response =
+        HttpMethed.setAccountId(
+            httpnode,
+            setAccountIdAddress,
+            System.currentTimeMillis() + "id",
+            false,
             setAccountIdKey);
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
-    //Set account id.
+    // Set account id.
     accountId = System.currentTimeMillis() + "id";
-    response = HttpMethed
-        .setAccountId(httpnode, setAccountIdAddress, accountId, true, setAccountIdKey);
+    response =
+        HttpMethed.setAccountId(httpnode, setAccountIdAddress, accountId, true, setAccountIdKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get account by id via http")
   public void test2getAccountId() {
     response = HttpMethed.getAccountById(httpnode, accountId, true);
@@ -65,13 +64,9 @@ public class HttpTestAccount004 extends AbstractHttpEndpoints024 {
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     Assert.assertTrue(responseContent.size() <= 1);
-
-
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get account by id via http")
   public void test3getAccountIdFromSolidity() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
@@ -82,9 +77,7 @@ public class HttpTestAccount004 extends AbstractHttpEndpoints024 {
     Assert.assertTrue(responseContent.size() >= 10);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Get account by id via PBFT http")
   public void test4getAccountIdFromPbft() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
@@ -95,11 +88,7 @@ public class HttpTestAccount004 extends AbstractHttpEndpoints024 {
     Assert.assertTrue(responseContent.size() >= 10);
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     HttpMethed.freedResource(httpnode, setAccountIdAddress, fromAddress, setAccountIdKey);

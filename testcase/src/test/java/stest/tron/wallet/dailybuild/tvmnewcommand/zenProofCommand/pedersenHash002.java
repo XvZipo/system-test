@@ -43,15 +43,15 @@ import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
 @Slf4j
 public class pedersenHash002 {
 
-  public final String foundationAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  public final String foundationAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   public final byte[] foundationAccountAddress = PublicMethed.getFinalAddress(foundationAccountKey);
-  public static final String zenTrc20TokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.zenTrc20TokenOwnerKey");
-  public static final byte[] zenTrc20TokenOwnerAddress = PublicMethed
-      .getFinalAddress(zenTrc20TokenOwnerKey);
-  public static final String zenTrc20TokenOwnerAddressString = PublicMethed
-      .getAddressString(zenTrc20TokenOwnerKey);
+  public static final String zenTrc20TokenOwnerKey =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.zenTrc20TokenOwnerKey");
+  public static final byte[] zenTrc20TokenOwnerAddress =
+      PublicMethed.getFinalAddress(zenTrc20TokenOwnerKey);
+  public static final String zenTrc20TokenOwnerAddressString =
+      PublicMethed.getAddressString(zenTrc20TokenOwnerKey);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -59,11 +59,11 @@ public class pedersenHash002 {
   public WalletGrpc.WalletBlockingStub blockingStubFull = null;
   public ManagedChannel channelSolidity = null;
   public WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
 
-  public static long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  public static long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
   public ByteString contractAddressByteString;
   public static byte[] contractAddressByte;
   public static String contractAddress;
@@ -83,38 +83,47 @@ public class pedersenHash002 {
   public static Integer scalingFactorLogarithm = 0;
   public static Long totalSupply = 1000000000000L;
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true, description = "Deploy shield trc20 depend contract")
   public void deployShieldTrc20DependContract() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    Assert.assertTrue(PublicMethed.sendcoin(contractExcAddress, 10000000000000L,
-        foundationAccountAddress, foundationAccountKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            contractExcAddress,
+            10000000000000L,
+            foundationAccountAddress,
+            foundationAccountKey,
+            blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String contractName = "shieldTrc20Token";
 
-    String abi = Configuration.getByPath("testng.conf")
-        .getString("abi.abi_shieldTrc20Token");
-    String code = Configuration.getByPath("testng.conf")
-        .getString("code.code_shieldTrc20Token");
+    String abi = Configuration.getByPath("testng.conf").getString("abi.abi_shieldTrc20Token");
+    String code = Configuration.getByPath("testng.conf").getString("code.code_shieldTrc20Token");
     String constructorStr = "constructor(uint256,string,string)";
     String data = totalSupply.toString() + "," + "\"TokenTRC20\"" + "," + "\"zen20\"";
     logger.info("data:" + data);
-    deployShieldTrc20Txid = PublicMethed
-        .deployContractWithConstantParame(contractName, abi, code, constructorStr, data, "",
-            maxFeeLimit, 0L, 100, null,
-            contractExcKey, contractExcAddress, blockingStubFull);
+    deployShieldTrc20Txid =
+        PublicMethed.deployContractWithConstantParame(
+            contractName,
+            abi,
+            code,
+            constructorStr,
+            data,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info(deployShieldTrc20Txid);
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(deployShieldTrc20Txid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethed.getTransactionInfoById(deployShieldTrc20Txid, blockingStubFull);
     contractAddressByteString = infoById.get().getContractAddress();
     contractAddressByte = infoById.get().getContractAddress().toByteArray();
     contractAddress = Base58.encode58Check(contractAddressByte);
@@ -127,10 +136,21 @@ public class pedersenHash002 {
     abi = retMap.get("abI").toString();
     data = "\"" + contractAddress + "\"" + "," + scalingFactorLogarithm;
     constructorStr = "constructor(address,uint256)";
-    deployShieldTxid = PublicMethed
-        .deployContractWithConstantParame(contractName, abi, code, constructorStr, data, "",
-            maxFeeLimit, 0L, 100, null,
-            contractExcKey, contractExcAddress, blockingStubFull);
+    deployShieldTxid =
+        PublicMethed.deployContractWithConstantParame(
+            contractName,
+            abi,
+            code,
+            constructorStr,
+            data,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info(deployShieldTxid);
     infoById = PublicMethed.getTransactionInfoById(deployShieldTxid, blockingStubFull);
@@ -140,76 +160,105 @@ public class pedersenHash002 {
     logger.info(shieldAddress);
 
     data = "\"" + shieldAddress + "\"" + "," + totalSupply.toString();
-    String txid = PublicMethed.triggerContract(contractAddressByte,
-        "approve(address,uint256)", data, false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            contractAddressByte,
+            "approve(address,uint256)",
+            data,
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     logger.info("approve:" + txid);
     Assert.assertTrue(infoById.get().getReceipt().getResultValue() == 1);
     publicFromAmount = getRandomAmount();
   }
 
-
   @Test(enabled = true, description = "left and right value is 0")
   public void test01LeftAndRightValueIsZero() throws Exception {
-    //Query account before mint balance
-//    final Long beforeMintAccountBalance = getBalanceOfShieldTrc20(zenTrc20TokenOwnerAddressString,
-//        zenTrc20TokenOwnerAddress, zenTrc20TokenOwnerKey, blockingStubFull);
-    //Query contract before mint balance
-//    final Long beforeMintShieldAccountBalance = getBalanceOfShieldTrc20(shieldAddress,
-//        zenTrc20TokenOwnerAddress, zenTrc20TokenOwnerKey, blockingStubFull);
-    //Generate new shiled account and set note memo
+    // Query account before mint balance
+    //    final Long beforeMintAccountBalance =
+    // getBalanceOfShieldTrc20(zenTrc20TokenOwnerAddressString,
+    //        zenTrc20TokenOwnerAddress, zenTrc20TokenOwnerKey, blockingStubFull);
+    // Query contract before mint balance
+    //    final Long beforeMintShieldAccountBalance = getBalanceOfShieldTrc20(shieldAddress,
+    //        zenTrc20TokenOwnerAddress, zenTrc20TokenOwnerKey, blockingStubFull);
+    // Generate new shiled account and set note memo
     receiverShieldAddressInfo = getNewShieldedAddress(blockingStubFull);
     String memo = "Shield trc20 from T account to shield account in" + System.currentTimeMillis();
     String receiverShieldAddress = receiverShieldAddressInfo.get().getAddress();
 
     shieldOutList.clear();
-    shieldOutList = addShieldTrc20OutputList(shieldOutList, receiverShieldAddress,
-        "" + publicFromAmount, memo, blockingStubFull);
+    shieldOutList =
+        addShieldTrc20OutputList(
+            shieldOutList, receiverShieldAddress, "" + publicFromAmount, memo, blockingStubFull);
 
-    //Create shiled trc20 parameters
-    GrpcAPI.ShieldedTRC20Parameters shieldedTrc20Parameters
-        = createShieldedTrc20Parameters("ByValueIsZero", publicFromAmount,
-        null, null, shieldOutList, "", 0L,
-        blockingStubFull, blockingStubSolidity);
+    // Create shiled trc20 parameters
+    GrpcAPI.ShieldedTRC20Parameters shieldedTrc20Parameters =
+        createShieldedTrc20Parameters(
+            "ByValueIsZero",
+            publicFromAmount,
+            null,
+            null,
+            shieldOutList,
+            "",
+            0L,
+            blockingStubFull,
+            blockingStubSolidity);
     Assert.assertEquals(shieldedTrc20Parameters.getParameterType(), "mint");
-    Assert.assertTrue(shieldedTrc20Parameters.getReceiveDescription(0).getZkproof().toByteArray().length > 190);
+    Assert.assertTrue(
+        shieldedTrc20Parameters.getReceiveDescription(0).getZkproof().toByteArray().length > 190);
   }
 
-
-  @Test(enabled = true, description = "Should not cause exception: CreateShieldedContractParameters in fullnode ")
+  @Test(
+      enabled = true,
+      description = "Should not cause exception: CreateShieldedContractParameters in fullnode ")
   public void test02TriggerUnexistMethod() throws Exception {
-    //Generate new shiled account and set note memo
+    // Generate new shiled account and set note memo
     receiverShieldAddressInfo = getNewShieldedAddress(blockingStubFull);
     String memo = "Shield trc20 from T account to shield account in" + System.currentTimeMillis();
     String receiverShieldAddress = receiverShieldAddressInfo.get().getAddress();
 
     shieldOutList.clear();
-    shieldOutList = addShieldTrc20OutputList(shieldOutList, receiverShieldAddress,
-        "" + publicFromAmount, memo, blockingStubFull);
+    shieldOutList =
+        addShieldTrc20OutputList(
+            shieldOutList, receiverShieldAddress, "" + publicFromAmount, memo, blockingStubFull);
     shieldAddressByte = contractAddressByte;
     // verify error(for log level changed from info to error)
-    //ERROR [rpc-full-executor-1] [API](RpcApiService.java:2484) createShieldedContractParameters:
-    createShieldedTrc20Parameters("ByValueIsZero", publicFromAmount,
-        null, null, shieldOutList, "", 0L,
-        blockingStubFull, blockingStubSolidity);
+    // ERROR [rpc-full-executor-1] [API](RpcApiService.java:2484) createShieldedContractParameters:
+    createShieldedTrc20Parameters(
+        "ByValueIsZero",
+        publicFromAmount,
+        null,
+        null,
+        shieldOutList,
+        "",
+        0L,
+        blockingStubFull,
+        blockingStubSolidity);
   }
 
-  /**
-   * constructor.
-   */
-  public GrpcAPI.ShieldedTRC20Parameters createShieldedTrc20Parameters(String methodSuffix,
-      BigInteger publicFromAmount, GrpcAPI.DecryptNotesTRC20 inputNoteList,
-      List<ShieldedAddressInfo> shieldedAddressInfoList, List<Note> outputNoteList,
-      String publicToAddress, Long pubicToAmount, WalletGrpc.WalletBlockingStub blockingStubFull,
-      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity) throws ZksnarkException {
+  /** constructor. */
+  public GrpcAPI.ShieldedTRC20Parameters createShieldedTrc20Parameters(
+      String methodSuffix,
+      BigInteger publicFromAmount,
+      GrpcAPI.DecryptNotesTRC20 inputNoteList,
+      List<ShieldedAddressInfo> shieldedAddressInfoList,
+      List<Note> outputNoteList,
+      String publicToAddress,
+      Long pubicToAmount,
+      WalletGrpc.WalletBlockingStub blockingStubFull,
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity)
+      throws ZksnarkException {
 
-    GrpcAPI.PrivateShieldedTRC20Parameters.Builder builder
-        = GrpcAPI.PrivateShieldedTRC20Parameters.newBuilder();
+    GrpcAPI.PrivateShieldedTRC20Parameters.Builder builder =
+        GrpcAPI.PrivateShieldedTRC20Parameters.newBuilder();
 
-    //Mint type should set public from amount to parameter
+    // Mint type should set public from amount to parameter
     if (publicFromAmount.compareTo(BigInteger.ZERO) > 0) {
       builder.setFromAmount(publicFromAmount.toString());
     }
@@ -240,12 +289,14 @@ public class pedersenHash002 {
           String shieldedAddress = inputNoteList.getNoteTxs(i).getNote().getPaymentAddress();
 
           String spendingKey = ByteArray.toHexString(shieldedAddressInfoList.get(0).getSk());
-          BytesMessage sk = BytesMessage.newBuilder()
-              .setValue(ByteString.copyFrom(ByteArray.fromHexString(spendingKey))).build();
-          Optional<GrpcAPI.ExpandedSpendingKeyMessage> esk = Optional
-              .of(blockingStubFull.getExpandedSpendingKey(sk));
+          BytesMessage sk =
+              BytesMessage.newBuilder()
+                  .setValue(ByteString.copyFrom(ByteArray.fromHexString(spendingKey)))
+                  .build();
+          Optional<GrpcAPI.ExpandedSpendingKeyMessage> esk =
+              Optional.of(blockingStubFull.getExpandedSpendingKey(sk));
 
-          //ExpandedSpendingKey expandedSpendingKey = spendingKey.expandedSpendingKey();
+          // ExpandedSpendingKey expandedSpendingKey = spendingKey.expandedSpendingKey();
           builder.setAsk(esk.get().getAsk());
           builder.setNsk(esk.get().getNsk());
           builder.setOvk(esk.get().getOvk());
@@ -261,18 +312,22 @@ public class pedersenHash002 {
         byte[] path = Arrays.copyOfRange(eachRootAndPath, 32, 1056);
         GrpcAPI.SpendNoteTRC20.Builder spendTRC20NoteBuilder = GrpcAPI.SpendNoteTRC20.newBuilder();
         spendTRC20NoteBuilder.setNote(noteBuild.build());
-        spendTRC20NoteBuilder.setAlpha(ByteString.copyFrom(blockingStubFull.getRcm(
-            EmptyMessage.newBuilder().build()).getValue().toByteArray()));
+        spendTRC20NoteBuilder.setAlpha(
+            ByteString.copyFrom(
+                blockingStubFull
+                    .getRcm(EmptyMessage.newBuilder().build())
+                    .getValue()
+                    .toByteArray()));
         spendTRC20NoteBuilder.setRoot(ByteString.copyFrom(root));
         spendTRC20NoteBuilder.setPath(ByteString.copyFrom(path));
         spendTRC20NoteBuilder.setPos(inputNoteList.getNoteTxs(i).getPosition());
 
-        valueBalance = Math
-            .addExact(valueBalance, inputNoteList.getNoteTxs(i).getNote().getValue());
+        valueBalance =
+            Math.addExact(valueBalance, inputNoteList.getNoteTxs(i).getNote().getValue());
         builder.addShieldedSpends(spendTRC20NoteBuilder.build());
       }
     } else {
-      //@TODO remove randomOvk by sha256.of(privateKey)
+      // @TODO remove randomOvk by sha256.of(privateKey)
       byte[] ovk = getRandomOvk();
       if (ovk != null) {
         builder.setOvk(ByteString.copyFrom(ovk));
@@ -286,8 +341,7 @@ public class pedersenHash002 {
       for (int i = 0; i < outputNoteList.size(); i++) {
         Note note = outputNoteList.get(i);
         valueBalance = Math.subtractExact(valueBalance, note.getValue());
-        builder.addShieldedReceives(
-            GrpcAPI.ReceiveNote.newBuilder().setNote(note).build());
+        builder.addShieldedReceives(GrpcAPI.ReceiveNote.newBuilder().setNote(note).build());
       }
     }
 
@@ -304,30 +358,38 @@ public class pedersenHash002 {
       return blockingStubFull.createShieldedContractParameters(builder.build());
     } catch (Exception e) {
       Status status = Status.fromThrowable(e);
-      System.out.println("createShieldedContractParameters failed,error "
-          + status.getDescription());
+      System.out.println(
+          "createShieldedContractParameters failed,error " + status.getDescription());
     }
     return null;
   }
 
-  public String getRootAndPath(String methodSuffix, long position,
-      WalletSolidityGrpc.WalletSolidityBlockingStub
-          blockingStubSolidity) {
+  public String getRootAndPath(
+      String methodSuffix,
+      long position,
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity) {
     String methodStr = "getPath" + methodSuffix + "(uint256)";
     byte[] indexBytes = ByteArray.fromLong(position);
     String argsStr = ByteArray.toHexString(indexBytes);
     argsStr = "000000000000000000000000000000000000000000000000" + argsStr;
-    TransactionExtention transactionExtention = PublicMethed
-        .triggerConstantContractForExtentionOnSolidity(shieldAddressByte, methodStr, argsStr, true,
-            0, 1000000000L, "0", 0, zenTrc20TokenOwnerAddress,
-            zenTrc20TokenOwnerKey, blockingStubSolidity);
+    TransactionExtention transactionExtention =
+        PublicMethed.triggerConstantContractForExtentionOnSolidity(
+            shieldAddressByte,
+            methodStr,
+            argsStr,
+            true,
+            0,
+            1000000000L,
+            "0",
+            0,
+            zenTrc20TokenOwnerAddress,
+            zenTrc20TokenOwnerKey,
+            blockingStubSolidity);
     byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     return ByteArray.toHexString(result);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public static HttpResponse getNewShieldedAddress(String httpNode) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getnewshieldedaddress";
@@ -340,22 +402,19 @@ public class pedersenHash002 {
     return response;
   }
 
-  /**
-   * constructor.
-   */
-  public Optional<ShieldedAddressInfo> getNewShieldedAddress(WalletGrpc.WalletBlockingStub
-      blockingStubFull) {
+  /** constructor. */
+  public Optional<ShieldedAddressInfo> getNewShieldedAddress(
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     ShieldedAddressInfo addressInfo = new ShieldedAddressInfo();
 
     try {
-      Optional<BytesMessage> sk = Optional.of(blockingStubFull
-          .getSpendingKey(EmptyMessage.newBuilder().build()));
-      final Optional<GrpcAPI.DiversifierMessage> d = Optional.of(blockingStubFull.getDiversifier(
-          EmptyMessage.newBuilder().build()));
+      Optional<BytesMessage> sk =
+          Optional.of(blockingStubFull.getSpendingKey(EmptyMessage.newBuilder().build()));
+      final Optional<GrpcAPI.DiversifierMessage> d =
+          Optional.of(blockingStubFull.getDiversifier(EmptyMessage.newBuilder().build()));
 
-      Optional<GrpcAPI.ExpandedSpendingKeyMessage> expandedSpendingKeyMessage
-          = Optional.of(blockingStubFull
-          .getExpandedSpendingKey(sk.get()));
+      Optional<GrpcAPI.ExpandedSpendingKeyMessage> expandedSpendingKeyMessage =
+          Optional.of(blockingStubFull.getExpandedSpendingKey(sk.get()));
 
       BytesMessage.Builder askBuilder = BytesMessage.newBuilder();
       askBuilder.setValue(expandedSpendingKeyMessage.get().getAsk());
@@ -368,16 +427,15 @@ public class pedersenHash002 {
       GrpcAPI.ViewingKeyMessage.Builder viewBuilder = GrpcAPI.ViewingKeyMessage.newBuilder();
       viewBuilder.setAk(ak.get().getValue());
       viewBuilder.setNk(nk.get().getValue());
-      Optional<GrpcAPI.IncomingViewingKeyMessage> ivk = Optional.of(blockingStubFull
-          .getIncomingViewingKey(viewBuilder.build()));
+      Optional<GrpcAPI.IncomingViewingKeyMessage> ivk =
+          Optional.of(blockingStubFull.getIncomingViewingKey(viewBuilder.build()));
 
-      GrpcAPI.IncomingViewingKeyDiversifierMessage.Builder builder
-          = GrpcAPI.IncomingViewingKeyDiversifierMessage
-          .newBuilder();
+      GrpcAPI.IncomingViewingKeyDiversifierMessage.Builder builder =
+          GrpcAPI.IncomingViewingKeyDiversifierMessage.newBuilder();
       builder.setD(d.get());
       builder.setIvk(ivk.get());
-      Optional<GrpcAPI.PaymentAddressMessage> addressMessage = Optional.of(blockingStubFull
-          .getZenPaymentAddress(builder.build()));
+      Optional<GrpcAPI.PaymentAddressMessage> addressMessage =
+          Optional.of(blockingStubFull.getZenPaymentAddress(builder.build()));
       addressInfo.setSk(sk.get().getValue().toByteArray());
       addressInfo.setD(new DiversifierT(d.get().getD().toByteArray()));
       addressInfo.setIvk(ivk.get().getIvk().toByteArray());
@@ -393,11 +451,12 @@ public class pedersenHash002 {
     return Optional.empty();
   }
 
-  /**
-   * constructor.
-   */
-  public static List<Note> addShieldTrc20OutputList(List<Note> shieldOutList,
-      String shieldToAddress, String toAmountString, String menoString,
+  /** constructor. */
+  public static List<Note> addShieldTrc20OutputList(
+      List<Note> shieldOutList,
+      String shieldToAddress,
+      String toAmountString,
+      String menoString,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     String shieldAddress = shieldToAddress;
     String amountString = toAmountString;
@@ -411,28 +470,38 @@ public class pedersenHash002 {
 
     Note.Builder noteBuild = Note.newBuilder();
     noteBuild.setPaymentAddress(shieldAddress);
-    //noteBuild.setPaymentAddress(shieldAddress);
+    // noteBuild.setPaymentAddress(shieldAddress);
     noteBuild.setValue(shieldAmount);
-    noteBuild.setRcm(ByteString.copyFrom(blockingStubFull.getRcm(EmptyMessage.newBuilder().build())
-        .getValue().toByteArray()));
+    noteBuild.setRcm(
+        ByteString.copyFrom(
+            blockingStubFull.getRcm(EmptyMessage.newBuilder().build()).getValue().toByteArray()));
     noteBuild.setMemo(ByteString.copyFrom(menoString.getBytes()));
     shieldOutList.add(noteBuild.build());
     return shieldOutList;
   }
 
-  /**
-   * constructor.
-   */
-  public Long getBalanceOfShieldTrc20(String queryAddress, byte[] ownerAddress,
-      String ownerKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+  /** constructor. */
+  public Long getBalanceOfShieldTrc20(
+      String queryAddress,
+      byte[] ownerAddress,
+      String ownerKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     String paramStr = "\"" + queryAddress + "\"";
-    TransactionExtention transactionExtention = PublicMethed
-        .triggerConstantContractForExtention(contractAddressByte, "balanceOf(address)",
-            paramStr, false, 0, 0, "0", 0,
-            ownerAddress, ownerKey, blockingStubFull);
+    TransactionExtention transactionExtention =
+        PublicMethed.triggerConstantContractForExtention(
+            contractAddressByte,
+            "balanceOf(address)",
+            paramStr,
+            false,
+            0,
+            0,
+            "0",
+            0,
+            ownerAddress,
+            ownerKey,
+            blockingStubFull);
 
-    String hexBalance = Hex.toHexString(transactionExtention
-        .getConstantResult(0).toByteArray());
+    String hexBalance = Hex.toHexString(transactionExtention.getConstantResult(0).toByteArray());
     for (int i = 0; i < hexBalance.length(); i++) {
       if (hexBalance.charAt(i) != '0') {
         hexBalance = hexBalance.substring(i);
@@ -443,16 +512,13 @@ public class pedersenHash002 {
     return Long.parseLong(hexBalance, 16);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public byte[] getRandomOvk() {
     try {
-      Optional<BytesMessage> sk = Optional.of(blockingStubFull
-          .getSpendingKey(EmptyMessage.newBuilder().build()));
-      Optional<GrpcAPI.ExpandedSpendingKeyMessage> expandedSpendingKeyMessage
-          = Optional.of(blockingStubFull
-          .getExpandedSpendingKey(sk.get()));
+      Optional<BytesMessage> sk =
+          Optional.of(blockingStubFull.getSpendingKey(EmptyMessage.newBuilder().build()));
+      Optional<GrpcAPI.ExpandedSpendingKeyMessage> expandedSpendingKeyMessage =
+          Optional.of(blockingStubFull.getExpandedSpendingKey(sk.get()));
       return expandedSpendingKeyMessage.get().getOvk().toByteArray();
     } catch (Exception e) {
       e.printStackTrace();
@@ -460,9 +526,7 @@ public class pedersenHash002 {
     return null;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public BigInteger getRandomAmount() {
     Random random = new Random();
     int x = random.nextInt(100000) + 100;
@@ -475,10 +539,7 @@ public class pedersenHash002 {
     return ByteUtil.merge(zeroBytes, longBytes);
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public static String getRcm(String httpNode) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getrcm";
@@ -490,5 +551,4 @@ public class pedersenHash002 {
     }
     return HttpMethed.parseResponseContent(response).getString("value");
   }
-
 }

@@ -1,9 +1,6 @@
 package stest.tron.wallet.dailybuild.assetissue;
 
-
-import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
 import java.math.BigInteger;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -12,18 +9,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
-import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
+import stest.tron.wallet.common.client.AbstractGrpcFullSolidityTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -36,37 +32,48 @@ public class WalletTestAssetIssue005 extends AbstractGrpcFullSolidityTest {
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
   private static String name = "testAssetIssue005_" + Long.toString(now);
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
   String description = "just-test";
   String url = "https://github.com/tronprotocol/wallet-cli/";
 
-public static String loadPubKey() {
+  public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
-
-
-  
 
   @Test(enabled = true, description = "Get asset issue by name")
   public void testGetAssetIssueByName() {
     ByteString addressBS1 = ByteString.copyFrom(fromAddress);
     Account request1 = Account.newBuilder().setAddress(addressBS1).build();
-    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull
-        .getAssetIssueByAccount(request1);
+    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull.getAssetIssueByAccount(request1);
     Optional<GrpcAPI.AssetIssueList> queryAssetByAccount = Optional.ofNullable(assetIssueList1);
     if (queryAssetByAccount.get().getAssetIssueCount() == 0) {
       Long start = System.currentTimeMillis() + 2000;
       Long end = System.currentTimeMillis() + 1000000000;
-      //Create a new asset issue
-      Assert.assertTrue(PublicMethed.createAssetIssue(fromAddress, name, totalSupply, 1, 100,
-          start, end, 1, description, url, 10000L, 10000L,
-          1L, 1L, testKey002, blockingStubFull));
+      // Create a new asset issue
+      Assert.assertTrue(
+          PublicMethed.createAssetIssue(
+              fromAddress,
+              name,
+              totalSupply,
+              1,
+              100,
+              start,
+              end,
+              1,
+              description,
+              url,
+              10000L,
+              10000L,
+              1L,
+              1L,
+              testKey002,
+              blockingStubFull));
       PublicMethed.waitProduceNextBlock(blockingStubFull);
     } else {
       logger.info("This account already create an assetisue");
@@ -78,19 +85,18 @@ public static String loadPubKey() {
     getAssetIdFromThisAccount = PublicMethed.queryAccount(testKey002, blockingStubFull);
     ByteString assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
 
-    //Get asset issue by name success.
+    // Get asset issue by name success.
 
-    GrpcAPI.BytesMessage request = GrpcAPI.BytesMessage.newBuilder().setValue(assetAccountId)
-        .build();
-    AssetIssueContract assetIssueByName =
-        blockingStubFull.getAssetIssueByName(request);
+    GrpcAPI.BytesMessage request =
+        GrpcAPI.BytesMessage.newBuilder().setValue(assetAccountId).build();
+    AssetIssueContract assetIssueByName = blockingStubFull.getAssetIssueByName(request);
 
     Assert.assertFalse(assetIssueByName.getUrl().isEmpty());
     Assert.assertFalse(assetIssueByName.getDescription().isEmpty());
     Assert.assertTrue(assetIssueByName.getTotalSupply() > 0);
     Assert.assertTrue(assetIssueByName.getTrxNum() > 0);
 
-    //Get asset issue by name failed when the name is not correct.There is no exception.
+    // Get asset issue by name failed when the name is not correct.There is no exception.
     String wrongName = name + "_wrong";
     ByteString assetNameBs = ByteString.copyFrom(name.getBytes());
     assetNameBs = ByteString.copyFrom(wrongName.getBytes());
@@ -103,10 +109,7 @@ public static String loadPubKey() {
     Assert.assertTrue(assetIssueByName.getDescription().isEmpty());
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -117,13 +120,20 @@ public static String loadPubKey() {
     }
   }
 
-  /**
-   * constructor.
-   */
-
-  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
-      Integer icoNum, Long startTime, Long endTime,
-      Integer voteScore, String description, String url, Long fronzenAmount, Long frozenDay,
+  /** constructor. */
+  public Boolean createAssetIssue(
+      byte[] address,
+      String name,
+      Long totalSupply,
+      Integer trxNum,
+      Integer icoNum,
+      Long startTime,
+      Long endTime,
+      Integer voteScore,
+      String description,
+      String url,
+      Long fronzenAmount,
+      Long frozenDay,
       String priKey) {
     ECKey temKey = null;
     try {
@@ -149,8 +159,7 @@ public static String loadPubKey() {
       builder.setFreeAssetNetLimit(20000);
       builder.setPublicFreeAssetNetLimit(20000);
       AssetIssueContract.FrozenSupply.Builder frozenBuilder =
-          AssetIssueContract.FrozenSupply
-              .newBuilder();
+          AssetIssueContract.FrozenSupply.newBuilder();
       frozenBuilder.setFrozenAmount(fronzenAmount);
       frozenBuilder.setFrozenDays(frozenDay);
       builder.addFrozenSupply(0, frozenBuilder);
@@ -171,14 +180,11 @@ public static String loadPubKey() {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
@@ -194,25 +200,18 @@ public static String loadPubKey() {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -224,12 +223,9 @@ public static String loadPubKey() {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
-   * constructor.
-   */
-
-  public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
-      String priKey) {
+  /** constructor. */
+  public boolean transferAsset(
+      byte[] to, byte[] assertName, long amount, byte[] address, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -263,8 +259,5 @@ public static String loadPubKey() {
       Account search = queryAccount(ecKey, blockingStubFull);
       return true;
     }
-
   }
 }
-
-

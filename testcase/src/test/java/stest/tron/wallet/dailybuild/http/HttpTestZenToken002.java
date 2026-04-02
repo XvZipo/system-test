@@ -1,6 +1,5 @@
 package stest.tron.wallet.dailybuild.http;
 
-
 import com.alibaba.fastjson.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,30 +39,33 @@ public class HttpTestZenToken002 extends AbstractHttpEndpointsZen024 {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] zenTokenOwnerAddress = ecKey1.getAddress();
   String zenTokenOwnerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private String foundationZenTokenKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.zenTokenOwnerKey");
+  private String foundationZenTokenKey =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.zenTokenOwnerKey");
   byte[] foundationZenTokenAddress = PublicMethed.getFinalAddress(foundationZenTokenKey);
-  private String zenTokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.zenTokenId");
-  private Long zenTokenFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.zenTokenFee");
+  private String zenTokenId =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.zenTokenId");
+  private Long zenTokenFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.zenTokenFee");
   private Long sendTokenAmount = 7 * zenTokenFee;
   private JSONObject responseContent;
   private HttpResponse response;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = false)
   public void beforeClass() {
     PublicMethed.printAddress(foundationZenTokenKey);
     PublicMethed.printAddress(zenTokenOwnerKey);
-    response = HttpMethed
-        .transferAsset(httpnode, foundationZenTokenAddress, zenTokenOwnerAddress, zenTokenId,
-            sendTokenAmount, foundationZenTokenKey);
+    response =
+        HttpMethed.transferAsset(
+            httpnode,
+            foundationZenTokenAddress,
+            zenTokenOwnerAddress,
+            zenTokenId,
+            sendTokenAmount,
+            foundationZenTokenKey);
     org.junit.Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
-    //Args.setFullNodeAllowShieldedTransaction(true);
+    // Args.setFullNodeAllowShieldedTransaction(true);
 
   }
 
@@ -74,8 +76,8 @@ public class HttpTestZenToken002 extends AbstractHttpEndpointsZen024 {
     HttpMethed.printJsonContent(responseContent);
     assetIssueId = responseContent.getString("asset_issued_ID");
 
-    final Long beforeAssetBalance = HttpMethed
-        .getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
+    final Long beforeAssetBalance =
+        HttpMethed.getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
     response = HttpMethed.getAccountReource(httpnode, zenTokenOwnerAddress);
     responseContent = HttpMethed.parseResponseContent(response);
     final Long beforeNetUsed = responseContent.getLong("freeNetUsed");
@@ -84,18 +86,31 @@ public class HttpTestZenToken002 extends AbstractHttpEndpointsZen024 {
     sendShieldAddress = sendShieldAddressInfo.get().getAddress();
     logger.info("sendShieldAddress:" + sendShieldAddress);
     memo1 = "Shield memo1 in " + System.currentTimeMillis();
-    shieldOutList = HttpMethed.addShieldOutputList(httpnode, shieldOutList, sendShieldAddress,
-        "" + (sendTokenAmount - zenTokenFee), memo1);
+    shieldOutList =
+        HttpMethed.addShieldOutputList(
+            httpnode,
+            shieldOutList,
+            sendShieldAddress,
+            "" + (sendTokenAmount - zenTokenFee),
+            memo1);
 
-    response = HttpMethed
-        .sendShieldCoin(httpnode, zenTokenOwnerAddress, sendTokenAmount, null, null, shieldOutList,
-            null, 0, zenTokenOwnerKey);
+    response =
+        HttpMethed.sendShieldCoin(
+            httpnode,
+            zenTokenOwnerAddress,
+            sendTokenAmount,
+            null,
+            null,
+            shieldOutList,
+            null,
+            0,
+            zenTokenOwnerKey);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     HttpMethed.waitToProduceOneBlock(httpnode);
 
-    Long afterAssetBalance = HttpMethed
-        .getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
+    Long afterAssetBalance =
+        HttpMethed.getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
     response = HttpMethed.getAccountReource(httpnode, zenTokenOwnerAddress);
     responseContent = HttpMethed.parseResponseContent(response);
     Long afterNetUsed = responseContent.getLong("freeNetUsed");
@@ -107,8 +122,8 @@ public class HttpTestZenToken002 extends AbstractHttpEndpointsZen024 {
     Assert.assertTrue(sendNote.getValue() == sendTokenAmount - zenTokenFee);
     Assert.assertEquals(memo1.getBytes(), sendNote.getMemo());
 
-    ShieldNoteInfo scanAndMarkNoteSendNote = HttpMethed
-        .scanAndMarkNoteByIvk(httpnode, sendShieldAddressInfo.get()).get(0);
+    ShieldNoteInfo scanAndMarkNoteSendNote =
+        HttpMethed.scanAndMarkNoteByIvk(httpnode, sendShieldAddressInfo.get()).get(0);
     Assert.assertFalse(scanAndMarkNoteSendNote.getIsSpend());
   }
 
@@ -119,26 +134,31 @@ public class HttpTestZenToken002 extends AbstractHttpEndpointsZen024 {
 
     shieldOutList.clear();
     memo2 = "Send shield to receiver shield memo in" + System.currentTimeMillis();
-    shieldOutList = HttpMethed.addShieldOutputList(httpnode, shieldOutList, receiverShieldAddress,
-        "" + (sendNote.getValue() - zenTokenFee), memo2);
+    shieldOutList =
+        HttpMethed.addShieldOutputList(
+            httpnode,
+            shieldOutList,
+            receiverShieldAddress,
+            "" + (sendNote.getValue() - zenTokenFee),
+            memo2);
 
-    response = HttpMethed
-        .sendShieldCoin(httpnode, null, 0, sendShieldAddressInfo.get(), sendNote, shieldOutList,
-            null, 0, null);
+    response =
+        HttpMethed.sendShieldCoin(
+            httpnode, null, 0, sendShieldAddressInfo.get(), sendNote, shieldOutList, null, 0, null);
     org.junit.Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
 
     HttpMethed.waitToProduceOneBlock(httpnode);
-//    HttpMethed.waitToProduceOneBlock(httpnode);
-    Long afterAssetBalance = HttpMethed
-        .getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
+    //    HttpMethed.waitToProduceOneBlock(httpnode);
+    Long afterAssetBalance =
+        HttpMethed.getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
 
     receiverNote = HttpMethed.scanNoteByIvk(httpnode, receiverShieldAddressInfo.get()).get(0);
 
     Assert.assertTrue(receiverNote.getValue() == sendNote.getValue() - zenTokenFee);
-    Assert.assertEquals(ByteArray.toHexString(memo2.getBytes()),
-        ByteArray.toHexString(receiverNote.getMemo()));
+    Assert.assertEquals(
+        ByteArray.toHexString(memo2.getBytes()), ByteArray.toHexString(receiverNote.getMemo()));
 
     Assert.assertTrue(HttpMethed.getSpendResult(httpnode, sendShieldAddressInfo.get(), sendNote));
     Assert.assertFalse(
@@ -147,7 +167,7 @@ public class HttpTestZenToken002 extends AbstractHttpEndpointsZen024 {
 
   @Test(enabled = false, description = "Scan note by ivk and scan not by ivk on FullNode by http")
   public void test03ScanNoteByIvkAndOvk() {
-    //Scan sender note by ovk equals scan receiver note by ivk on FullNode
+    // Scan sender note by ovk equals scan receiver note by ivk on FullNode
     noteByOvk = HttpMethed.scanNoteByOvk(httpnode, sendShieldAddressInfo.get()).get(0);
     noteByIvk = HttpMethed.scanNoteByIvk(httpnode, receiverShieldAddressInfo.get()).get(0);
     Assert.assertEquals(noteByIvk.getValue(), noteByOvk.getValue());
@@ -159,11 +179,12 @@ public class HttpTestZenToken002 extends AbstractHttpEndpointsZen024 {
   @Test(enabled = false, description = "Scan note by ivk and scan not by ivk on Solidity by http")
   public void test04ScanNoteByIvkAndOvkFromSolidity() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
-    //Scan sender note by ovk equals scan receiver note by ivk on Solidity
-    noteByOvk = HttpMethed.scanNoteByOvkFromSolidity(httpSolidityNode, sendShieldAddressInfo.get())
-        .get(0);
-    noteByIvk = HttpMethed
-        .scanNoteByIvkFromSolidity(httpSolidityNode, receiverShieldAddressInfo.get()).get(0);
+    // Scan sender note by ovk equals scan receiver note by ivk on Solidity
+    noteByOvk =
+        HttpMethed.scanNoteByOvkFromSolidity(httpSolidityNode, sendShieldAddressInfo.get()).get(0);
+    noteByIvk =
+        HttpMethed.scanNoteByIvkFromSolidity(httpSolidityNode, receiverShieldAddressInfo.get())
+            .get(0);
     Assert.assertEquals(noteByIvk.getValue(), noteByOvk.getValue());
     Assert.assertEquals(noteByIvk.getMemo(), noteByOvk.getMemo());
     Assert.assertEquals(noteByIvk.getR(), noteByOvk.getR());
@@ -173,132 +194,134 @@ public class HttpTestZenToken002 extends AbstractHttpEndpointsZen024 {
   @Test(enabled = false, description = "Scan note by ivk and scan not by ivk on PBFT by http")
   public void test05ScanNoteByIvkAndOvkFromPbft() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
-    //Scan sender note by ovk equals scan receiver note by ivk on Solidity
+    // Scan sender note by ovk equals scan receiver note by ivk on Solidity
     noteByOvk = HttpMethed.scanNoteByOvkFromPbft(httpPbftNode, sendShieldAddressInfo.get()).get(0);
-    noteByIvk = HttpMethed.scanNoteByIvkFromPbft(httpPbftNode, receiverShieldAddressInfo.get())
-        .get(0);
+    noteByIvk =
+        HttpMethed.scanNoteByIvkFromPbft(httpPbftNode, receiverShieldAddressInfo.get()).get(0);
     Assert.assertEquals(noteByIvk.getValue(), noteByOvk.getValue());
     Assert.assertEquals(noteByIvk.getMemo(), noteByOvk.getMemo());
     Assert.assertEquals(noteByIvk.getR(), noteByOvk.getR());
     Assert.assertEquals(noteByIvk.getPaymentAddress(), noteByOvk.getPaymentAddress());
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Query whether note is spend on solidity by http")
   public void test06QueryNoteIsSpendOnSolidity() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
-    Assert.assertTrue(HttpMethed
-        .getSpendResultFromSolidity(httpnode, httpSolidityNode, sendShieldAddressInfo.get(),
-            sendNote));
-    Assert.assertFalse(HttpMethed
-        .getSpendResultFromSolidity(httpnode, httpSolidityNode, receiverShieldAddressInfo.get(),
-            receiverNote));
+    Assert.assertTrue(
+        HttpMethed.getSpendResultFromSolidity(
+            httpnode, httpSolidityNode, sendShieldAddressInfo.get(), sendNote));
+    Assert.assertFalse(
+        HttpMethed.getSpendResultFromSolidity(
+            httpnode, httpSolidityNode, receiverShieldAddressInfo.get(), receiverNote));
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Query whether note is spend on PBFT by http")
   public void test07QueryNoteIsSpendOnSolidity() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
-    Assert.assertTrue(HttpMethed
-        .getSpendResultFromPbft(httpnode, httpPbftNode, sendShieldAddressInfo.get(), sendNote));
-    Assert.assertFalse(HttpMethed
-        .getSpendResultFromPbft(httpnode, httpPbftNode, receiverShieldAddressInfo.get(),
-            receiverNote));
+    Assert.assertTrue(
+        HttpMethed.getSpendResultFromPbft(
+            httpnode, httpPbftNode, sendShieldAddressInfo.get(), sendNote));
+    Assert.assertFalse(
+        HttpMethed.getSpendResultFromPbft(
+            httpnode, httpPbftNode, receiverShieldAddressInfo.get(), receiverNote));
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Query note and spend status on fullnode")
   public void test08QueryNoteAndSpendStatusOnFullnode() {
-    ShieldNoteInfo scanAndMarkNoteSendNote = HttpMethed
-        .scanAndMarkNoteByIvk(httpnode, sendShieldAddressInfo.get()).get(0);
+    ShieldNoteInfo scanAndMarkNoteSendNote =
+        HttpMethed.scanAndMarkNoteByIvk(httpnode, sendShieldAddressInfo.get()).get(0);
     Assert.assertTrue(scanAndMarkNoteSendNote.isSpend);
     Assert.assertEquals(scanAndMarkNoteSendNote.getValue(), sendNote.getValue());
     Assert.assertEquals(scanAndMarkNoteSendNote.getMemo(), sendNote.getMemo());
     Assert.assertEquals(scanAndMarkNoteSendNote.getR(), sendNote.getR());
     Assert.assertEquals(scanAndMarkNoteSendNote.getPaymentAddress(), sendNote.getPaymentAddress());
 
-    ShieldNoteInfo scanAndMarkNoteReceiverNote = HttpMethed
-        .scanAndMarkNoteByIvk(httpnode, receiverShieldAddressInfo.get()).get(0);
+    ShieldNoteInfo scanAndMarkNoteReceiverNote =
+        HttpMethed.scanAndMarkNoteByIvk(httpnode, receiverShieldAddressInfo.get()).get(0);
     Assert.assertFalse(scanAndMarkNoteReceiverNote.getIsSpend());
     Assert.assertEquals(scanAndMarkNoteReceiverNote.getValue(), receiverNote.getValue());
     Assert.assertEquals(scanAndMarkNoteReceiverNote.getMemo(), receiverNote.getMemo());
     Assert.assertEquals(scanAndMarkNoteReceiverNote.getR(), receiverNote.getR());
-    Assert.assertEquals(scanAndMarkNoteReceiverNote.getPaymentAddress(),
-        receiverNote.getPaymentAddress());
+    Assert.assertEquals(
+        scanAndMarkNoteReceiverNote.getPaymentAddress(), receiverNote.getPaymentAddress());
   }
 
   @Test(enabled = false, description = "Query note and spend status on solidity")
   public void test09QueryNoteAndSpendStatusOnSolidity() {
-    ShieldNoteInfo scanAndMarkNoteSendNote = HttpMethed
-        .scanAndMarkNoteByIvkFromSolidity(httpnode, httpSolidityNode, sendShieldAddressInfo.get())
-        .get(0);
+    ShieldNoteInfo scanAndMarkNoteSendNote =
+        HttpMethed.scanAndMarkNoteByIvkFromSolidity(
+                httpnode, httpSolidityNode, sendShieldAddressInfo.get())
+            .get(0);
     Assert.assertTrue(scanAndMarkNoteSendNote.isSpend);
     Assert.assertEquals(scanAndMarkNoteSendNote.getValue(), sendNote.getValue());
     Assert.assertEquals(scanAndMarkNoteSendNote.getMemo(), sendNote.getMemo());
     Assert.assertEquals(scanAndMarkNoteSendNote.getR(), sendNote.getR());
     Assert.assertEquals(scanAndMarkNoteSendNote.getPaymentAddress(), sendNote.getPaymentAddress());
 
-    ShieldNoteInfo scanAndMarkNoteReceiverNote = HttpMethed
-        .scanAndMarkNoteByIvkFromSolidity(httpnode, httpSolidityNode,
-            receiverShieldAddressInfo.get()).get(0);
+    ShieldNoteInfo scanAndMarkNoteReceiverNote =
+        HttpMethed.scanAndMarkNoteByIvkFromSolidity(
+                httpnode, httpSolidityNode, receiverShieldAddressInfo.get())
+            .get(0);
     Assert.assertFalse(scanAndMarkNoteReceiverNote.getIsSpend());
     Assert.assertEquals(scanAndMarkNoteReceiverNote.getValue(), receiverNote.getValue());
     Assert.assertEquals(scanAndMarkNoteReceiverNote.getMemo(), receiverNote.getMemo());
     Assert.assertEquals(scanAndMarkNoteReceiverNote.getR(), receiverNote.getR());
-    Assert.assertEquals(scanAndMarkNoteReceiverNote.getPaymentAddress(),
-        receiverNote.getPaymentAddress());
-
+    Assert.assertEquals(
+        scanAndMarkNoteReceiverNote.getPaymentAddress(), receiverNote.getPaymentAddress());
   }
 
   @Test(enabled = false, description = "Query note and spend status on PBFT")
   public void test10QueryNoteAndSpendStatusOnPbft() {
-    ShieldNoteInfo scanAndMarkNoteSendNote = HttpMethed
-        .scanAndMarkNoteByIvkFromPbft(httpnode, httpPbftNode, sendShieldAddressInfo.get()).get(0);
+    ShieldNoteInfo scanAndMarkNoteSendNote =
+        HttpMethed.scanAndMarkNoteByIvkFromPbft(httpnode, httpPbftNode, sendShieldAddressInfo.get())
+            .get(0);
     Assert.assertTrue(scanAndMarkNoteSendNote.isSpend);
     Assert.assertEquals(scanAndMarkNoteSendNote.getValue(), sendNote.getValue());
     Assert.assertEquals(scanAndMarkNoteSendNote.getMemo(), sendNote.getMemo());
     Assert.assertEquals(scanAndMarkNoteSendNote.getR(), sendNote.getR());
     Assert.assertEquals(scanAndMarkNoteSendNote.getPaymentAddress(), sendNote.getPaymentAddress());
 
-    ShieldNoteInfo scanAndMarkNoteReceiverNote = HttpMethed
-        .scanAndMarkNoteByIvkFromPbft(httpnode, httpPbftNode, receiverShieldAddressInfo.get())
-        .get(0);
+    ShieldNoteInfo scanAndMarkNoteReceiverNote =
+        HttpMethed.scanAndMarkNoteByIvkFromPbft(
+                httpnode, httpPbftNode, receiverShieldAddressInfo.get())
+            .get(0);
     Assert.assertFalse(scanAndMarkNoteReceiverNote.getIsSpend());
     Assert.assertEquals(scanAndMarkNoteReceiverNote.getValue(), receiverNote.getValue());
     Assert.assertEquals(scanAndMarkNoteReceiverNote.getMemo(), receiverNote.getMemo());
     Assert.assertEquals(scanAndMarkNoteReceiverNote.getR(), receiverNote.getR());
-    Assert.assertEquals(scanAndMarkNoteReceiverNote.getPaymentAddress(),
-        receiverNote.getPaymentAddress());
-
+    Assert.assertEquals(
+        scanAndMarkNoteReceiverNote.getPaymentAddress(), receiverNote.getPaymentAddress());
   }
-
 
   @Test(enabled = false, description = "Shield to public transaction by http")
   public void test11ShieldToPublicTransaction() {
-    final Long beforeAssetBalance = HttpMethed
-        .getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
+    final Long beforeAssetBalance =
+        HttpMethed.getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
     response = HttpMethed.getAccountReource(httpnode, zenTokenOwnerAddress);
     responseContent = HttpMethed.parseResponseContent(response);
     final Long beforeNetUsed = responseContent.getLong("freeNetUsed");
 
     shieldOutList.clear();
-    response = HttpMethed
-        .sendShieldCoin(httpnode, null, 0, receiverShieldAddressInfo.get(), receiverNote,
-            shieldOutList, zenTokenOwnerAddress, receiverNote.getValue() - zenTokenFee, null);
+    response =
+        HttpMethed.sendShieldCoin(
+            httpnode,
+            null,
+            0,
+            receiverShieldAddressInfo.get(),
+            receiverNote,
+            shieldOutList,
+            zenTokenOwnerAddress,
+            receiverNote.getValue() - zenTokenFee,
+            null);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     HttpMethed.waitToProduceOneBlock(httpnode);
 
-    Long afterAssetBalance = HttpMethed
-        .getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
+    Long afterAssetBalance =
+        HttpMethed.getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
     response = HttpMethed.getAccountReource(httpnode, zenTokenOwnerAddress);
     responseContent = HttpMethed.parseResponseContent(response);
     Long afterNetUsed = responseContent.getLong("freeNetUsed");
@@ -313,15 +336,17 @@ public class HttpTestZenToken002 extends AbstractHttpEndpointsZen024 {
         HttpMethed.getSpendResult(httpnode, receiverShieldAddressInfo.get(), receiverNote));
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
-    final Long assetBalance = HttpMethed
-        .getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
-    HttpMethed
-        .transferAsset(httpnode, zenTokenOwnerAddress, foundationZenTokenAddress, assetIssueId,
-            assetBalance, zenTokenOwnerKey);
+    final Long assetBalance =
+        HttpMethed.getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
+    HttpMethed.transferAsset(
+        httpnode,
+        zenTokenOwnerAddress,
+        foundationZenTokenAddress,
+        assetIssueId,
+        assetBalance,
+        zenTokenOwnerKey);
   }
 }

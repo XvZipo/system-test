@@ -26,9 +26,7 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
   private byte[] inputBuf, outputBuf;
   private long blockCount;
 
-  /**
-   * Instantiate the engine.
-   */
+  /** Instantiate the engine. */
   public DigestEngine(String alg) {
     super(alg);
     doInit();
@@ -40,9 +38,7 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
     blockCount = 0;
   }
 
-  /**
-   * Reset the hash algorithm state.
-   */
+  /** Reset the hash algorithm state. */
   protected abstract void engineReset();
 
   /**
@@ -148,8 +144,7 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
       if (copyLen > len) {
         copyLen = len;
       }
-      System.arraycopy(input, offset, inputBuf, inputLen,
-          copyLen);
+      System.arraycopy(input, offset, inputBuf, inputLen, copyLen);
       offset += copyLen;
       inputLen += copyLen;
       len -= copyLen;
@@ -218,12 +213,10 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
   protected Digest copyState(DigestEngine dest) {
     dest.inputLen = inputLen;
     dest.blockCount = blockCount;
-    System.arraycopy(inputBuf, 0, dest.inputBuf, 0,
-        inputBuf.length);
+    System.arraycopy(inputBuf, 0, dest.inputBuf, 0, inputBuf.length);
     adjustDigestLen();
     dest.adjustDigestLen();
-    System.arraycopy(outputBuf, 0, dest.outputBuf, 0,
-        outputBuf.length);
+    System.arraycopy(outputBuf, 0, dest.outputBuf, 0, outputBuf.length);
     return dest;
   }
 }

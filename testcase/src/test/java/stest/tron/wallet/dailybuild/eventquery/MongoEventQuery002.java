@@ -6,13 +6,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.ByteString;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-
 import java.util.*;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -31,9 +28,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.MongoBase;
-import stest.tron.wallet.common.client.utils.ProposalEnum;
 import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Retry;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
@@ -225,7 +220,6 @@ public class MongoEventQuery002 extends MongoBase {
         PublicMethed.sendcoin(
             event003Address, 1000000000L, fromAddress, testKey002, blockingStubFull));
 
-
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("txIdForInternalTransaction:" + txIdForInternalTransaction);
 
@@ -337,22 +331,22 @@ public class MongoEventQuery002 extends MongoBase {
     response = HttpMethed.getBlockByNum(httpFullNode, blockNumber);
     responseContent = HttpMethed.parseResponseContent(response);
 
-/*
-    index = 2;
-    transactionIdList = new ArrayList<>();
-    for (int i = 0; i < responseContent.getJSONArray("transactions").size(); i++) {
-      transactionIdList.add(
-          i, responseContent.getJSONArray("transactions").getJSONObject(i).getString("txID"));
-    }
-    txIdIndex0 = transactionIdList.get(0);
-    logger.info("txIDIndex0:" + txIdIndex0);
-    txIdIndex2 = transactionIdList.get(2);
-    logger.info("txIDIndex2:" + txIdIndex2);
-*/
+    /*
+        index = 2;
+        transactionIdList = new ArrayList<>();
+        for (int i = 0; i < responseContent.getJSONArray("transactions").size(); i++) {
+          transactionIdList.add(
+              i, responseContent.getJSONArray("transactions").getJSONObject(i).getString("txID"));
+        }
+        txIdIndex0 = transactionIdList.get(0);
+        logger.info("txIDIndex0:" + txIdIndex0);
+        txIdIndex2 = transactionIdList.get(2);
+        logger.info("txIDIndex2:" + txIdIndex2);
+    */
 
     query = new BasicDBObject();
-    //txIdIndex0 = txId;
-    //txIdIndex2 = txId;
+    // txIdIndex0 = txId;
+    // txIdIndex2 = txId;
     query.put("transactionId", txIdIndex2);
     findIterable = mongoDatabase.getCollection("transaction").find(query);
     mongoCursor = findIterable.iterator();
@@ -392,7 +386,7 @@ public class MongoEventQuery002 extends MongoBase {
     }
     Assert.assertTrue(retryTimes > 0);
     JSONObject jsonObjectTxIdIndex0 = JSON.parseObject(document.toJson());
-    //expectInformationFromGetTransactionInfoById(
+    // expectInformationFromGetTransactionInfoById(
     //    jsonObjectTxIdIndex0, jsonObjectTxIdIndex2, txIdIndex0);
 
     testNetFee();
@@ -406,7 +400,7 @@ public class MongoEventQuery002 extends MongoBase {
     responseContent = HttpMethed.parseResponseContent(response);
     int size = responseContent.getJSONArray("internal_transactions").size();
     BasicDBObject query = new BasicDBObject();
-    //PublicMethed.waitProduceNextBlock(blockingStubFull);
+    // PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", txIdForInternalTransaction);
     FindIterable<org.bson.Document> findIterable =
         mongoDatabase.getCollection("transaction").find(query);
@@ -419,46 +413,48 @@ public class MongoEventQuery002 extends MongoBase {
     } catch (Exception e) {
       Assert.assertTrue(e instanceof NullPointerException);
     }
-//    Assert.assertEquals(
-//        responseContent.getJSONArray("internal_transactions").size(),
-//        jsonObject.getJSONArray("internalTransactionList").size());
-//
-//    Optional<Protocol.TransactionInfo> infoById = null;
-//    infoById = PublicMethed.getTransactionInfoById(txIdForInternalTransaction, blockingStubFull);
-//    for (int i = 0; i < size; i++) {
-//      logger.info("i:" + i);
-//      JSONObject jsonObjectFromHttp =
-//          responseContent.getJSONArray("internal_transactions").getJSONObject(i);
-//      JSONObject jsonObjectFromMongoDb =
-//          jsonObject.getJSONArray("internalTransactionList").getJSONObject(i);
-//      Assert.assertEquals(
-//          jsonObjectFromHttp.getString("hash"), jsonObjectFromMongoDb.getString("hash"));
-//      if (jsonObjectFromHttp.getJSONArray("callValueInfo").getJSONObject(0).getString("callValue")
-//          == null) {
-//        Assert.assertEquals("0", jsonObjectFromMongoDb.getString("callValue"));
-//      } else {
-//        Assert.assertEquals(
-//            jsonObjectFromHttp
-//                .getJSONArray("callValueInfo")
-//                .getJSONObject(0)
-//                .getString("callValue"),
-//            jsonObjectFromMongoDb.getString("callValue"));
-//      }
-//
-//      Assert.assertEquals("{}", jsonObjectFromMongoDb.getString("tokenInfo"));
-//      Assert.assertEquals(
-//          jsonObjectFromHttp.getString("transferTo_address"),
-//          jsonObjectFromMongoDb.getString("transferTo_address"));
-//      Assert.assertEquals(
-//          jsonObjectFromHttp.getString("caller_address"),
-//          jsonObjectFromMongoDb.getString("caller_address"));
-//      Assert.assertEquals("", jsonObjectFromMongoDb.getString("extra"));
-//      Assert.assertEquals(false, jsonObjectFromMongoDb.getBoolean("rejected"));
-//
-//      Assert.assertEquals(
-//          ByteArray.toStr(infoById.get().getInternalTransactions(i).getNote().toByteArray()),
-//          jsonObjectFromMongoDb.getString("note"));
-//    }
+    //    Assert.assertEquals(
+    //        responseContent.getJSONArray("internal_transactions").size(),
+    //        jsonObject.getJSONArray("internalTransactionList").size());
+    //
+    //    Optional<Protocol.TransactionInfo> infoById = null;
+    //    infoById = PublicMethed.getTransactionInfoById(txIdForInternalTransaction,
+    // blockingStubFull);
+    //    for (int i = 0; i < size; i++) {
+    //      logger.info("i:" + i);
+    //      JSONObject jsonObjectFromHttp =
+    //          responseContent.getJSONArray("internal_transactions").getJSONObject(i);
+    //      JSONObject jsonObjectFromMongoDb =
+    //          jsonObject.getJSONArray("internalTransactionList").getJSONObject(i);
+    //      Assert.assertEquals(
+    //          jsonObjectFromHttp.getString("hash"), jsonObjectFromMongoDb.getString("hash"));
+    //      if
+    // (jsonObjectFromHttp.getJSONArray("callValueInfo").getJSONObject(0).getString("callValue")
+    //          == null) {
+    //        Assert.assertEquals("0", jsonObjectFromMongoDb.getString("callValue"));
+    //      } else {
+    //        Assert.assertEquals(
+    //            jsonObjectFromHttp
+    //                .getJSONArray("callValueInfo")
+    //                .getJSONObject(0)
+    //                .getString("callValue"),
+    //            jsonObjectFromMongoDb.getString("callValue"));
+    //      }
+    //
+    //      Assert.assertEquals("{}", jsonObjectFromMongoDb.getString("tokenInfo"));
+    //      Assert.assertEquals(
+    //          jsonObjectFromHttp.getString("transferTo_address"),
+    //          jsonObjectFromMongoDb.getString("transferTo_address"));
+    //      Assert.assertEquals(
+    //          jsonObjectFromHttp.getString("caller_address"),
+    //          jsonObjectFromMongoDb.getString("caller_address"));
+    //      Assert.assertEquals("", jsonObjectFromMongoDb.getString("extra"));
+    //      Assert.assertEquals(false, jsonObjectFromMongoDb.getBoolean("rejected"));
+    //
+    //      Assert.assertEquals(
+    //          ByteArray.toStr(infoById.get().getInternalTransactions(i).getNote().toByteArray()),
+    //          jsonObjectFromMongoDb.getString("note"));
+    //    }
   }
 
   @Test(enabled = true, description = "MongoDB Event query for transaction of transfer TRX.")
@@ -494,7 +490,10 @@ public class MongoEventQuery002 extends MongoBase {
     responseContent = HttpMethed.parseResponseContent(response);
     Long latestSolidifiedBlockNumber =
         responseContent.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
-    logger.info("mongo latestSolidifiedBlockNumber = {}, block chain solid num = {}", jsonObject.getLong("latestSolidifiedBlockNumber"), latestSolidifiedBlockNumber);
+    logger.info(
+        "mongo latestSolidifiedBlockNumber = {}, block chain solid num = {}",
+        jsonObject.getLong("latestSolidifiedBlockNumber"),
+        latestSolidifiedBlockNumber);
     Assert.assertTrue(
         jsonObject.getLong("latestSolidifiedBlockNumber") <= latestSolidifiedBlockNumber);
 
@@ -588,8 +587,9 @@ public class MongoEventQuery002 extends MongoBase {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
     }
 
-    Assert.assertTrue(PublicMethed.sendcoin(
-        user001Address, 2000000000, fromAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            user001Address, 2000000000, fromAddress, testKey002, blockingStubFull));
 
     Assert.assertTrue(
         PublicMethed.transferAsset(
@@ -601,7 +601,7 @@ public class MongoEventQuery002 extends MongoBase {
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     byte[] transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
-    //Assert.assertTrue(PublicMethed.sendcoin(
+    // Assert.assertTrue(PublicMethed.sendcoin(
     //    transferTokenContractAddress, 5000000, fromAddress, testKey002, blockingStubFull));
 
     tokenId = assetAccountId.toStringUtf8();
@@ -781,8 +781,12 @@ public class MongoEventQuery002 extends MongoBase {
 
     useUpFreeBandwidth = 20;
     while (useUpFreeBandwidth-- > 0) {
-          PublicMethed.sendcoin(
-              fromAddress, 1000000L + PublicMethed.randomFreezeAmount.addAndGet(1), event002Address, event002Key, blockingStubFull);
+      PublicMethed.sendcoin(
+          fromAddress,
+          1000000L + PublicMethed.randomFreezeAmount.addAndGet(1),
+          event002Address,
+          event002Key,
+          blockingStubFull);
     }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -845,9 +849,14 @@ public class MongoEventQuery002 extends MongoBase {
     response = HttpMethed.getTransactionInfoById(httpFullNode, txIdIndex);
     responseContent = HttpMethed.parseResponseContent(response);
 
-    logger.info("expectInformationFromGetTransactionInfoById jsonObjectTxIdIndex0: " + jsonObjectTxIdIndex0.toJSONString());
-    //logger.info("expectInformationFromGetTransactionInfoById jsonObjectTxIdIndex2: " + jsonObjectTxIdIndex2.toJSONString());
-    logger.info("expectInformationFromGetTransactionInfoById responseContent: " + responseContent.toJSONString());
+    logger.info(
+        "expectInformationFromGetTransactionInfoById jsonObjectTxIdIndex0: "
+            + jsonObjectTxIdIndex0.toJSONString());
+    // logger.info("expectInformationFromGetTransactionInfoById jsonObjectTxIdIndex2: " +
+    // jsonObjectTxIdIndex2.toJSONString());
+    logger.info(
+        "expectInformationFromGetTransactionInfoById responseContent: "
+            + responseContent.toJSONString());
     logger.info("timestamp:" + responseContent.getString("blockTimeStamp"));
     logger.info("timestamp:" + jsonObjectTxIdIndex0.getString("timeStamp"));
     logger.info("contractRetFromHttp:" + responseContent.getJSONArray("contractResult").size());
@@ -874,10 +883,10 @@ public class MongoEventQuery002 extends MongoBase {
         responseContent.getJSONObject("receipt").getString("energy_usage_total"),
         jsonObjectTxIdIndex0.getString("energyUsageTotal"));
 
-/*    Assert.assertEquals(
-        String.valueOf(
-            responseContent.getJSONObject("receipt").getLong("energy_usage_total") * (index + 1)),
-        jsonObjectTxIdIndex2.getString("cumulativeEnergyUsed"));*/
+    /*    Assert.assertEquals(
+    String.valueOf(
+        responseContent.getJSONObject("receipt").getLong("energy_usage_total") * (index + 1)),
+    jsonObjectTxIdIndex2.getString("cumulativeEnergyUsed"));*/
 
     Assert.assertEquals(
         responseContent.getJSONObject("receipt").getString("net_usage"),
@@ -922,22 +931,22 @@ public class MongoEventQuery002 extends MongoBase {
     response = HttpMethed.getBlockByNum(httpFullNode, blockNumber);
     responseContent = HttpMethed.parseResponseContent(response);
 
-/*
-    Assert.assertEquals(
-        String.valueOf(index),
-        jsonObjectTxIdIndex2
-            .getJSONArray("logList")
-            .getJSONObject(0)
-            .getString("transactionIndex"));
+    /*
+        Assert.assertEquals(
+            String.valueOf(index),
+            jsonObjectTxIdIndex2
+                .getJSONArray("logList")
+                .getJSONObject(0)
+                .getString("transactionIndex"));
 
-    Assert.assertEquals(String.valueOf(index), jsonObjectTxIdIndex2.getString("transactionIndex"));
+        Assert.assertEquals(String.valueOf(index), jsonObjectTxIdIndex2.getString("transactionIndex"));
 
-    Assert.assertEquals(
-        String.valueOf(index * runTimes), jsonObjectTxIdIndex2.getString("preCumulativeLogCount"));
-    Assert.assertEquals(
-        String.valueOf(index * runTimes),
-        jsonObjectTxIdIndex2.getJSONArray("logList").getJSONObject(0).getString("logIndex"));
-*/
+        Assert.assertEquals(
+            String.valueOf(index * runTimes), jsonObjectTxIdIndex2.getString("preCumulativeLogCount"));
+        Assert.assertEquals(
+            String.valueOf(index * runTimes),
+            jsonObjectTxIdIndex2.getJSONArray("logList").getJSONObject(0).getString("logIndex"));
+    */
 
     Assert.assertEquals(
         responseContent.getString("blockID"), jsonObjectTxIdIndex0.getString("blockHash"));

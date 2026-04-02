@@ -1,8 +1,5 @@
 package stest.tron.wallet.dailybuild.tvmnewcommand.triggerconstant;
 
-
-import stest.tron.wallet.common.client.AbstractGrpcDualFullAndSolidityTest;
-import io.grpc.ManagedChannel;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -14,12 +11,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.TransactionExtention;
-import org.tron.api.WalletGrpc;
-import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
+import stest.tron.wallet.common.client.AbstractGrpcDualFullAndSolidityTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -29,32 +25,34 @@ import stest.tron.wallet.common.client.utils.Utils;
 @Slf4j
 public class TriggerConstant017 extends AbstractGrpcDualFullAndSolidityTest {
 
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
-
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(contractExcKey);
   }
 
-  @Test(enabled = true, description = "TriggerConstantContract a constant function which is "
-      + "deployed with ABI, but cleared ABI later")
+  @Test(
+      enabled = true,
+      description =
+          "TriggerConstantContract a constant function which is "
+              + "deployed with ABI, but cleared ABI later")
   public void testTriggerConstantContract() {
-    Assert.assertTrue(PublicMethed
-        .sendcoin(contractExcAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            contractExcAddress,
+            100000000000L,
+            testNetAccountAddress,
+            testNetAccountKey,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/ClearAbi001.sol";
@@ -63,14 +61,24 @@ public class TriggerConstant017 extends AbstractGrpcDualFullAndSolidityTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -80,24 +88,32 @@ public class TriggerConstant017 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-    TransactionExtention transactionExtention = PublicMethed
-        .triggerConstantContractForExtention(contractAddress,
-            "testPayable()", "#", false,
-            0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    TransactionExtention transactionExtention =
+        PublicMethed.triggerConstantContractForExtention(
+            contractAddress,
+            "testPayable()",
+            "#",
+            false,
+            0,
+            0,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     Transaction transaction = transactionExtention.getTransaction();
 
     byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
-    System.out.println(":" + ByteArray
-        .toStr(transactionExtention.getResult().getMessage().toByteArray()));
+    System.out.println(
+        ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
     System.out.println("Result:" + Hex.toHexString(result));
 
-    Assert.assertEquals(1, ByteArray.toLong(ByteArray
-        .fromHexString(Hex
-            .toHexString(result))));
+    Assert.assertEquals(1, ByteArray.toLong(ByteArray.fromHexString(Hex.toHexString(result))));
     String txid = "";
-    txid = PublicMethed
-        .clearContractAbi(contractAddress, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.clearContractAbi(
+            contractAddress, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
@@ -107,31 +123,35 @@ public class TriggerConstant017 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
 
-    TransactionExtention transactionExtention1 = PublicMethed
-        .triggerConstantContractForExtention(contractAddress,
-            "testPayable()", "#", false,
-            0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    TransactionExtention transactionExtention1 =
+        PublicMethed.triggerConstantContractForExtention(
+            contractAddress,
+            "testPayable()",
+            "#",
+            false,
+            0,
+            0,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     Transaction transaction1 = transactionExtention1.getTransaction();
 
     byte[] result1 = transactionExtention1.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction1.getRet(0).getRet());
-    System.out.println(":" + ByteArray
-        .toStr(transactionExtention1.getResult().getMessage().toByteArray()));
+    System.out.println(
+        ":" + ByteArray.toStr(transactionExtention1.getResult().getMessage().toByteArray()));
     System.out.println("Result:" + Hex.toHexString(result1));
 
-    Assert.assertEquals(1, ByteArray.toLong(ByteArray
-        .fromHexString(Hex
-            .toHexString(result1))));
+    Assert.assertEquals(1, ByteArray.toLong(ByteArray.fromHexString(Hex.toHexString(result1))));
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed
-        .freedResource(contractExcAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
+    PublicMethed.freedResource(
+        contractExcAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
 
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
@@ -143,6 +163,4 @@ public class TriggerConstant017 extends AbstractGrpcDualFullAndSolidityTest {
       channelSolidity.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-
-
 }

@@ -17,8 +17,6 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
-
-
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
@@ -61,8 +59,6 @@ public class WalletTestAccount005 {
     return String.valueOf(buf, 32, 130);
   }
 
-
-
   /**
    * constructor.
    */
@@ -78,8 +74,6 @@ public class WalletTestAccount005 {
         .usePlaintext()
         .build();
     searchBlockingStubFull = WalletGrpc.newBlockingStub(searchChannelFull);
-
-
   }
 
   @Test

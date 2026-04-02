@@ -1,8 +1,5 @@
 package stest.tron.wallet.dailybuild.tvmnewcommand.shiftcommand;
 
-
-import stest.tron.wallet.common.client.AbstractGrpcDualFullAndSolidityTest;
-import io.grpc.ManagedChannel;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -13,10 +10,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
-import org.tron.api.WalletGrpc;
-import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.TransactionInfo;
+import stest.tron.wallet.common.client.AbstractGrpcDualFullAndSolidityTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.DataWord;
@@ -27,33 +23,35 @@ import stest.tron.wallet.common.client.utils.Utils;
 @Slf4j
 public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
 
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
-
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(contractExcKey);
   }
 
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0x0000000000000000000000000000000000000000000000000000000000000001 and Displacement number"
-      + "is 0x00")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0x0000000000000000000000000000000000000000000000000000000000000001 and"
+              + " Displacement numberis 0x00")
   public void test1ShiftLeft() {
-    Assert.assertTrue(PublicMethed
-        .sendcoin(contractExcAddress, 10000000000L, testNetAccountAddress, testNetAccountKey,
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            contractExcAddress,
+            10000000000L,
+            testNetAccountAddress,
+            testNetAccountKey,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -63,14 +61,24 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -81,20 +89,28 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000001"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray.fromHexString("0x00")).getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0x0000000000000000000000000000000000000000000000000000000000000001"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0x00")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -111,8 +127,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -127,25 +143,30 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000001")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0x0000000000000000000000000000000000000000000000000000000000000001")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0x0000000000000000000000000000000000000000000000000000000000000001 and Displacement number"
-      + "is 0x01")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0x0000000000000000000000000000000000000000000000000000000000000001 and"
+              + " Displacement numberis 0x01")
   public void test2ShiftLeft() {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -157,22 +178,28 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000001"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray
-            .fromHexString("0x01"))
-        .getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0x0000000000000000000000000000000000000000000000000000000000000001"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0x01")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -189,8 +216,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -206,26 +233,30 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
 
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000002")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0x0000000000000000000000000000000000000000000000000000000000000002")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0x0000000000000000000000000000000000000000000000000000000000000001 and Displacement number"
-      + "is 0xff")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0x0000000000000000000000000000000000000000000000000000000000000001 and"
+              + " Displacement numberis 0xff")
   public void test3ShiftLeft() {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -237,22 +268,28 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000001"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray
-            .fromHexString("0xff"))
-        .getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0x0000000000000000000000000000000000000000000000000000000000000001"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0xff")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -269,8 +306,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -285,26 +322,30 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0x8000000000000000000000000000000000000000000000000000000000000000")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0x8000000000000000000000000000000000000000000000000000000000000000")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0x0000000000000000000000000000000000000000000000000000000000000001 and Displacement number"
-      + "is 0x0100")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0x0000000000000000000000000000000000000000000000000000000000000001 and"
+              + " Displacement numberis 0x0100")
   public void test4ShiftLeft() {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -316,19 +357,27 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000001"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray.fromHexString("0x0100")).getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0x0000000000000000000000000000000000000000000000000000000000000001"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0x0100")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -345,8 +394,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -361,23 +410,28 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0x0000000000000000000000000000000000000000000000000000000000000000")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0x0000000000000000000000000000000000000000000000000000000000000001 and Displacement number"
-      + "is 0x0101")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0x0000000000000000000000000000000000000000000000000000000000000001 and"
+              + " Displacement numberis 0x0101")
   public void test5ShiftLeft() {
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -389,19 +443,27 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000001"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray.fromHexString("0x0101")).getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0x0000000000000000000000000000000000000000000000000000000000000001"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0x0101")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -418,8 +480,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -434,23 +496,28 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0x0000000000000000000000000000000000000000000000000000000000000000")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and Displacement number"
-      + "is 0x00")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and"
+              + " Displacement numberis 0x00")
   public void test6ShiftLeft() {
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -462,19 +529,27 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray.fromHexString("0x00")).getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0x00")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -491,8 +566,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -507,19 +582,24 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and Displacement number"
-      + "is 0x01")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and"
+              + " Displacement numberis 0x01")
   public void test7ShiftLeft() {
     String filePath = "src/test/resources/soliditycode/ShiftCommand001.sol";
     String contractName = "TestBitwiseShift";
@@ -527,14 +607,24 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -546,20 +636,28 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray.fromHexString("0x01")).getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0x01")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -576,8 +674,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -592,26 +690,30 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and Displacement number"
-      + "is 0xff")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and"
+              + " Displacement numberis 0xff")
   public void test8ShiftLeft() {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -622,20 +724,28 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray.fromHexString("0xff")).getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0xff")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -652,8 +762,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -668,25 +778,29 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0x8000000000000000000000000000000000000000000000000000000000000000")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0x8000000000000000000000000000000000000000000000000000000000000000")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and Displacement number"
-      + "is 0x0100")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and"
+              + " Displacement numberis 0x0100")
   public void test9ShiftLeft() {
 
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -698,20 +812,28 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray.fromHexString("0x0100")).getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0x0100")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -728,8 +850,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -744,25 +866,29 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0x0000000000000000000000000000000000000000000000000000000000000000")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0x0000000000000000000000000000000000000000000000000000000000000000 and Displacement number"
-      + "is 0x01")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0x0000000000000000000000000000000000000000000000000000000000000000 and"
+              + " Displacement numberis 0x01")
   public void testShiftLeft10() {
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -773,20 +899,28 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray.fromHexString("0x01")).getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0x0000000000000000000000000000000000000000000000000000000000000000"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0x01")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -803,8 +937,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -819,25 +953,30 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0x0000000000000000000000000000000000000000000000000000000000000000")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and Displacement number"
-      + "is 0x01")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and"
+              + " Displacement numberis 0x01")
   public void testShiftLeft11() {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -848,20 +987,28 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray.fromHexString("0x01")).getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0x01")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -878,8 +1025,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -894,19 +1041,24 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-  @Test(enabled = true, description = "Trigger new ShiftLeft,value is "
-      + "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and Displacement number"
-      + "is 0x0101")
+  @Test(
+      enabled = true,
+      description =
+          "Trigger new ShiftLeft,value is"
+              + " 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff and"
+              + " Displacement numberis 0x0101")
   public void testShiftLeft12() {
 
     String filePath = "src/test/resources/soliditycode/TvmNewCommand043.sol";
@@ -915,14 +1067,24 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -934,20 +1096,28 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    byte[] originNumber = new DataWord(
-        ByteArray
-            .fromHexString("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
-        .getData();
-    byte[] valueNumber = new DataWord(
-        ByteArray.fromHexString("0x0101")).getData();
+    byte[] originNumber =
+        new DataWord(
+                ByteArray.fromHexString(
+                    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
+            .getData();
+    byte[] valueNumber = new DataWord(ByteArray.fromHexString("0x0101")).getData();
     byte[] paramBytes = new byte[originNumber.length + valueNumber.length];
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "shlTest(int256,int256)", param, true,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "shlTest(int256,int256)",
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -964,8 +1134,8 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -980,24 +1150,23 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    String returnString = (ByteArray
-        .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    String returnString =
+        (ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnString:" + returnString);
-    Assert.assertEquals(ByteArray.toLong(ByteArray
-            .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000")),
-        ByteArray.toLong(ByteArray
-            .fromHexString(
+    Assert.assertEquals(
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                "0x0000000000000000000000000000000000000000000000000000000000000000")),
+        ByteArray.toLong(
+            ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()))));
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed
-        .freedResource(contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
+    PublicMethed.freedResource(
+        contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
@@ -1008,6 +1177,4 @@ public class ShiftCommand004 extends AbstractGrpcDualFullAndSolidityTest {
       channelSolidity.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-
-
 }

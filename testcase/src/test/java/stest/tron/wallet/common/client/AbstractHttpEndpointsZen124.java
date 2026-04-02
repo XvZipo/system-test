@@ -1,8 +1,8 @@
 package stest.tron.wallet.common.client;
 
 /**
- * Indices 1, 2, 4 on {@code httpnode.ip.list} with {@code httpSolidityNode} naming (market-style HTTP
- * tests).
+ * Indices 1, 2, 4 on {@code httpnode.ip.list} with {@code httpSolidityNode} naming (market-style
+ * HTTP tests).
  */
 public abstract class AbstractHttpEndpointsZen124 {
 

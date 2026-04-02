@@ -5,7 +5,6 @@ import org.apache.http.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import stest.tron.wallet.common.client.AbstractHttpEndpoints0243;
-import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.ProposalEnum;
 
@@ -13,15 +12,15 @@ public class HttpTestResourcePrices extends AbstractHttpEndpoints0243 {
   private JSONObject responseContent;
   private HttpResponse response;
 
-
   @Test(enabled = true, description = "get MemoFee from http interface")
   public void test01GetMemoFee() {
-    //get MemoFee from chainParameters
-    Long memoFeeChainParameter = HttpMethed.getProposalValue(httpnode, ProposalEnum.GetMemoFee.getProposalName());
+    // get MemoFee from chainParameters
+    Long memoFeeChainParameter =
+        HttpMethed.getProposalValue(httpnode, ProposalEnum.GetMemoFee.getProposalName());
 
-    //get MemoFee from http
-    HttpResponse res =  HttpMethed.getMemoFee(httpnode);
-    String prices =  HttpMethed.parseResponseContent(res).getString("prices");
+    // get MemoFee from http
+    HttpResponse res = HttpMethed.getMemoFee(httpnode);
+    String prices = HttpMethed.parseResponseContent(res).getString("prices");
     Long memoNow = Long.parseLong(prices.split(":")[2]);
 
     Assert.assertEquals(memoFeeChainParameter.longValue(), memoNow.longValue());
@@ -29,29 +28,31 @@ public class HttpTestResourcePrices extends AbstractHttpEndpoints0243 {
 
   @Test(enabled = true, description = "get Energy prices from http interface")
   public void test02GetEnergyPrices() {
-    //get EnergyPrice from chainParameters
-    Long energyPriceChainParameter = HttpMethed.getProposalValue(httpnode, ProposalEnum.GetEnergyFee.getProposalName());
+    // get EnergyPrice from chainParameters
+    Long energyPriceChainParameter =
+        HttpMethed.getProposalValue(httpnode, ProposalEnum.GetEnergyFee.getProposalName());
 
-    //get EnergyPrice from http
+    // get EnergyPrice from http
     HttpResponse res = HttpMethed.getEnergyPric(httpnode);
     String prices = HttpMethed.parseResponseContent(res).getString("prices");
     Long energyPriceNow = Long.parseLong(prices.split(":")[2]);
 
     Assert.assertEquals(energyPriceChainParameter.longValue(), energyPriceNow.longValue());
 
-    //get EnergyPrice from http solidityNode
+    // get EnergyPrice from http solidityNode
     HttpResponse resSolidity = HttpMethed.getEnergyPricSolidity(httpSoliditynode);
     String pricesSolidity = HttpMethed.parseResponseContent(resSolidity).getString("prices");
     Long energyPriceSolidity = Long.parseLong(pricesSolidity.split(":")[2]);
     Assert.assertEquals(energyPriceChainParameter.longValue(), energyPriceSolidity.longValue());
 
-    //get EnergyPrice from FullNode Solidity port
+    // get EnergyPrice from FullNode Solidity port
     HttpResponse resSolidityport = HttpMethed.getEnergyPricSolidity(httpnodeSolidityPort);
-    String pricesSolidityPort = HttpMethed.parseResponseContent(resSolidityport).getString("prices");
+    String pricesSolidityPort =
+        HttpMethed.parseResponseContent(resSolidityport).getString("prices");
     Long energyPriceSolidityPort = Long.parseLong(pricesSolidityPort.split(":")[2]);
     Assert.assertEquals(energyPriceChainParameter.longValue(), energyPriceSolidityPort.longValue());
 
-    //get EnergyPrice from http pbft
+    // get EnergyPrice from http pbft
     HttpResponse resPbft = HttpMethed.getEnergyPricPbft(httpPbftNode);
     String pricesPbft = HttpMethed.parseResponseContent(resPbft).getString("prices");
     Long energyPricePbft = Long.parseLong(pricesPbft.split(":")[2]);
@@ -60,29 +61,33 @@ public class HttpTestResourcePrices extends AbstractHttpEndpoints0243 {
 
   @Test(enabled = true, description = "get Bandwidth prices from http interface")
   public void test02GetBandwidthPrices() {
-    //get Bandwidth prices from chainParameters
-    Long BandwidthPriceChainParameter = HttpMethed.getProposalValue(httpnode, ProposalEnum.getTransactionFee.getProposalName());
+    // get Bandwidth prices from chainParameters
+    Long BandwidthPriceChainParameter =
+        HttpMethed.getProposalValue(httpnode, ProposalEnum.getTransactionFee.getProposalName());
 
-    //get BandwidthPrice from http
+    // get BandwidthPrice from http
     HttpResponse res = HttpMethed.getBandPric(httpnode);
     String prices = HttpMethed.parseResponseContent(res).getString("prices");
     Long BandwidthPriceNow = Long.parseLong(prices.split(":")[2]);
 
     Assert.assertEquals(BandwidthPriceChainParameter.longValue(), BandwidthPriceNow.longValue());
 
-    //get BandwidthPrice from http solidity
+    // get BandwidthPrice from http solidity
     HttpResponse resSolidity = HttpMethed.getBandPricSolidity(httpSoliditynode);
     String pricesSolidity = HttpMethed.parseResponseContent(resSolidity).getString("prices");
     Long bandwidthPriceSolidity = Long.parseLong(pricesSolidity.split(":")[2]);
-    Assert.assertEquals(BandwidthPriceChainParameter.longValue(), bandwidthPriceSolidity.longValue());
+    Assert.assertEquals(
+        BandwidthPriceChainParameter.longValue(), bandwidthPriceSolidity.longValue());
 
-    //get BandwidthPrice from FullNode solidity port
+    // get BandwidthPrice from FullNode solidity port
     HttpResponse resSolidityPort = HttpMethed.getBandPricSolidity(httpnodeSolidityPort);
-    String pricesSolidityPort = HttpMethed.parseResponseContent(resSolidityPort).getString("prices");
+    String pricesSolidityPort =
+        HttpMethed.parseResponseContent(resSolidityPort).getString("prices");
     Long bandwidthPriceSolidityPort = Long.parseLong(pricesSolidityPort.split(":")[2]);
-    Assert.assertEquals(BandwidthPriceChainParameter.longValue(), bandwidthPriceSolidityPort.longValue());
+    Assert.assertEquals(
+        BandwidthPriceChainParameter.longValue(), bandwidthPriceSolidityPort.longValue());
 
-    //get BandwidthPrice from http pbft
+    // get BandwidthPrice from http pbft
     HttpResponse resPbft = HttpMethed.getBandPricPbft(httpPbftNode);
     String pricesPbft = HttpMethed.parseResponseContent(resPbft).getString("prices");
     Long bandwidthPricePbft = Long.parseLong(pricesPbft.split(":")[2]);

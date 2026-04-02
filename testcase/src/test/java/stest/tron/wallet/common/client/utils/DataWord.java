@@ -39,12 +39,11 @@ public class DataWord implements Comparable<DataWord> {
   public static final BigInteger _2_256 = BigInteger.valueOf(2).pow(256);
   public static final BigInteger MAX_VALUE = _2_256.subtract(BigInteger.ONE);
   // TODO not safe
-  public static final DataWord ZERO = new DataWord(
-      new byte[WORD_SIZE]);      // don't push it in to the stack
+  public static final DataWord ZERO =
+      new DataWord(new byte[WORD_SIZE]); // don't push it in to the stack
   private byte[] data = new byte[WORD_SIZE];
 
-  public DataWord() {
-  }
+  public DataWord() {}
 
   public DataWord(int num) {
     this(ByteBuffer.allocate(4).putInt(num));
@@ -94,7 +93,6 @@ public class DataWord implements Comparable<DataWord> {
     byte[] bb = new byte[WORD_SIZE];
     bb[31] = num;
     return new DataWord(bb);
-
   }
 
   public static String bigIntValue(byte[] data) {
@@ -153,9 +151,7 @@ public class DataWord implements Comparable<DataWord> {
     return data;
   }
 
-  /**
-   * be careful, this one will not throw Exception when data.length > WORD_SIZE
-   */
+  /** be careful, this one will not throw Exception when data.length > WORD_SIZE */
   public byte[] getClonedData() {
     byte[] ret = ByteUtil.EMPTY_BYTE_ARRAY;
     if (data != null) {
@@ -206,9 +202,7 @@ public class DataWord implements Comparable<DataWord> {
     return intVal;
   }
 
-  /**
-   * In case of int overflow returns Integer.MAX_VALUE otherwise works as #intValue()
-   */
+  /** In case of int overflow returns Integer.MAX_VALUE otherwise works as #intValue() */
   public int intValueSafe() {
     int bytesOccupied = bytesOccupied();
     int intValue = intValue();
@@ -235,9 +229,7 @@ public class DataWord implements Comparable<DataWord> {
     return longVal;
   }
 
-  /**
-   * In case of long overflow returns Long.MAX_VALUE otherwise works as #longValue()
-   */
+  /** In case of long overflow returns Long.MAX_VALUE otherwise works as #longValue() */
   public long longValueSafe() {
     int bytesOccupied = bytesOccupied();
     long longValue = longValue();
@@ -462,7 +454,6 @@ public class DataWord implements Comparable<DataWord> {
     DataWord dataWord = (DataWord) o;
 
     return java.util.Arrays.equals(data, dataWord.data);
-
   }
 
   @Override
@@ -475,9 +466,8 @@ public class DataWord implements Comparable<DataWord> {
     if (o == null || o.getData() == null) {
       return -1;
     }
-    int result = FastByteComparisons.compareTo(
-        data, 0, data.length,
-        o.getData(), 0, o.getData().length);
+    int result =
+        FastByteComparisons.compareTo(data, 0, data.length, o.getData(), 0, o.getData().length);
     // Convert result into -1, 0 or 1 as is the convention
     return (int) Math.signum(result);
   }

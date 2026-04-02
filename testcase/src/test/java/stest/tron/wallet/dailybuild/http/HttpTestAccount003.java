@@ -1,20 +1,14 @@
 package stest.tron.wallet.dailybuild.http;
 
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import java.util.HashMap;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
-import org.tron.api.GrpcAPI;
-import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.AbstractHttpEndpoints024;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
@@ -52,7 +46,8 @@ public class HttpTestAccount003 extends AbstractHttpEndpoints024 {
 
   private Long frozenBalance = 40000000L;
   private HttpResponse response;
-/** constructor. */
+
+  /** constructor. */
   @Test(enabled = true, description = "Update account by http")
   public void test01UpdateAccount() {
     response = HttpMethed.sendCoin(httpnode, fromAddress, updateAccountAddress, amount, testKey002);
@@ -83,8 +78,13 @@ public class HttpTestAccount003 extends AbstractHttpEndpoints024 {
   public void test02VoteWitnessAccount() {
     // Freeze balance
     response =
-        HttpMethed.freezeBalance(httpnode, updateAccountAddress, frozenBalance, 0,
-            HttpMethed.proposalTronPowerIsOpen(httpnode) ? 2 : 0, updateAccountKey);
+        HttpMethed.freezeBalance(
+            httpnode,
+            updateAccountAddress,
+            frozenBalance,
+            0,
+            HttpMethed.proposalTronPowerIsOpen(httpnode) ? 2 : 0,
+            updateAccountKey);
     responseContent = HttpMethed.parseResponseContent(response);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.printJsonContent(responseContent);
@@ -211,25 +211,29 @@ public class HttpTestAccount003 extends AbstractHttpEndpoints024 {
   /** constructor. */
   @Test(enabled = true, description = "Unfreeze balance for tron power by http")
   public void test11UnfreezeTronPower() {
-    response = HttpMethed.unFreezeBalance(httpnode, updateAccountAddress, frozenBalance,2, updateAccountKey);
+    response =
+        HttpMethed.unFreezeBalance(
+            httpnode, updateAccountAddress, frozenBalance, 2, updateAccountKey);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
   }
 
-
   @Test(enabled = true, description = "List witness realTime vote data")
-  public void test12CheckVoteChangesRealtimeAfterVote(){
-    HttpResponse resWitnessList  = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
-    JSONArray witnessList = HttpMethed.parseResponseContent(resWitnessList).getJSONArray("witnesses");
-    while (witnessList == null){
-      resWitnessList  = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
+  public void test12CheckVoteChangesRealtimeAfterVote() {
+    HttpResponse resWitnessList = HttpMethed.getPaginatedNowWitnessList(httpnode, 0L, 100L, false);
+    JSONArray witnessList =
+        HttpMethed.parseResponseContent(resWitnessList).getJSONArray("witnesses");
+    while (witnessList == null) {
+      resWitnessList = HttpMethed.getPaginatedNowWitnessList(httpnode, 0L, 100L, false);
       witnessList = HttpMethed.parseResponseContent(resWitnessList).getJSONArray("witnesses");
     }
 
     Assert.assertNotNull(witnessList);
     Assert.assertNotEquals(0, witnessList.size());
-    HttpResponse resWitnessListSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,false);
-    JSONArray witnessListSolidity = HttpMethed.parseResponseContent(resWitnessListSolidity).getJSONArray("witnesses");
+    HttpResponse resWitnessListSolidity =
+        HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode, 0L, 100L, false);
+    JSONArray witnessListSolidity =
+        HttpMethed.parseResponseContent(resWitnessListSolidity).getJSONArray("witnesses");
     Assert.assertNotNull(witnessListSolidity);
     Assert.assertNotEquals(0, witnessListSolidity.size());
 
@@ -238,7 +242,13 @@ public class HttpTestAccount003 extends AbstractHttpEndpoints024 {
     Long freezeBalance = 30500_000000L;
     HttpMethed.sendCoin(httpnode, fromAddress, voterAddress, freezeBalance, testKey002);
     HttpMethed.waitToProduceOneBlock(httpnode);
-    HttpMethed.freezeBalanceV2(httpnode, voterAddress, freezeBalance, 0,null,ByteArray.toHexString(voter.getPrivateKey()));
+    HttpMethed.freezeBalanceV2(
+        httpnode,
+        voterAddress,
+        freezeBalance,
+        0,
+        null,
+        ByteArray.toHexString(voter.getPrivateKey()));
     HttpMethed.waitToProduceOneBlock(httpnode);
     Long voteCount = 10000L;
     JsonArray voteKeys = new JsonArray();
@@ -247,28 +257,34 @@ public class HttpTestAccount003 extends AbstractHttpEndpoints024 {
     voteElement.addProperty("vote_count", voteCount);
     voteKeys.add(voteElement);
 
-    HttpMethed.voteWitnessAccount(httpnode, voterAddress, voteKeys, ByteArray.toHexString(voter.getPrivateKey()));
+    HttpMethed.voteWitnessAccount(
+        httpnode, voterAddress, voteKeys, ByteArray.toHexString(voter.getPrivateKey()));
     HttpMethed.waitToProduceOneBlock(httpnode);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
 
-    HttpResponse resWitnessListAfterVote = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
-    JSONArray witnessListAfterVote = HttpMethed.parseResponseContent(resWitnessListAfterVote).getJSONArray("witnesses");
-    while (witnessListAfterVote == null){
-      resWitnessListAfterVote = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
-      witnessListAfterVote = HttpMethed.parseResponseContent(resWitnessListAfterVote).getJSONArray("witnesses");
+    HttpResponse resWitnessListAfterVote =
+        HttpMethed.getPaginatedNowWitnessList(httpnode, 0L, 100L, false);
+    JSONArray witnessListAfterVote =
+        HttpMethed.parseResponseContent(resWitnessListAfterVote).getJSONArray("witnesses");
+    while (witnessListAfterVote == null) {
+      resWitnessListAfterVote = HttpMethed.getPaginatedNowWitnessList(httpnode, 0L, 100L, false);
+      witnessListAfterVote =
+          HttpMethed.parseResponseContent(resWitnessListAfterVote).getJSONArray("witnesses");
     }
     Assert.assertNotEquals(0, witnessListAfterVote.size());
-    HttpResponse resWitnessListAfterVoteSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,false);
-    JSONArray witnessListAfterVoteSolidity = HttpMethed.parseResponseContent(resWitnessListAfterVoteSolidity).getJSONArray("witnesses");
+    HttpResponse resWitnessListAfterVoteSolidity =
+        HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode, 0L, 100L, false);
+    JSONArray witnessListAfterVoteSolidity =
+        HttpMethed.parseResponseContent(resWitnessListAfterVoteSolidity).getJSONArray("witnesses");
     Assert.assertNotNull(witnessListAfterVoteSolidity);
     Assert.assertNotEquals(0, witnessListAfterVoteSolidity.size());
 
     logger.info("witnessList: " + witnessList.toJSONString());
     logger.info("witnessListAfterVote: " + witnessListAfterVote.toJSONString());
-    for(int i = 0; i< witnessListAfterVote.size(); i++){
+    for (int i = 0; i < witnessListAfterVote.size(); i++) {
 
       JSONObject witness = witnessList.getJSONObject(i);
-      if (witness.getString("address").equals("410be88a918d74d0dfd71dc84bd4abf036d0562991")){
+      if (witness.getString("address").equals("410be88a918d74d0dfd71dc84bd4abf036d0562991")) {
         JSONObject witnessAfterVote = witnessListAfterVote.getJSONObject(i);
         long voteDiff = witnessAfterVote.getLong("voteCount") - witness.getLong("voteCount");
         Assert.assertTrue(voteDiff > 9500L);
@@ -277,29 +293,33 @@ public class HttpTestAccount003 extends AbstractHttpEndpoints024 {
     }
 
     JsonArray voteKeysDecrease = new JsonArray();
-    for(int i = 0; i< witnessList.size(); i++){
+    for (int i = 0; i < witnessList.size(); i++) {
       JSONObject witness = witnessList.getJSONObject(i);
-      if(witness.getString("address").equals("410be88a918d74d0dfd71dc84bd4abf036d0562991")){
+      if (witness.getString("address").equals("410be88a918d74d0dfd71dc84bd4abf036d0562991")) {
         voteElement.addProperty("vote_address", witness.getString("address"));
         voteElement.addProperty("vote_count", voteCount - 5000L);
         voteKeysDecrease.add(voteElement);
       }
     }
-    HttpMethed.voteWitnessAccount(httpnode, voterAddress, voteKeysDecrease, ByteArray.toHexString(voter.getPrivateKey()));
+    HttpMethed.voteWitnessAccount(
+        httpnode, voterAddress, voteKeysDecrease, ByteArray.toHexString(voter.getPrivateKey()));
     HttpMethed.waitToProduceOneBlock(httpnode);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
 
-    HttpResponse resWitnessListAfterDecrease = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, true);
-    JSONArray witnessListAfterDecrease = HttpMethed.parseResponseContent(resWitnessListAfterDecrease).getJSONArray("witnesses");
-    while (witnessListAfterDecrease == null){
-      resWitnessListAfterDecrease = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, true);
-      witnessListAfterDecrease = HttpMethed.parseResponseContent(resWitnessListAfterDecrease).getJSONArray("witnesses");
+    HttpResponse resWitnessListAfterDecrease =
+        HttpMethed.getPaginatedNowWitnessList(httpnode, 0L, 100L, true);
+    JSONArray witnessListAfterDecrease =
+        HttpMethed.parseResponseContent(resWitnessListAfterDecrease).getJSONArray("witnesses");
+    while (witnessListAfterDecrease == null) {
+      resWitnessListAfterDecrease = HttpMethed.getPaginatedNowWitnessList(httpnode, 0L, 100L, true);
+      witnessListAfterDecrease =
+          HttpMethed.parseResponseContent(resWitnessListAfterDecrease).getJSONArray("witnesses");
     }
     logger.info("witnessListAfterVote: " + witnessListAfterVote.toJSONString());
     logger.info("witnessListAfterDecrease: " + witnessListAfterDecrease.toJSONString());
-    for(int i = 0; i< witnessListAfterDecrease.size(); i++){
+    for (int i = 0; i < witnessListAfterDecrease.size(); i++) {
       JSONObject witness = witnessListAfterVote.getJSONObject(i);
-      if(witness.getString("address").equals("TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes")){
+      if (witness.getString("address").equals("TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes")) {
         JSONObject witnessAfterDecrease = witnessListAfterDecrease.getJSONObject(i);
         long voteDiff = witness.getLong("voteCount") - witnessAfterDecrease.getLong("voteCount");
         Assert.assertTrue(voteDiff > 4500L);
@@ -307,7 +327,6 @@ public class HttpTestAccount003 extends AbstractHttpEndpoints024 {
       }
     }
   }
-
 
   /** constructor. */
   @AfterClass

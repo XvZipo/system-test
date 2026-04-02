@@ -2,6 +2,8 @@ package stest.tron.wallet.dailybuild.tvmnewcommand.newGrammar;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
@@ -14,44 +16,39 @@ import org.tron.protos.contract.SmartContractOuterClass;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.*;
 
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
-
 @Slf4j
 public class NewFeatureForSolc0818 {
 
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
   byte[] mapKeyContract = null;
   byte[] useForContract = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
 
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(contractExcKey);
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    Assert.assertTrue(PublicMethed
-        .sendcoin(contractExcAddress, 300100_000_000L,
-            testNetAccountAddress, testNetAccountKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            contractExcAddress,
+            300100_000_000L,
+            testNetAccountAddress,
+            testNetAccountKey,
+            blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     String filePath = "src/test/resources/soliditycode/NewFeature0818.sol";
@@ -60,71 +57,100 @@ public class NewFeatureForSolc0818 {
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    mapKeyContract = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    mapKeyContract =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    SmartContractOuterClass.SmartContract smartContract = PublicMethed.getContract(mapKeyContract,
-        blockingStubFull);
+    SmartContractOuterClass.SmartContract smartContract =
+        PublicMethed.getContract(mapKeyContract, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
   }
 
   @Test(enabled = true, description = "test named parameters in mapping types")
   public void test001NamedParamsInMapping() {
     String temAdd = Base58.encode58Check(mapKeyContract);
-    String txid = PublicMethed.triggerContract(mapKeyContract,
-        "add(address,uint256)", "\"" + temAdd + "\",6",
-        false, 0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    String txid =
+        PublicMethed.triggerContract(
+            mapKeyContract,
+            "add(address,uint256)",
+            "\"" + temAdd + "\",6",
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Protocol.TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
+    Protocol.TransactionInfo info =
+        PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info(info.toString());
     Assert.assertEquals(Protocol.TransactionInfo.code.SUCESS, info.getResult());
-    Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, info.getReceipt().getResult());
+    Assert.assertEquals(
+        Protocol.Transaction.Result.contractResult.SUCCESS, info.getReceipt().getResult());
     Assert.assertEquals(6, ByteArray.toInt(info.getContractResult(0).toByteArray()));
-
   }
-
 
   @Test(enabled = true, description = "test block.prevrandao, this replaces block.difficulty ")
   public void test002blockPrevrandao() {
-    GrpcAPI.TransactionExtention transactionExtention = PublicMethed
-        .triggerConstantContractForExtention(mapKeyContract,
-            "prevrandao()", "#", true,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    GrpcAPI.TransactionExtention transactionExtention =
+        PublicMethed.triggerConstantContractForExtention(
+            mapKeyContract,
+            "prevrandao()",
+            "#",
+            true,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     int result = ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray());
     Assert.assertEquals(true, transactionExtention.getResult().getResult());
-    Assert.assertEquals("SUCESS",
-        transactionExtention.getTransaction().getRet(0).getRet().toString());
+    Assert.assertEquals(
+        "SUCESS", transactionExtention.getTransaction().getRet(0).getRet().toString());
     Assert.assertEquals(0, result);
 
-    transactionExtention = PublicMethed
-        .triggerConstantContractForExtention(mapKeyContract,
-            "assemblyPrevrandao()", "#", true,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    transactionExtention =
+        PublicMethed.triggerConstantContractForExtention(
+            mapKeyContract,
+            "assemblyPrevrandao()",
+            "#",
+            true,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     result = ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray());
     Assert.assertEquals(true, transactionExtention.getResult().getResult());
-    Assert.assertEquals("SUCESS",
-        transactionExtention.getTransaction().getRet(0).getRet().toString());
+    Assert.assertEquals(
+        "SUCESS", transactionExtention.getTransaction().getRet(0).getRet().toString());
     Assert.assertEquals(0, result);
-
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed.freedResource(contractExcAddress, contractExcKey,
-        testNetAccountAddress, blockingStubFull);
+    PublicMethed.freedResource(
+        contractExcAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-
-
 }
-

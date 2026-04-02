@@ -1,8 +1,5 @@
 package stest.tron.wallet.dailybuild.exceptionfee;
 
-
-import stest.tron.wallet.common.client.AbstractGrpcDualFullAndSolidityTest;
-import io.grpc.ManagedChannel;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -12,12 +9,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
-import org.tron.api.WalletGrpc;
-import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result.contractResult;
 import org.tron.protos.Protocol.TransactionInfo;
+import stest.tron.wallet.common.client.AbstractGrpcDualFullAndSolidityTest;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
@@ -28,22 +24,17 @@ import stest.tron.wallet.common.client.utils.Utils;
 @Slf4j
 public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
 
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
-  
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(contractExcKey);
@@ -52,8 +43,12 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
   @Test(enabled = true, description = "Trigger contract Divide 0")
   public void test1DivideInt() {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed
-        .sendcoin(contractExcAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            contractExcAddress,
+            100000000000L,
+            testNetAccountAddress,
+            testNetAccountKey,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -64,14 +59,24 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     Account info;
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -84,9 +89,17 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     String txid = "";
     String num = "4" + "," + "0";
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "divideIHaveArgsReturn(int256,int256)", num, false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "divideIHaveArgsReturn(int256,int256)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
     Optional<TransactionInfo> infoById = null;
@@ -98,14 +111,14 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("getContractRetValue:" + ById.get().getRet(0).getContractRetValue());
     logger.info("getContractRet:" + ById.get().getRet(0).getContractRet());
 
-    Assert.assertEquals(ById.get().getRet(0).getContractRet().getNumber(),
-        contractResult.REVERT.getNumber());
+    Assert.assertEquals(
+        ById.get().getRet(0).getContractRet().getNumber(), contractResult.REVERT.getNumber());
     Assert.assertEquals(ById.get().getRet(0).getContractRetValue(), 2);
     Assert.assertEquals(ById.get().getRet(0).getContractRet(), contractResult.REVERT);
 
-    Assert
-        .assertEquals(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()),
-            "4e487b710000000000000000000000000000000000000000000000000000000000000012");
+    Assert.assertEquals(
+        ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()),
+        "4e487b710000000000000000000000000000000000000000000000000000000000000012");
     Assert.assertEquals(contractResult.REVERT, infoById.get().getReceipt().getResult());
 
     Long fee = infoById.get().getFee();
@@ -118,8 +131,8 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("netFee:" + netFee);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -144,14 +157,24 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("11:" + Base58.encode58Check(contractAddress));
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -163,9 +186,17 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     Integer triggerNum = -1;
-    txid = PublicMethed.triggerContract(contractAddress,
-        "findArgsByIndex1(uint256)", triggerNum.toString(), false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "findArgsByIndex1(uint256)",
+            triggerNum.toString(),
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
     Optional<TransactionInfo> infoById = null;
@@ -181,8 +212,8 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("netFee:" + netFee);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -196,7 +227,6 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-
   }
 
   @Test(enabled = true, description = "Trigger contract Bytes array index out of bounds")
@@ -207,13 +237,23 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -225,9 +265,17 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     Integer triggerNum = -1;
-    txid = PublicMethed.triggerContract(contractAddress,
-        "testBytesGet(uint256)", triggerNum.toString(), false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "testBytesGet(uint256)",
+            triggerNum.toString(),
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
     Optional<TransactionInfo> infoById = null;
@@ -243,8 +291,8 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("netFee:" + netFee);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -259,7 +307,6 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-
   }
 
   @Test(enabled = true, description = "Trigger contract convert too large value to enumerated type")
@@ -269,13 +316,23 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -288,9 +345,17 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     String txid = "";
     Integer triggerNum = 22;
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "setGoStraight(uint8)", triggerNum.toString(), false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "setGoStraight(uint8)",
+            triggerNum.toString(),
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
     Optional<TransactionInfo> infoById = null;
@@ -307,8 +372,8 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("netFee:" + netFee);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -333,16 +398,26 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -354,9 +429,17 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     Integer triggerNum = -1;
-    txid = PublicMethed.triggerContract(contractAddress,
-        "binaryMoveR(uint256)", triggerNum.toString(), false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "binaryMoveR(uint256)",
+            triggerNum.toString(),
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
@@ -372,8 +455,8 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("netFee:" + netFee);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -390,8 +473,9 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
   }
 
-  @Test(enabled = true, description = "Trigger contract Call an uninitialized "
-      + "internal function type variable")
+  @Test(
+      enabled = true,
+      description = "Trigger contract Call an uninitialized " + "internal function type variable")
   public void test6UninitializedContract() {
     String filePath =
         "src/test/resources/soliditycode/assertExceptiontest6UninitializedContract.sol";
@@ -400,14 +484,24 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -419,9 +513,17 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    txid = PublicMethed.triggerContract(contractAddress,
-        "test2()", "#", false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "test2()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -436,8 +538,8 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("netFee:" + netFee);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -452,7 +554,6 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-
   }
 
   @Test(enabled = true, description = "Trigger contract assert exception")
@@ -463,13 +564,23 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -482,9 +593,17 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
 
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
-        "testAssert()", "#", false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "testAssert()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -499,8 +618,8 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     logger.info("netFee:" + netFee);
 
     Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethed.getAccountResource(contractExcAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -517,13 +636,11 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed
-        .freedResource(contractExcAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
+    PublicMethed.freedResource(
+        contractExcAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
@@ -534,6 +651,4 @@ public class AssertException extends AbstractGrpcDualFullAndSolidityTest {
       channelSolidity.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-
-
 }

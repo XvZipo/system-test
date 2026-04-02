@@ -1,17 +1,16 @@
 package stest.tron.wallet.common.client.utils;
 
+import static org.fusesource.leveldbjni.JniDBFactory.factory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.iq80.leveldb.DB;
-import org.iq80.leveldb.DBFactory;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.ReadOptions;
-//import org.iq80.leveldb.impl.Iq80DBFactory;
-import static org.fusesource.leveldbjni.JniDBFactory.factory;
+// import org.iq80.leveldb.impl.Iq80DBFactory;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.tron.protos.Protocol;
@@ -23,19 +22,19 @@ import org.tron.protos.Protocol.TransactionRet;
 import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
 import stest.tron.wallet.common.client.Configuration;
 
-
 public class LeveldbBase {
-  private static String database = Configuration.getByPath("testng.conf")
-      .getString("leveldbParams.databasePath");
+  private static String database =
+      Configuration.getByPath("testng.conf").getString("leveldbParams.databasePath");
   private static String ACCOUNT_PATH = database + "/account";
-  private static String ACCOUNT_ASSET_PATH = database + "/account-asset";  // address + assetId : amount
-  private static String ASSET_ISSUE_V2_PATH = database + "/asset-issue-v2";   // TRC10 asset metadata
+  private static String ACCOUNT_ASSET_PATH =
+      database + "/account-asset"; // address + assetId : amount
+  private static String ASSET_ISSUE_V2_PATH = database + "/asset-issue-v2"; // TRC10 asset metadata
   private static String TRANS_INDEX_PATH = database + "/trans";
   private static String TRANS_RET_STORE_PATH = database + "/transactionRetStore";
   private static String BLOCK_INDEX_PATH = database + "/block-index";
   private static String BLOCK_PATH = database + "/block";
   private static String RECENT_PATH = database + "/recent-transaction";
-//  private static String RECENT_PATH = database + "/trans-cache";
+  //  private static String RECENT_PATH = database + "/trans-cache";
   private DB accountDb;
   private DB accountAssetDb;
   private DB assetIssueV2Db;
@@ -46,12 +45,10 @@ public class LeveldbBase {
   private DB recentDb;
   List<DB> dbList = new ArrayList<>();
 
-  /**
-   * .
-   */
+  /** . */
   @BeforeSuite(enabled = true, description = "init db")
   public void initDb() {
-//    DBFactory factory = new Iq80DBFactory();
+    //    DBFactory factory = new Iq80DBFactory();
     File accountFile = new File(ACCOUNT_PATH);
     File accountAssetFile = new File(ACCOUNT_ASSET_PATH);
     File assetIssueV2File = new File(ASSET_ISSUE_V2_PATH);
@@ -83,11 +80,7 @@ public class LeveldbBase {
     }
   }
 
-
-
-  /**
-   * get account from db, address is base58.
-   */
+  /** get account from db, address is base58. */
   public Account getAccountFromDb(String address) {
     try {
       Account account = Account.parseFrom(accountDb.get(PublicMethed.decode58Check(address)));
@@ -98,13 +91,11 @@ public class LeveldbBase {
     }
   }
 
-  /**
-   *.
-   */
+  /** . */
   public long getAddressBalance(String address) {
     try {
-      long balance = Account.parseFrom(accountDb.get(PublicMethed.decode58Check(address)))
-          .getBalance();
+      long balance =
+          Account.parseFrom(accountDb.get(PublicMethed.decode58Check(address))).getBalance();
       return balance;
     } catch (IOException e) {
       e.printStackTrace();
@@ -112,14 +103,12 @@ public class LeveldbBase {
     }
   }
 
-  /**
-   * from account-asset.
-   */
-  //@Test
+  /** from account-asset. */
+  // @Test
   public int getAddressAssetCount(String address, String assetId) {
     try {
-      //String address = "TAsimLx1ZWc6epr5FjitmktrDqhJY2AZ5R";
-      //String assetId = "1000005";
+      // String address = "TAsimLx1ZWc6epr5FjitmktrDqhJY2AZ5R";
+      // String assetId = "1000005";
       String addressHex = ByteArray.toHexString(PublicMethed.decode58Check(address));
       String assetIdHex = ByteArray.toHexString(assetId.getBytes());
       String key = addressHex + assetIdHex;
@@ -131,14 +120,12 @@ public class LeveldbBase {
     }
   }
 
-  /**
-   * read from  asset-issue-v2.
-   */
+  /** read from asset-issue-v2. */
   public AssetIssueContract getAssetIssueById(String assetId) {
-    //String assetId = "1000005";
+    // String assetId = "1000005";
     try {
-      AssetIssueContract assetIssue =  AssetIssueContract
-          .parseFrom(assetIssueV2Db.get(assetId.getBytes()));
+      AssetIssueContract assetIssue =
+          AssetIssueContract.parseFrom(assetIssueV2Db.get(assetId.getBytes()));
       return assetIssue;
     } catch (Exception e) {
       e.printStackTrace();
@@ -146,9 +133,7 @@ public class LeveldbBase {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Transaction getTransactionById(String txid) {
     try {
       byte[] transHash = getTransHash(txid);
@@ -156,7 +141,7 @@ public class LeveldbBase {
       long blockNumber = trans.getBlockNumber();
       Block block = getBlockByNumber(blockNumber);
       List<Transaction> transList = block.getTransactionsList();
-      for (Transaction tem: transList) {
+      for (Transaction tem : transList) {
         String txID = ByteArray.toHexString(Sha256Sm3Hash.hash(tem.getRawData().toByteArray()));
         if (txid.equals(txID)) {
           return tem;
@@ -169,9 +154,7 @@ public class LeveldbBase {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public byte[] getTransHash(String txid) {
     try {
       byte[] hash = transIndexDb.get(ByteArray.fromHexString(txid));
@@ -182,9 +165,7 @@ public class LeveldbBase {
     return null;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public TransactionInfo getTransactionInfoById(String txid) {
     try {
       byte[] transHash = getTransHash(txid);
@@ -202,9 +183,7 @@ public class LeveldbBase {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Protocol.Block getBlockByNumber(long number) {
     try {
       byte[] blockHash = getBlockHash(number);
@@ -216,9 +195,7 @@ public class LeveldbBase {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public byte[] getBlockHash(long number) {
     try {
       byte[] hash = blockIndexDb.get(ByteArray.fromLong(number));
@@ -229,9 +206,7 @@ public class LeveldbBase {
     return null;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public long getTotal() {
     ReadOptions readOptions = new ReadOptions().fillCache(false);
     try (DBIterator iterator = blockDb.iterator(readOptions)) {
@@ -246,9 +221,7 @@ public class LeveldbBase {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public long getRecenTotal() {
     ReadOptions readOptions = new ReadOptions().fillCache(false);
     try (DBIterator iterator = recentDb.iterator(readOptions)) {
@@ -270,12 +243,10 @@ public class LeveldbBase {
     return getBlockByNumber(nowNum);
   }
 
-  /**
-   * .
-   */
+  /** . */
   @AfterSuite
   public void destroyDb() {
-    for (DB tem: dbList) {
+    for (DB tem : dbList) {
       if (tem != null) {
         try {
           tem.close();
@@ -284,8 +255,5 @@ public class LeveldbBase {
         }
       }
     }
-
   }
-
-
 }

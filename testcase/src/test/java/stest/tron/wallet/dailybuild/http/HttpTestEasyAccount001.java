@@ -19,11 +19,11 @@ import stest.tron.wallet.common.client.utils.Utils;
 public class HttpTestEasyAccount001 extends AbstractHttpNode0 {
 
   private static String assetIssueId;
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
+  String description =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.assetDescription");
   String url = Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
   long beforeEasyBalance = 0L;
   long afterEasyBalance = 0L;
@@ -47,9 +47,7 @@ public class HttpTestEasyAccount001 extends AbstractHttpNode0 {
   private String generateAddress = null;
   private String generateHexAddress = null;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Create address by http")
   public void test01CreateAddress() {
     logger.info(userPassword);
@@ -60,21 +58,23 @@ public class HttpTestEasyAccount001 extends AbstractHttpNode0 {
     HttpMethed.printJsonContent(responseContent);
     easyAddress = responseContent.get("base58checkAddress").toString();
 
-    //Send trx to easy account
-    response = HttpMethed
-        .sendCoin(httpnode, fromAddress, WalletClient.decodeFromBase58Check(easyAddress), 5000000L,
+    // Send trx to easy account
+    response =
+        HttpMethed.sendCoin(
+            httpnode,
+            fromAddress,
+            WalletClient.decodeFromBase58Check(easyAddress),
+            5000000L,
             testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
 
-    beforeEasyBalance = HttpMethed.getBalance(httpnode, WalletClient.decodeFromBase58Check(easyAddress));
+    beforeEasyBalance =
+        HttpMethed.getBalance(httpnode, WalletClient.decodeFromBase58Check(easyAddress));
     logger.info("beforeEasyBalance: " + beforeEasyBalance);
-
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Generate address by http")
   public void test02GenerateAddress() {
     response = HttpMethed.generateAddress(httpnode);
@@ -86,22 +86,23 @@ public class HttpTestEasyAccount001 extends AbstractHttpNode0 {
     generateHexAddress = responseContent.get("hexAddress").toString();
     generatePriKey = responseContent.get("privateKey").toString();
 
-    //Send trx to easy account
-    response = HttpMethed
-        .sendCoin(httpnode, fromAddress, WalletClient.decodeFromBase58Check(generateAddress), 5000000L,
+    // Send trx to easy account
+    response =
+        HttpMethed.sendCoin(
+            httpnode,
+            fromAddress,
+            WalletClient.decodeFromBase58Check(generateAddress),
+            5000000L,
             testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
 
-    beforeGenerateBalance = HttpMethed
-        .getBalance(httpnode, WalletClient.decodeFromBase58Check(generateAddress));
+    beforeGenerateBalance =
+        HttpMethed.getBalance(httpnode, WalletClient.decodeFromBase58Check(generateAddress));
     logger.info("beforeGenerateBalance: " + beforeGenerateBalance);
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Validate address by http")
   public void test03ValideteAddress() {
     // Base58check format
@@ -119,73 +120,82 @@ public class HttpTestEasyAccount001 extends AbstractHttpNode0 {
     HttpMethed.printJsonContent(responseContent);
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Easy transfer by http")
   public void test04EasyTransfer() {
-    response = HttpMethed
-        .easyTransfer(httpnode, userPassword, WalletClient.decodeFromBase58Check(generateAddress),
-            1000000L);
+    response =
+        HttpMethed.easyTransfer(
+            httpnode, userPassword, WalletClient.decodeFromBase58Check(generateAddress), 1000000L);
     logger.info("code is " + response.getStatusLine().getStatusCode());
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     HttpMethed.waitToProduceOneBlock(httpnode);
 
-    //Send trx to easy account
-    afterEasyBalance = HttpMethed.getBalance(httpnode, WalletClient.decodeFromBase58Check(easyAddress));
+    // Send trx to easy account
+    afterEasyBalance =
+        HttpMethed.getBalance(httpnode, WalletClient.decodeFromBase58Check(easyAddress));
     logger.info("afterEasyBalance: " + afterEasyBalance);
 
-    afterGenerateBalance = HttpMethed
-        .getBalance(httpnode, WalletClient.decodeFromBase58Check(generateAddress));
+    afterGenerateBalance =
+        HttpMethed.getBalance(httpnode, WalletClient.decodeFromBase58Check(generateAddress));
     logger.info("afterGenerateBalance: " + afterGenerateBalance);
 
-    Assert.assertEquals(beforeEasyBalance - afterEasyBalance,
-        afterGenerateBalance - beforeGenerateBalance);
+    Assert.assertEquals(
+        beforeEasyBalance - afterEasyBalance, afterGenerateBalance - beforeGenerateBalance);
     beforeEasyBalance = afterEasyBalance;
     beforeGenerateBalance = afterGenerateBalance;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Easy transfer by privateKey by http")
   public void test05EasyTransferByPrivateKey() {
-    response = HttpMethed
-        .easyTransferByPrivate(httpnode, generatePriKey, WalletClient.decodeFromBase58Check(easyAddress),
-            1000000L);
+    response =
+        HttpMethed.easyTransferByPrivate(
+            httpnode, generatePriKey, WalletClient.decodeFromBase58Check(easyAddress), 1000000L);
     logger.info("code is " + response.getStatusLine().getStatusCode());
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     HttpMethed.waitToProduceOneBlock(httpnode);
 
-    //Send trx to easy account
-    afterEasyBalance = HttpMethed.getBalance(httpnode, WalletClient.decodeFromBase58Check(easyAddress));
+    // Send trx to easy account
+    afterEasyBalance =
+        HttpMethed.getBalance(httpnode, WalletClient.decodeFromBase58Check(easyAddress));
     logger.info("beforeEasyBalance: " + beforeEasyBalance);
     logger.info("afterEasyBalance: " + afterEasyBalance);
 
-    afterGenerateBalance = HttpMethed
-        .getBalance(httpnode, WalletClient.decodeFromBase58Check(generateAddress));
+    afterGenerateBalance =
+        HttpMethed.getBalance(httpnode, WalletClient.decodeFromBase58Check(generateAddress));
     logger.info("beforeGenerateBalance: " + beforeGenerateBalance);
     logger.info("afterGenerateBalance: " + afterGenerateBalance);
 
-    Assert.assertEquals(beforeGenerateBalance - afterGenerateBalance,
-        afterEasyBalance - beforeEasyBalance);
+    Assert.assertEquals(
+        beforeGenerateBalance - afterGenerateBalance, afterEasyBalance - beforeEasyBalance);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Create asset issue by http")
   public void test06CreateAssetIssue() {
     Long amount = 2048000000L;
     response = HttpMethed.sendCoin(httpnode, fromAddress, assetAddress, amount, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
-    //Create an asset issue
-    response = HttpMethed
-        .assetIssue(httpnode, assetAddress, assetName, assetName, totalSupply, 1, 1,
-            System.currentTimeMillis() + 5000, System.currentTimeMillis() + 50000000, 2, 3,
-            description, url, 1000L, 1000L, assetKey);
+    // Create an asset issue
+    response =
+        HttpMethed.assetIssue(
+            httpnode,
+            assetAddress,
+            assetName,
+            assetName,
+            totalSupply,
+            1,
+            1,
+            System.currentTimeMillis() + 5000,
+            System.currentTimeMillis() + 50000000,
+            2,
+            3,
+            description,
+            url,
+            1000L,
+            1000L,
+            assetKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
 
@@ -197,28 +207,35 @@ public class HttpTestEasyAccount001 extends AbstractHttpNode0 {
     logger.info(assetIssueId);
     Assert.assertTrue(Integer.parseInt(assetIssueId) > 1000000);
 
-    response = HttpMethed
-        .transferAsset(httpnode, assetAddress, WalletClient.decodeFromBase58Check(easyAddress),
-            assetIssueId, 100L, assetKey);
+    response =
+        HttpMethed.transferAsset(
+            httpnode,
+            assetAddress,
+            WalletClient.decodeFromBase58Check(easyAddress),
+            assetIssueId,
+            100L,
+            assetKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
 
     response = HttpMethed.getAccount(httpnode, WalletClient.decodeFromBase58Check(easyAddress));
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    beforeEasyAsset = responseContent.getJSONArray("assetV2").getJSONObject(0)
-        .getLongValue("value");
+    beforeEasyAsset =
+        responseContent.getJSONArray("assetV2").getJSONObject(0).getLongValue("value");
     logger.info("beforeEasyAsset:" + beforeEasyAsset);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Easy transfer asset by http")
   public void test07EasyTransferAsset() {
-    response = HttpMethed
-        .easyTransferAsset(httpnode, userPassword, WalletClient.decodeFromBase58Check(generateAddress),
-            10L, assetIssueId);
+    response =
+        HttpMethed.easyTransferAsset(
+            httpnode,
+            userPassword,
+            WalletClient.decodeFromBase58Check(generateAddress),
+            10L,
+            assetIssueId);
     logger.info("code is " + response.getStatusLine().getStatusCode());
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     HttpMethed.waitToProduceOneBlock(httpnode);
@@ -232,20 +249,23 @@ public class HttpTestEasyAccount001 extends AbstractHttpNode0 {
     response = HttpMethed.getAccount(httpnode, WalletClient.decodeFromBase58Check(generateAddress));
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    beforeGenerateAsset = responseContent.getJSONArray("assetV2").getJSONObject(0)
-        .getLongValue("value");
+    beforeGenerateAsset =
+        responseContent.getJSONArray("assetV2").getJSONObject(0).getLongValue("value");
     logger.info("beforeGenerateAsset:" + beforeGenerateAsset);
     Assert.assertEquals(beforeEasyAsset - afterEasyAsset, beforeGenerateAsset);
     beforeEasyAsset = afterEasyAsset;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = false, description = "Easy transfer asset by private key by http")
   public void test08EasyTransferAssetByPrivateKey() {
-    response = HttpMethed.easyTransferAssetByPrivate(httpnode, generatePriKey,
-        WalletClient.decodeFromBase58Check(easyAddress), 5L, assetIssueId);
+    response =
+        HttpMethed.easyTransferAssetByPrivate(
+            httpnode,
+            generatePriKey,
+            WalletClient.decodeFromBase58Check(easyAddress),
+            5L,
+            assetIssueId);
     logger.info("code is " + response.getStatusLine().getStatusCode());
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     HttpMethed.waitToProduceOneBlock(httpnode);
@@ -260,21 +280,18 @@ public class HttpTestEasyAccount001 extends AbstractHttpNode0 {
     response = HttpMethed.getAccount(httpnode, WalletClient.decodeFromBase58Check(generateAddress));
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    afterGenerateAsset = responseContent.getJSONArray("assetV2").getJSONObject(0)
-        .getLongValue("value");
+    afterGenerateAsset =
+        responseContent.getJSONArray("assetV2").getJSONObject(0).getLongValue("value");
     logger.info("afterGenerateAsset:" + afterGenerateAsset);
     Assert.assertEquals(beforeGenerateAsset - afterGenerateAsset, afterEasyAsset - beforeEasyAsset);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    HttpMethed.freedResource(httpnode, WalletClient.decodeFromBase58Check(generateAddress), fromAddress,
-        generatePriKey);
+    HttpMethed.freedResource(
+        httpnode, WalletClient.decodeFromBase58Check(generateAddress), fromAddress, generatePriKey);
     HttpMethed.freedResource(httpnode, assetAddress, fromAddress, assetKey);
     HttpMethed.disConnect();
   }
-
 }

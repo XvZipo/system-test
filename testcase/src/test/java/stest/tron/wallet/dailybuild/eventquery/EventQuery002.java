@@ -3,7 +3,6 @@ package stest.tron.wallet.dailybuild.eventquery;
 import com.alibaba.fastjson.JSONObject;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +43,7 @@ public class EventQuery002 {
   byte[] event001Address = ecKey1.getAddress();
   String event001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   List<String> transactionIdList = null;
+
   /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -126,7 +126,6 @@ public class EventQuery002 {
       }
       byte[] message = req.recv();
 
-
       if (message != null) {
         transactionMessage = new String(message);
         logger.info("transaction message:" + transactionMessage);
@@ -134,7 +133,7 @@ public class EventQuery002 {
         if (!transactionMessage.equals("transactionTrigger")
             && !transactionMessage.isEmpty()
             && transactionMessage.contains("transactionId")) {
-         break;
+          break;
         }
       } else {
         sendTransaction = true;

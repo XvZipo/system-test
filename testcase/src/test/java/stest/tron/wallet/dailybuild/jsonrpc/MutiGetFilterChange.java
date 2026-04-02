@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.nio.charset.Charset;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -15,7 +14,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.CoreConnectionPNames;
 import org.eclipse.jetty.util.ConcurrentHashSet;
-import org.junit.Assert;
 import org.testng.annotations.Test;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
@@ -25,28 +23,26 @@ public class MutiGetFilterChange {
   AtomicInteger atomicInteger = new AtomicInteger(0);
   ConcurrentHashSet<String> concurrentHashSet = new ConcurrentHashSet();
   String[] topicsArray = {
-      "0x21f80ad16517f8cc77e4eada2d83f2b2",
-      "0x21800cfb29623d7a93d03eec6bd38036",
-      "0xca52b1edad238bf6e0efcc017e82698c",
-      "0xc4e9b7615e37a055d8c033921a2a875b",
-      "0x6c86e7a89f0fde45c330133fa5d6057c"
+    "0x21f80ad16517f8cc77e4eada2d83f2b2",
+    "0x21800cfb29623d7a93d03eec6bd38036",
+    "0xca52b1edad238bf6e0efcc017e82698c",
+    "0xc4e9b7615e37a055d8c033921a2a875b",
+    "0x6c86e7a89f0fde45c330133fa5d6057c"
   };
 
   @Test(enabled = false, threadPoolSize = 7, invocationCount = 7)
   public void test01MutiForEthGetFilterChange() throws Exception {
 
-    System.out.println(Thread.currentThread().getName().substring(Thread.currentThread().getName().length()-1));
-
+    System.out.println(
+        Thread.currentThread().getName().substring(Thread.currentThread().getName().length() - 1));
 
     JsonArray param = new JsonArray();
-    //param.add(topicsArray[Integer.valueOf(Thread.currentThread().getName().substring(Thread.currentThread().getName().length()-1))-1]);
+    // param.add(topicsArray[Integer.valueOf(Thread.currentThread().getName().substring(Thread.currentThread().getName().length()-1))-1]);
     param.add("0x609785f327ea981fa6e3c8cb1f8472f2");
     System.out.println(param.toString());
     JsonArray params = new JsonArray();
     params.addAll(param);
     JsonObject requestBody = JsonRpcBase.getJsonRpcBody("eth_getFilterChanges", params);
-
-
 
     Integer total = 0;
     while (true) {
@@ -55,15 +51,16 @@ public class MutiGetFilterChange {
       try {
         JSONArray jsonArray = responseContent.getJSONArray("result");
 
-        if(jsonArray.size() != 0 ) {
-          for(int i = 0; i < jsonArray.size();i++) {
-            if(concurrentHashSet.contains(jsonArray.getJSONObject(i).getString("transactionHash"))) {
-              System.out.println(jsonArray.getJSONObject(i).getString("transactionHash") + " is wrong");
+        if (jsonArray.size() != 0) {
+          for (int i = 0; i < jsonArray.size(); i++) {
+            if (concurrentHashSet.contains(
+                jsonArray.getJSONObject(i).getString("transactionHash"))) {
+              System.out.println(
+                  jsonArray.getJSONObject(i).getString("transactionHash") + " is wrong");
               System.exit(1);
             }
 
             concurrentHashSet.add(jsonArray.getJSONObject(i).getString("transactionHash"));
-
           }
           System.out.println(atomicInteger.addAndGet(jsonArray.size()));
         }
@@ -72,12 +69,8 @@ public class MutiGetFilterChange {
         HttpMethed.printJsonContent(responseContent);
         System.out.println("query failed");
       }
-
     }
-
-
   }
-
 
   @Test(enabled = false)
   public void test02MutiForCreateTopic() throws Exception {
@@ -100,34 +93,36 @@ public class MutiGetFilterChange {
     t5.start();
   }
 
-    class MyThread implements Runnable{
-      private String topics ;
-      public MyThread(String topics){
-               this.topics = topics ;
-           }
-      public void run(){
+  class MyThread implements Runnable {
+    private String topics;
 
-        JsonArray param = new JsonArray();
-        param.add(this.topics);
-        System.out.println("topics:" + topics);
+    public MyThread(String topics) {
+      this.topics = topics;
+    }
 
-        JsonArray params = new JsonArray();
-        params.addAll(param);
-        JsonObject requestBody = JsonRpcBase.getJsonRpcBody("eth_getFilterChanges", params);
+    public void run() {
 
-        while (true) {
-          HttpResponse response = getJsonRpc("39.106.110.245:50545", requestBody);
-          JSONObject responseContent = HttpMethed.parseResponseContent(response);
-          try {
-            Integer current = responseContent.getJSONArray("result").size();
-            System.out.println("current total Query Num :" + atomicInteger.addAndGet(current));
-          } catch (Exception e) {
-            System.out.println("query failed");
-          }
+      JsonArray param = new JsonArray();
+      param.add(this.topics);
+      System.out.println("topics:" + topics);
 
+      JsonArray params = new JsonArray();
+      params.addAll(param);
+      JsonObject requestBody = JsonRpcBase.getJsonRpcBody("eth_getFilterChanges", params);
+
+      while (true) {
+        HttpResponse response = getJsonRpc("39.106.110.245:50545", requestBody);
+        JSONObject responseContent = HttpMethed.parseResponseContent(response);
+        try {
+          Integer current = responseContent.getJSONArray("result").size();
+          System.out.println("current total Query Num :" + atomicInteger.addAndGet(current));
+        } catch (Exception e) {
+          System.out.println("query failed");
         }
-           }
- };
+      }
+    }
+  }
+  ;
 
   public static HttpResponse getJsonRpc(String jsonRpcNode, JsonObject jsonRpcObject) {
     try {
@@ -136,18 +131,15 @@ public class MutiGetFilterChange {
       return response;
     } catch (Exception e) {
       e.printStackTrace();
-      //httppost.releaseConnection();
+      // httppost.releaseConnection();
       return null;
     }
-
   }
 
-
-  static Integer connectionTimeout = Configuration.getByPath("testng.conf")
-      .getInt("defaultParameter.httpConnectionTimeout");
-  static Integer soTimeout = Configuration.getByPath("testng.conf")
-      .getInt("defaultParameter.httpSoTimeout");
-
+  static Integer connectionTimeout =
+      Configuration.getByPath("testng.conf").getInt("defaultParameter.httpConnectionTimeout");
+  static Integer soTimeout =
+      Configuration.getByPath("testng.conf").getInt("defaultParameter.httpSoTimeout");
 
   public static HttpResponse createConnect(String url, JsonObject requestBody) {
     HttpClient httpClient;
@@ -160,7 +152,8 @@ public class MutiGetFilterChange {
 
     try {
       HttpPost httppost;
-      httpClient.getParams()
+      httpClient
+          .getParams()
           .setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, connectionTimeout);
       httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, soTimeout);
       httppost = new HttpPost(url);
@@ -177,12 +170,8 @@ public class MutiGetFilterChange {
       return response;
     } catch (Exception e) {
       e.printStackTrace();
-      //httppost.releaseConnection();
+      // httppost.releaseConnection();
       return null;
     }
-
   }
-
-
-
 }

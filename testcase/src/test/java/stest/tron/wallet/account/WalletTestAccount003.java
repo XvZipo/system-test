@@ -324,7 +324,6 @@ public class WalletTestAccount003 {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Protocol.Transaction signTransaction(ECKey ecKey, Protocol.Transaction transaction) {

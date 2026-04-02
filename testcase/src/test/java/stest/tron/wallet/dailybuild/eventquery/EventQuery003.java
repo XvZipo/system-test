@@ -3,7 +3,6 @@ package stest.tron.wallet.dailybuild.eventquery;
 import com.alibaba.fastjson.JSONObject;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -136,7 +135,6 @@ public class EventQuery003 {
         }
       }
       byte[] message = req.recv();
-
 
       if (message != null) {
         transactionMessage = new String(message);

@@ -3,7 +3,6 @@ package stest.tron.wallet.dailybuild.eventquery;
 import com.alibaba.fastjson.JSONObject;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -109,7 +108,10 @@ public class EventQuery004 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, priority=3, description = "Filter  contractTopic event query for contract log")
+  @Test(
+      enabled = true,
+      priority = 3,
+      description = "Filter  contractTopic event query for contract log")
   public void test01filterContractTopicEventQueryForContractLog() {
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
@@ -117,12 +119,10 @@ public class EventQuery004 {
     final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
     new Thread(
-            new Runnable() {
-              public void run() {
-                while (true) {
-                  Event event = Event.read(moniter.base());
-                  System.out.println(event.event + "  " + event.addr);
-                }
+            () -> {
+              while (true) {
+                Event event = Event.read(moniter.base());
+                System.out.println(event.event + "  " + event.addr);
               }
             })
         .start();
@@ -147,7 +147,7 @@ public class EventQuery004 {
                 blockingStubFull);
         logger.info(txid);
 
-/*        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
+        /*        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
             == 0) {
           sendTransaction = false;
         }*/
@@ -162,11 +162,14 @@ public class EventQuery004 {
         }
       }
     }
-    //test native event filter function , should not find message in zmq
+    // test native event filter function , should not find message in zmq
     Assert.assertTrue(retryTimes < 0);
   }
 
-  @Test(enabled = true, priority=3, description = "Filter  contractTopic event query for solidity contract log")
+  @Test(
+      enabled = true,
+      priority = 3,
+      description = "Filter  contractTopic event query for solidity contract log")
   public void test02filterContractTopicEventQueryForContractSolidityLog() {
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     ZMQ.Context context = ZMQ.context(1);
@@ -176,12 +179,10 @@ public class EventQuery004 {
     final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
     new Thread(
-            new Runnable() {
-              public void run() {
-                while (true) {
-                  Event event = Event.read(moniter.base());
-                  System.out.println(event.event + "  " + event.addr);
-                }
+            () -> {
+              while (true) {
+                Event event = Event.read(moniter.base());
+                System.out.println(event.event + "  " + event.addr);
               }
             })
         .start();
@@ -206,13 +207,12 @@ public class EventQuery004 {
                 event001Key,
                 blockingStubFull);
         logger.info(txid1);
-/*        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
+        /*        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
             == 0) {
           sendTransaction = false;
         }*/
       }
       byte[] message = req.recv();
-
 
       if (message != null) {
 
@@ -223,11 +223,11 @@ public class EventQuery004 {
         }
       }
     }
-    //test native event filter function, should not find message in zmq
+    // test native event filter function, should not find message in zmq
     Assert.assertTrue(retryTimes < 0);
   }
 
-  @Test(enabled = true, priority=3, description = "Event query for contract log")
+  @Test(enabled = true, priority = 3, description = "Event query for contract log")
   public void test03EventQueryForContractLog() {
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
@@ -236,12 +236,10 @@ public class EventQuery004 {
     final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
     new Thread(
-            new Runnable() {
-              public void run() {
-                while (true) {
-                  Event event = Event.read(moniter.base());
-                  System.out.println(event.event + "  " + event.addr);
-                }
+            () -> {
+              while (true) {
+                Event event = Event.read(moniter.base());
+                System.out.println(event.event + "  " + event.addr);
               }
             })
         .start();
@@ -294,7 +292,7 @@ public class EventQuery004 {
     Assert.assertEquals(blockObject.getString("triggerName"), "contractLogTrigger");
   }
 
-  @Test(enabled = true, priority=3, description = "Event query for solidity contract log")
+  @Test(enabled = true, priority = 3, description = "Event query for solidity contract log")
   public void test04EventQueryForContractSolidityLog() {
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     ZMQ.Context context = ZMQ.context(1);
@@ -304,12 +302,10 @@ public class EventQuery004 {
     final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
     new Thread(
-            new Runnable() {
-              public void run() {
-                while (true) {
-                  Event event = Event.read(moniter.base());
-                  System.out.println(event.event + "  " + event.addr);
-                }
+            () -> {
+              while (true) {
+                Event event = Event.read(moniter.base());
+                System.out.println(event.event + "  " + event.addr);
               }
             })
         .start();

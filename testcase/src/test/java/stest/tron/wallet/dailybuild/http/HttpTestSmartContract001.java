@@ -191,7 +191,9 @@ public class HttpTestSmartContract001 extends AbstractHttpSmartContractNodes023 
     Long afterBalance = HttpMethed.getBalance(httpnode, assetOwnerAddress);
     logger.info("beforeBalance: " + beforeBalance);
     logger.info("afterBalance: " + afterBalance);
-    Assert.assertTrue(beforeBalance - afterBalance == callValue + Long.valueOf(responseContent.getOrDefault("fee",0L).toString()));
+    Assert.assertTrue(
+        beforeBalance - afterBalance
+            == callValue + Long.valueOf(responseContent.getOrDefault("fee", 0L).toString()));
 
     JSONObject receiptString = responseContent.getJSONObject("receipt");
     Assert.assertEquals(receiptString.getString("result"), "SUCCESS");
@@ -253,8 +255,7 @@ public class HttpTestSmartContract001 extends AbstractHttpSmartContractNodes023 
       HttpMethed.printJsonContent(responseCon2);
       if (responseCon1.getLong("blockNumber").equals(responseCon2.getLong("blockNumber"))) {
         HttpResponse responseByBlocknum =
-            HttpMethed.getTransactionInfoByBlocknum(
-                httpnode, responseCon1.getLong("blockNumber"));
+            HttpMethed.getTransactionInfoByBlocknum(httpnode, responseCon1.getLong("blockNumber"));
         List<JSONObject> responseContentByBlocknum =
             HttpMethed.parseResponseContentArray(responseByBlocknum);
         boolean flag1 = false;
@@ -279,7 +280,8 @@ public class HttpTestSmartContract001 extends AbstractHttpSmartContractNodes023 
   /** constructor. */
   @Test(enabled = true, description = "Get transaction info by http from solidity")
   public void test5GetTransactionInfoByBlocknumFromSolidity() {
-    HttpMethed.waitUntilFixedBlockFromSolidity(responseCon1.getIntValue("blockNumber"), httpSolidityNode);
+    HttpMethed.waitUntilFixedBlockFromSolidity(
+        responseCon1.getIntValue("blockNumber"), httpSolidityNode);
     HttpResponse responseByBlocknum =
         HttpMethed.getTransactionInfoByBlocknumFromSolidity(
             httpSolidityNode, responseCon1.getLong("blockNumber"));
@@ -302,7 +304,8 @@ public class HttpTestSmartContract001 extends AbstractHttpSmartContractNodes023 
   /** constructor. */
   @Test(enabled = true, description = "Get transaction info by http from real solidity")
   public void test6GetTransactionInfoByBlocknumFromRealSolidity() {
-    HttpMethed.waitUntilFixedBlockFromSolidity(responseCon1.getIntValue("blockNumber"), httpRealSolidityNode);
+    HttpMethed.waitUntilFixedBlockFromSolidity(
+        responseCon1.getIntValue("blockNumber"), httpRealSolidityNode);
     HttpResponse responseByBlocknum =
         HttpMethed.getTransactionInfoByBlocknumFromSolidity(
             httpRealSolidityNode, responseCon1.getLong("blockNumber"));

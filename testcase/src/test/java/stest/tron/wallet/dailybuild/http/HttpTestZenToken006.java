@@ -10,8 +10,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.Note;
-import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.AbstractHttpEndpointsZen024;
+import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
@@ -37,25 +37,23 @@ public class HttpTestZenToken006 extends AbstractHttpEndpointsZen024 {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] zenTokenOwnerAddress = ecKey1.getAddress();
   String zenTokenOwnerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private String foundationZenTokenKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.zenTokenOwnerKey");
+  private String foundationZenTokenKey =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.zenTokenOwnerKey");
   byte[] foundationZenTokenAddress = PublicMethed.getFinalAddress(foundationZenTokenKey);
-  private String zenTokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.zenTokenId");
+  private String zenTokenId =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.zenTokenId");
   private String tokenId = zenTokenId;
-  private Long zenTokenFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.zenTokenFee");
+  private Long zenTokenFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.zenTokenFee");
   private Long costTokenAmount = 20 * zenTokenFee;
   private Long sendTokenAmount = 8 * zenTokenFee;
   private JSONObject responseContent;
   private HttpResponse response;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    //Args.setFullNodeAllowShieldedTransaction(true);
+    // Args.setFullNodeAllowShieldedTransaction(true);
     PublicMethed.printAddress(foundationZenTokenKey);
     PublicMethed.printAddress(zenTokenOwnerKey);
   }
@@ -100,9 +98,7 @@ public class HttpTestZenToken006 extends AbstractHttpEndpointsZen024 {
     Assert.assertEquals(ask, askFromSk);
     Assert.assertEquals(nsk, nskFromSk);
     Assert.assertEquals(ovk, ovkFromSk);
-
   }
-
 
   @Test(enabled = false, description = "Get rcm by http")
   public void test03GetRcm() {
@@ -115,9 +111,14 @@ public class HttpTestZenToken006 extends AbstractHttpEndpointsZen024 {
 
   @Test(enabled = false, description = "Public to shield transaction withoutask by http")
   public void test04PublicToShieldTransactionWithoutAsk() {
-    response = HttpMethed
-        .transferAsset(httpnode, foundationZenTokenAddress, zenTokenOwnerAddress, tokenId,
-            costTokenAmount, foundationZenTokenKey);
+    response =
+        HttpMethed.transferAsset(
+            httpnode,
+            foundationZenTokenAddress,
+            zenTokenOwnerAddress,
+            tokenId,
+            costTokenAmount,
+            foundationZenTokenKey);
     org.junit.Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
 
@@ -125,8 +126,8 @@ public class HttpTestZenToken006 extends AbstractHttpEndpointsZen024 {
     responseContent = HttpMethed.parseResponseContent(response);
     assetIssueId = responseContent.getString("asset_issued_ID");
 
-    final Long beforeAssetBalance = HttpMethed
-        .getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
+    final Long beforeAssetBalance =
+        HttpMethed.getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
     response = HttpMethed.getAccountReource(httpnode, zenTokenOwnerAddress);
     responseContent = HttpMethed.parseResponseContent(response);
     final Long beforeNetUsed = responseContent.getLong("freeNetUsed");
@@ -135,19 +136,29 @@ public class HttpTestZenToken006 extends AbstractHttpEndpointsZen024 {
     Long sendSheldAddressAmount1 = zenTokenFee * 2;
     Long sendAmount = sendSheldAddressAmount1 + zenTokenFee;
     shieldOutList.clear();
-    shieldOutList = HttpMethed
-        .addShieldOutputList(httpnode, shieldOutList, paymentAddress1, "" + sendSheldAddressAmount1,
-            memo1);
+    shieldOutList =
+        HttpMethed.addShieldOutputList(
+            httpnode, shieldOutList, paymentAddress1, "" + sendSheldAddressAmount1, memo1);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
-    response = HttpMethed
-        .sendShieldCoinWithoutAsk(httpnode, httpSolidityNode, httpnode, zenTokenOwnerAddress,
-            sendAmount, null, null, shieldOutList, null, 0, zenTokenOwnerKey);
+    response =
+        HttpMethed.sendShieldCoinWithoutAsk(
+            httpnode,
+            httpSolidityNode,
+            httpnode,
+            zenTokenOwnerAddress,
+            sendAmount,
+            null,
+            null,
+            shieldOutList,
+            null,
+            0,
+            zenTokenOwnerKey);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
 
     HttpMethed.waitToProduceOneBlock(httpnode);
-    Long afterAssetBalance = HttpMethed
-        .getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
+    Long afterAssetBalance =
+        HttpMethed.getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
 
     response = HttpMethed.getAccountReource(httpnode, zenTokenOwnerAddress);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -155,18 +166,19 @@ public class HttpTestZenToken006 extends AbstractHttpEndpointsZen024 {
 
     Assert.assertTrue(beforeAssetBalance - afterAssetBalance == sendAmount);
     Assert.assertTrue(beforeNetUsed == afterNetUsed);
-
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
-    final Long assetBalance = HttpMethed
-        .getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
-    HttpMethed
-        .transferAsset(httpnode, zenTokenOwnerAddress, foundationZenTokenAddress, assetIssueId,
-            assetBalance, zenTokenOwnerKey);
+    final Long assetBalance =
+        HttpMethed.getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
+    HttpMethed.transferAsset(
+        httpnode,
+        zenTokenOwnerAddress,
+        foundationZenTokenAddress,
+        assetIssueId,
+        assetBalance,
+        zenTokenOwnerKey);
   }
 }

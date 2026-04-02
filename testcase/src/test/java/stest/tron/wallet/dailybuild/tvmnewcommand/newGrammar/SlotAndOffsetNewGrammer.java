@@ -15,23 +15,22 @@ import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.ECKey;
-
 
 @Slf4j
 public class SlotAndOffsetNewGrammer {
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
+  private long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
   private byte[] contractAddress = null;
 
@@ -39,76 +38,95 @@ public class SlotAndOffsetNewGrammer {
   private byte[] dev001Address = ecKey1.getAddress();
   private String dev001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-  
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     PublicMethed.printAddress(dev001Key);
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 1000_000_000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            dev001Address, 1000_000_000L, fromAddress, testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
-  /**
-   * trigger contract and assert.
-   */
+  /** trigger contract and assert. */
   public void assertResult(byte[] contractAddress) {
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress, "getA()", "", false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "getA()",
+            "",
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethed.getTransactionInfoById(txid, blockingStubFull);
 
-    String res = "0000000000000000000000000000000000000000000000000000000000000001"
-        + "0000000000000000000000000000000000000000000000000000000000000000";
+    String res =
+        "0000000000000000000000000000000000000000000000000000000000000001"
+            + "0000000000000000000000000000000000000000000000000000000000000000";
     System.out.println(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
-    Assert.assertEquals(res,
-        ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
+    Assert.assertEquals(
+        res, ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
 
-    txid = PublicMethed.triggerContract(contractAddress, "getE()", "", false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "getE()",
+            "",
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-    res = "0000000000000000000000000000000000000000000000000000000000000004"
-        + "0000000000000000000000000000000000000000000000000000000000000000";
+    res =
+        "0000000000000000000000000000000000000000000000000000000000000004"
+            + "0000000000000000000000000000000000000000000000000000000000000000";
     System.out.println(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
-    Assert.assertEquals(res,
-        ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
-
+    Assert.assertEquals(
+        res, ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
   }
 
   @Test(enabled = true, description = "Deploy 0.6.x new grammer")
   public void testSlotAndOffsetOldVersion() {
     String contractName = "A";
-    String code = Configuration.getByPath("testng.conf")
-        .getString("code.code_slotAndOffset_06x");
-    String abi = Configuration.getByPath("testng.conf")
-        .getString("abi.abi_slotAndOffset_06x");
-    String txid = PublicMethed
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, 0L, 0, 10000,
-            "0", 0, null, dev001Key,
-            dev001Address, blockingStubFull);
+    String code = Configuration.getByPath("testng.conf").getString("code.code_slotAndOffset_06x");
+    String abi = Configuration.getByPath("testng.conf").getString("abi.abi_slotAndOffset_06x");
+    String txid =
+        PublicMethed.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            0,
+            10000,
+            "0",
+            0,
+            null,
+            dev001Key,
+            dev001Address,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethed.getTransactionInfoById(txid,
-        blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(0, infoById.get().getResultValue());
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(contractAddress,
-        blockingStubFull);
+    SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
     assertResult(contractAddress);
-
   }
 
   @Test(enabled = true, description = "Deploy 0.7.0 new grammer")
@@ -119,30 +137,37 @@ public class SlotAndOffsetNewGrammer {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    String txid = PublicMethed
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, 0L, 0, 10000,
-            "0", 0, null, dev001Key,
-            dev001Address, blockingStubFull);
+    String txid =
+        PublicMethed.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            0,
+            10000,
+            "0",
+            0,
+            null,
+            dev001Key,
+            dev001Address,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethed.getTransactionInfoById(txid,
-        blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(0, infoById.get().getResultValue());
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(contractAddress,
-        blockingStubFull);
+    SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
 
     assertResult(contractAddress);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed
-        .freedResource(dev001Address, dev001Key, fromAddress, blockingStubFull);
+    PublicMethed.freedResource(dev001Address, dev001Key, fromAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

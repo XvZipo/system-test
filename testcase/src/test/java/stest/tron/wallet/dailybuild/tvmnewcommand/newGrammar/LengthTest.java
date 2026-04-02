@@ -15,16 +15,17 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
+
 @Slf4j
 public class LengthTest {
-  private String testFoundationKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private String testFoundationKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private byte[] testFoundationAddress = PublicMethed.getFinalAddress(testFoundationKey);
 
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
 
@@ -33,30 +34,34 @@ public class LengthTest {
   String testKey001 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private byte[] contractAddress;
 
-
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(testKey001);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    PublicMethed
-        .sendcoin(testAddress001, 10000_000_000L, testFoundationAddress, testFoundationKey,
-            blockingStubFull);
+    PublicMethed.sendcoin(
+        testAddress001, 10000_000_000L, testFoundationAddress, testFoundationKey, blockingStubFull);
 
     String filePath = "src/test/resources/soliditycode/arrayLength001.sol";
     String contractName = "arrayLength";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed
-        .deployContract(contractName, abi, code, "", maxFeeLimit, 0, 100, null,
-            testFoundationKey, testFoundationAddress, blockingStubFull);
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0,
+            100,
+            null,
+            testFoundationKey,
+            testFoundationAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
@@ -65,21 +70,31 @@ public class LengthTest {
 
     String methodStr = "arrayPush()";
     String argStr = "";
-    String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, argStr, false,
-        0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String TriggerTxid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            argStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> transactionInfo = PublicMethed
-        .getTransactionInfoById(TriggerTxid, blockingStubFull);
+    Optional<TransactionInfo> transactionInfo =
+        PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
 
     logger.info("transactionInfo: " + transactionInfo.get());
-    Assert.assertEquals(0,transactionInfo.get().getResultValue());
+    Assert.assertEquals(0, transactionInfo.get().getResultValue());
     Assert.assertTrue(transactionInfo.get().getFee() < maxFeeLimit);
-    Assert.assertEquals(""
-        + "0000000000000000000000000000000000000000000000000000000000000020"
-        + "0000000000000000000000000000000000000000000000000000000000000002"
-        + "0000000000000000000000000000000000000000000000000000000000000000"
-        + "0000000000000000000000000000000000000000000000000000000000000000",
+    Assert.assertEquals(
+        ""
+            + "0000000000000000000000000000000000000000000000000000000000000020"
+            + "0000000000000000000000000000000000000000000000000000000000000002"
+            + "0000000000000000000000000000000000000000000000000000000000000000"
+            + "0000000000000000000000000000000000000000000000000000000000000000",
         ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
   }
 
@@ -88,17 +103,27 @@ public class LengthTest {
 
     String methodStr = "arrayPushValue()";
     String argStr = "";
-    String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, argStr, false,
-        0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String TriggerTxid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            argStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> transactionInfo = PublicMethed
-        .getTransactionInfoById(TriggerTxid, blockingStubFull);
+    Optional<TransactionInfo> transactionInfo =
+        PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
 
     logger.info("transactionInfo: " + transactionInfo.get());
-    Assert.assertEquals(0,transactionInfo.get().getResultValue());
+    Assert.assertEquals(0, transactionInfo.get().getResultValue());
     Assert.assertTrue(transactionInfo.get().getFee() < maxFeeLimit);
-    Assert.assertEquals(""
+    Assert.assertEquals(
+        ""
             + "0000000000000000000000000000000000000000000000000000000000000020"
             + "0000000000000000000000000000000000000000000000000000000000000002"
             + "0000000000000000000000000000000000000000000000000000000000000000"
@@ -111,17 +136,27 @@ public class LengthTest {
 
     String methodStr = "arrayPop()";
     String argStr = "";
-    String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, argStr, false,
-        0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String TriggerTxid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            argStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> transactionInfo = PublicMethed
-        .getTransactionInfoById(TriggerTxid, blockingStubFull);
+    Optional<TransactionInfo> transactionInfo =
+        PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
 
     logger.info("transactionInfo: " + transactionInfo.get());
-    Assert.assertEquals(0,transactionInfo.get().getResultValue());
+    Assert.assertEquals(0, transactionInfo.get().getResultValue());
     Assert.assertTrue(transactionInfo.get().getFee() < maxFeeLimit);
-    Assert.assertEquals(""
+    Assert.assertEquals(
+        ""
             + "0000000000000000000000000000000000000000000000000000000000000020"
             + "0000000000000000000000000000000000000000000000000000000000000000",
         ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
@@ -132,18 +167,27 @@ public class LengthTest {
 
     String methodStr = "arrayPushReturn()";
     String argStr = "";
-    String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, argStr, false,
-        0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String TriggerTxid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            argStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> transactionInfo = PublicMethed
-        .getTransactionInfoById(TriggerTxid, blockingStubFull);
+    Optional<TransactionInfo> transactionInfo =
+        PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
 
     logger.info("transactionInfo: " + transactionInfo.get());
-    Assert.assertEquals(0,transactionInfo.get().getResultValue());
+    Assert.assertEquals(0, transactionInfo.get().getResultValue());
     Assert.assertTrue(transactionInfo.get().getFee() < maxFeeLimit);
-    Assert.assertEquals(""
-            + "0000000000000000000000000000000000000000000000000000000000000000",
+    Assert.assertEquals(
+        "" + "0000000000000000000000000000000000000000000000000000000000000000",
         ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
   }
 
@@ -152,18 +196,27 @@ public class LengthTest {
 
     String methodStr = "arrayPushValueReturn()";
     String argStr = "";
-    String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, argStr, false,
-        0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String TriggerTxid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            argStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> transactionInfo = PublicMethed
-        .getTransactionInfoById(TriggerTxid, blockingStubFull);
+    Optional<TransactionInfo> transactionInfo =
+        PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
 
     logger.info("transactionInfo: " + transactionInfo.get());
-    Assert.assertEquals(0,transactionInfo.get().getResultValue());
+    Assert.assertEquals(0, transactionInfo.get().getResultValue());
     Assert.assertTrue(transactionInfo.get().getFee() < maxFeeLimit);
-    Assert.assertEquals("",
-        ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
+    Assert.assertEquals(
+        "", ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
   }
 
   @Test(enabled = true, description = "pop() return no value")
@@ -171,18 +224,27 @@ public class LengthTest {
 
     String methodStr = "arrayPopReturn()";
     String argStr = "";
-    String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, argStr, false,
-        0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String TriggerTxid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            argStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> transactionInfo = PublicMethed
-        .getTransactionInfoById(TriggerTxid, blockingStubFull);
+    Optional<TransactionInfo> transactionInfo =
+        PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
 
     logger.info("transactionInfo: " + transactionInfo.get());
-    Assert.assertEquals(0,transactionInfo.get().getResultValue());
+    Assert.assertEquals(0, transactionInfo.get().getResultValue());
     Assert.assertTrue(transactionInfo.get().getFee() < maxFeeLimit);
-    Assert.assertEquals("",
-        ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
+    Assert.assertEquals(
+        "", ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
   }
 
   @Test(enabled = true, description = "bytes push() return value")
@@ -190,18 +252,27 @@ public class LengthTest {
 
     String methodStr = "bytesPush()";
     String argStr = "";
-    String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, argStr, false,
-        0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String TriggerTxid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            argStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> transactionInfo = PublicMethed
-        .getTransactionInfoById(TriggerTxid, blockingStubFull);
+    Optional<TransactionInfo> transactionInfo =
+        PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
 
     logger.info("transactionInfo: " + transactionInfo.get());
-    Assert.assertEquals(0,transactionInfo.get().getResultValue());
+    Assert.assertEquals(0, transactionInfo.get().getResultValue());
     Assert.assertTrue(transactionInfo.get().getFee() < maxFeeLimit);
-    Assert.assertEquals(""
-            + "0000000000000000000000000000000000000000000000000000000000000000",
+    Assert.assertEquals(
+        "" + "0000000000000000000000000000000000000000000000000000000000000000",
         ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
   }
 
@@ -210,18 +281,27 @@ public class LengthTest {
 
     String methodStr = "bytesPushValue()";
     String argStr = "";
-    String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, argStr, false,
-        0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String TriggerTxid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            argStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> transactionInfo = PublicMethed
-        .getTransactionInfoById(TriggerTxid, blockingStubFull);
+    Optional<TransactionInfo> transactionInfo =
+        PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
 
     logger.info("transactionInfo: " + transactionInfo.get());
-    Assert.assertEquals(0,transactionInfo.get().getResultValue());
+    Assert.assertEquals(0, transactionInfo.get().getResultValue());
     Assert.assertTrue(transactionInfo.get().getFee() < maxFeeLimit);
-    Assert.assertEquals("",
-        ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
+    Assert.assertEquals(
+        "", ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
   }
 
   @Test(enabled = true, description = "bytes pop() return no value")
@@ -229,47 +309,71 @@ public class LengthTest {
 
     String methodStr = "bytesPop()";
     String argStr = "";
-    String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, argStr, false,
-        0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    String TriggerTxid =
+        PublicMethed.triggerContract(
+            contractAddress,
+            methodStr,
+            argStr,
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> transactionInfo = PublicMethed
-        .getTransactionInfoById(TriggerTxid, blockingStubFull);
+    Optional<TransactionInfo> transactionInfo =
+        PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
 
     logger.info("transactionInfo: " + transactionInfo.get());
-    Assert.assertEquals(0,transactionInfo.get().getResultValue());
+    Assert.assertEquals(0, transactionInfo.get().getResultValue());
     Assert.assertTrue(transactionInfo.get().getFee() < maxFeeLimit);
-    Assert.assertEquals("",
-        ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
+    Assert.assertEquals(
+        "", ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
   }
-
 
   @Test(enabled = true, description = "array length change before v0.5.15")
   public void arrayLengthV0515() {
-    String abi = Configuration.getByPath("testng.conf")
-        .getString("abi.abi_arrayLenth_0.5.15");
-    String code = Configuration.getByPath("testng.conf")
-        .getString("code.code_arrayLength_0.5.15");
+    String abi = Configuration.getByPath("testng.conf").getString("abi.abi_arrayLenth_0.5.15");
+    String code = Configuration.getByPath("testng.conf").getString("code.code_arrayLength_0.5.15");
     String contractName = "arrayLength";
-    byte[] v0515Address = PublicMethed.deployContract(contractName,abi,code,"",maxFeeLimit,0,100,
-        null, testKey001, testAddress001, blockingStubFull);
+    byte[] v0515Address =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0,
+            100,
+            null,
+            testKey001,
+            testAddress001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    String Txid = PublicMethed.triggerContract(v0515Address,"ChangeSize()","",false,0,maxFeeLimit,
-        testAddress001,testKey001,blockingStubFull);
+    String Txid =
+        PublicMethed.triggerContract(
+            v0515Address,
+            "ChangeSize()",
+            "",
+            false,
+            0,
+            maxFeeLimit,
+            testAddress001,
+            testKey001,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> transactionInfo = PublicMethed
-        .getTransactionInfoById(Txid, blockingStubFull);
+    Optional<TransactionInfo> transactionInfo =
+        PublicMethed.getTransactionInfoById(Txid, blockingStubFull);
 
-    Assert.assertEquals(0,transactionInfo.get().getResultValue());
-    Assert.assertEquals(""
-        + "0000000000000000000000000000000000000000000000000000000000000020"
-        + "0000000000000000000000000000000000000000000000000000000000000001"
-        + "0100000000000000000000000000000000000000000000000000000000000000",
+    Assert.assertEquals(0, transactionInfo.get().getResultValue());
+    Assert.assertEquals(
+        ""
+            + "0000000000000000000000000000000000000000000000000000000000000020"
+            + "0000000000000000000000000000000000000000000000000000000000000001"
+            + "0100000000000000000000000000000000000000000000000000000000000000",
         ByteArray.toHexString(transactionInfo.get().getContractResult(0).toByteArray()));
-
   }
-
-
 }

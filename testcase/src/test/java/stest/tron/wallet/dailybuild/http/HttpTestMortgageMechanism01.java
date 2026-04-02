@@ -1,6 +1,5 @@
 package stest.tron.wallet.dailybuild.http;
 
-
 import com.alibaba.fastjson.JSONObject;
 import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +67,6 @@ public class HttpTestMortgageMechanism01 extends AbstractHttpEndpoints124 {
     HttpMethed.printJsonContent(responseContent);
     Assert.assertTrue(Integer.parseInt(responseContent.getString("brokerage")) > 0);
     Assert.assertTrue(Integer.parseInt(responseContent.getString("brokerage")) < 100);
-
 
     response =
         HttpMethed.getBrokerageFromSolidityOnVisible(httpSoliditynode, witnessAddress2, "true");

@@ -110,7 +110,11 @@ public class TransactionFee001 {
     blockingStubPbft = WalletSolidityGrpc.newBlockingStub(channelPbft);
   }
 
-  @Test(enabled = true, retryAnalyzer = Retry.class, priority=2, description = "Test deploy contract with energy fee to sr")
+  @Test(
+      enabled = true,
+      retryAnalyzer = Retry.class,
+      priority = 2,
+      description = "Test deploy contract with energy fee to sr")
   public void test01DeployContractEnergyFeeToSr() {
     Assert.assertTrue(
         PublicMethed.sendcoin(
@@ -208,7 +212,8 @@ public class TransactionFee001 {
   }
 
   @Test(
-      enabled = true, priority=2,
+      enabled = true,
+      priority = 2,
       retryAnalyzer = Retry.class,
       description =
           "Test update account permission fee to black hole,"
@@ -454,7 +459,8 @@ public class TransactionFee001 {
   }
 
   @Test(
-      enabled = true, priority=2,
+      enabled = true,
+      priority = 2,
       description = "Test trigger result is \"OUT_OF_TIME\"" + " with energy fee to black hole")
   public void test03OutOfTimeEnergyFeeToBlackHole() {
     Random rand = new Random();
@@ -563,20 +569,21 @@ public class TransactionFee001 {
     Long packingFee = infoById.get().getPackingFee();
     logger.info("receipt:" + infoById.get().getReceipt());
     Assert.assertTrue(packingFee == infoById.get().getReceipt().getNetFee());
-    Assert.assertTrue(infoById.get().getFee() < maxFeeLimit + infoById.get().getReceipt().getNetFee());
+    Assert.assertTrue(
+        infoById.get().getFee() < maxFeeLimit + infoById.get().getReceipt().getNetFee());
     afterBurnTrxAmount = blockingStubFull.getBurnTrx(EmptyMessage.newBuilder().build()).getNum();
-    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == infoById.get().getReceipt().getEnergyFee());
+    Assert.assertTrue(
+        afterBurnTrxAmount - beforeBurnTrxAmount == infoById.get().getReceipt().getEnergyFee());
   }
 
-  @Test(enabled = true, priority=2, description = "Test create account with netFee to sr")
+  @Test(enabled = true, priority = 2, description = "Test create account with netFee to sr")
   public void test04AccountCreate() {
-    //use new account to create account cost 1.1 TRX
+    // use new account to create account cost 1.1 TRX
     ECKey creatorEcKey = new ECKey(Utils.getRandom());
     byte[] creatorAddress = creatorEcKey.getAddress();
     final String creatorKey = ByteArray.toHexString(creatorEcKey.getPrivKeyBytes());
     PublicMethed.sendcoin(creatorAddress, 100000000L, fromAddress, testKey002, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
 
     startNum =
         blockingStubFull
@@ -595,7 +602,8 @@ public class TransactionFee001 {
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] lowBalAddress = ecKey.getAddress();
     txid =
-        PublicMethed.createAccountGetTxid(creatorAddress, lowBalAddress, creatorKey, blockingStubFull);
+        PublicMethed.createAccountGetTxid(
+            creatorAddress, lowBalAddress, creatorKey, blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     endNum =
@@ -650,7 +658,8 @@ public class TransactionFee001 {
   }
 
   @Test(
-      enabled = true, priority=2,
+      enabled = true,
+      priority = 2,
       retryAnalyzer = Retry.class,
       description = "Test trigger contract with netFee and energyFee to sr")
   public void test05NetFeeAndEnergyFee2Sr() {
@@ -776,7 +785,7 @@ public class TransactionFee001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, priority=2, description = "Test create trc10 token with fee not to sr")
+  @Test(enabled = true, priority = 2, description = "Test create trc10 token with fee not to sr")
   public void test06CreateAssetIssue() {
     // get account
     ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -884,7 +893,7 @@ public class TransactionFee001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, priority=2, description = "Test getburntrx api from solidity or pbft")
+  @Test(enabled = true, priority = 2, description = "Test getburntrx api from solidity or pbft")
   public void test07GetBurnTrxFromSolidityOrPbft() {
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     Assert.assertEquals(
@@ -895,44 +904,51 @@ public class TransactionFee001 {
         blockingStubPbft.getBurnTrx(EmptyMessage.newBuilder().build()));
   }
 
-  @Test(enabled = true, priority=2, description = "commit NO.47 value can be 1e17 if commit No.63 opened")
+  @Test(
+      enabled = true,
+      priority = 2,
+      description = "commit NO.47 value can be 1e17 if commit No.63 opened")
   public void test08Commit47Value() {
     HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
     proposalMap.put(47L, 100000000000000000L);
-    org.testng.Assert.assertTrue(PublicMethed.createProposal(witnessAddress01, witnessKey01,
-        proposalMap, blockingStubFull));
+    org.testng.Assert.assertTrue(
+        PublicMethed.createProposal(witnessAddress01, witnessKey01, proposalMap, blockingStubFull));
   }
 
   /** constructor. */
-  @Test(enabled = true, priority=2, description = " create and vote witness, "
-      + "after this case there will be 3 SR")
+  @Test(
+      enabled = true,
+      priority = 2,
+      description = " create and vote witness, " + "after this case there will be 3 SR")
   public void test09CreateAndVoteWitness() {
-    int beforeCreateWitnessCount = PublicMethed.listWitnesses(blockingStubFull)
-        .get().getWitnessesCount();
+    int beforeCreateWitnessCount =
+        PublicMethed.listWitnesses(blockingStubFull).get().getWitnessesCount();
     Assert.assertEquals(2, beforeCreateWitnessCount);
-    Assert.assertTrue(PublicMethed
-        .sendcoin(witnessAddress03, costForCreateWitness + 100000000L, fromAddress, testKey002,
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            witnessAddress03,
+            costForCreateWitness + 100000000L,
+            fromAddress,
+            testKey002,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    org.testng.Assert.assertTrue(PublicMethed.freezeBalanceGetTronPower(witnessAddress03, 1000000L,
-        0, 2, null, witnessKey03, blockingStubFull));
+    org.testng.Assert.assertTrue(
+        PublicMethed.freezeBalanceGetTronPower(
+            witnessAddress03, 1000000L, 0, 2, null, witnessKey03, blockingStubFull));
     Assert.assertTrue(createWitness(witnessAddress03, createUrl, witnessKey03));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    int afterCreateWitnessCount = PublicMethed.listWitnesses(blockingStubFull)
-        .get().getWitnessesCount();
+    int afterCreateWitnessCount =
+        PublicMethed.listWitnesses(blockingStubFull).get().getWitnessesCount();
     Assert.assertEquals(3, afterCreateWitnessCount);
     Assert.assertTrue(PublicMethed.queryAccount(witnessAddress03, blockingStubFull).getIsWitness());
 
     HashMap<byte[], Long> witnessMap = new HashMap<>();
     witnessMap.put(witnessAddress03, 1L);
-    Assert.assertTrue(PublicMethed.voteWitness(witnessAddress03, witnessKey03, witnessMap,
-        blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.voteWitness(witnessAddress03, witnessKey03, witnessMap, blockingStubFull));
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Boolean createWitness(byte[] owner, byte[] url, String priKey) {
     ECKey temKey = null;
     try {
@@ -943,8 +959,8 @@ public class TransactionFee001 {
     }
     final ECKey ecKey = temKey;
 
-    WitnessContract.WitnessCreateContract.Builder builder = WitnessContract.WitnessCreateContract
-        .newBuilder();
+    WitnessContract.WitnessCreateContract.Builder builder =
+        WitnessContract.WitnessCreateContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setUrl(ByteString.copyFrom(url));
     WitnessContract.WitnessCreateContract contract = builder.build();
