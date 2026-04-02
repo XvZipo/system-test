@@ -1,3 +1,7 @@
+if (JavaVersion.current() < JavaVersion.VERSION_11) {
+    throw new GradleException("This build must be run with JDK 11+ (recommended: JDK 17). JDK 8 is not supported by the current Gradle/plugins setup.")
+}
+
 allprojects {
     version = "1.0.0"
     apply plugin: "java"

@@ -51,7 +51,12 @@ src/main/resources/META-INF/
 /output_witness/
 output*
 nodeId.properties
-Wallet
+
+# legacy local output directory (avoid ignoring "wallet" package paths)
+/Wallet/
+
+# local docs (do not commit)
+/docs/
 
 # vm_trace
 /vm_trace/
