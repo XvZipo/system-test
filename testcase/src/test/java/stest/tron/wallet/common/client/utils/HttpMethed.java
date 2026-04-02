@@ -5107,10 +5107,10 @@ public class HttpMethed {
   public static void freedResource(
       String httpNode, byte[] fromAddress, byte[] toAddress, String fromKey) {
     long balance = HttpMethed.getBalance(httpNode, fromAddress);
-    // System.out.println("剩余资源：" + balance);
+    // System.out.println("Remaining balance: " + balance);
     sendCoin(httpNode, fromAddress, toAddress, balance - 50000, fromKey);
     balance = HttpMethed.getBalance(httpNode, fromAddress);
-    // System.out.println("之后资源：" + balance);
+    // System.out.println("Balance after transfer: " + balance);
   }
 
   /** constructor. */

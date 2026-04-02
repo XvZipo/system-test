@@ -28,8 +28,8 @@ public class LeveldbBase {
   private static String database = Configuration.getByPath("testng.conf")
       .getString("leveldbParams.databasePath");
   private static String ACCOUNT_PATH = database + "/account";
-  private static String ACCOUNT_ASSET_PATH = database + "/account-asset";  //地址+asseetid : 数量
-  private static String ASSET_ISSUE_V2_PATH = database + "/asset-issue-v2";   //trc10资产的信息
+  private static String ACCOUNT_ASSET_PATH = database + "/account-asset";  // address + assetId : amount
+  private static String ASSET_ISSUE_V2_PATH = database + "/asset-issue-v2";   // TRC10 asset metadata
   private static String TRANS_INDEX_PATH = database + "/trans";
   private static String TRANS_RET_STORE_PATH = database + "/transactionRetStore";
   private static String BLOCK_INDEX_PATH = database + "/block-index";

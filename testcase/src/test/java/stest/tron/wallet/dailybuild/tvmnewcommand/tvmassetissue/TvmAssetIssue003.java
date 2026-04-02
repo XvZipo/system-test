@@ -223,7 +223,7 @@ public class TvmAssetIssue003 {
     Assert.assertEquals(Base58.encode58Check(contractAddress),
         Base58.encode58Check(assetIssueById.getOwnerAddress().toByteArray()));
 
-    // desc.length is chinese, will success
+    // Description length is non-ASCII; expected to succeed.
     description = "token说明";
     param = "\"" + assetIssueId + "\",\"" + url + "\",\"" + description + "\"";
     logger.info("param: " + param);
@@ -310,7 +310,7 @@ public class TvmAssetIssue003 {
     Assert.assertEquals(Base58.encode58Check(contractAddress),
         Base58.encode58Check(assetIssueById.getOwnerAddress().toByteArray()));
 
-    // url.length is chinese, will success
+    // URL length is non-ASCII; expected to succeed.
     url = "官网";
     param = "\"" + assetIssueId + "\",\"" + url + "\",\"" + description + "\"";
     logger.info("param: " + param);

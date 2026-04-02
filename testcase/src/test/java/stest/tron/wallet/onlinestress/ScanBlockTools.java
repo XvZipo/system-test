@@ -258,7 +258,7 @@ public class ScanBlockTools {
   public void test03CompareTwoNodeAccountStatus() throws Exception {
     account = PublicMethed.queryAccount(
         "7400E3D0727F8A61041A8E8BF86599FE5597CE19DE451E59AED07D60967A5E25",blockingStubFull);
-    //扫描到28307530块了
+    // Scanned up to block 28307530.
     Long startNum = 29266108L;
     Long endNum = 29266208L;
     NumberMessage.Builder builder = NumberMessage.newBuilder();

@@ -87,7 +87,7 @@ public class CreateReplayTestUsedAccount {
   public void create200TokenOneByOneAndDispatchTo200Account() {
     int i = 0;
     for(String key : accountMap.keySet()) {
-      logger.info("当前个数：" + i++);
+      logger.info("Current count: " + i++);
       String address = accountMap.get(key);
       if (!PublicMethed.queryAccount(key,blockingStubFull).getAssetIssuedID().toStringUtf8().contains("100")) {
 
@@ -135,7 +135,7 @@ public class CreateReplayTestUsedAccount {
 
 
     for(int i = contractList.size()-1; i >= 0;i--) {
-      logger.info("索引到:" + i);
+      logger.info("Index reached: " + i);
     //for(int i = 0; i < contractList.size();i++) {
       for(String key : accountMap.keySet()) {
         String address = accountMap.get(key);

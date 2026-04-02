@@ -10,7 +10,7 @@ import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.Utils;
 
 /**
- * Md5 工具
+ * MD5 utility.
  */
 public class Md5Util {
 

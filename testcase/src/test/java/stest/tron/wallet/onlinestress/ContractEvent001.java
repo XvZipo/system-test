@@ -510,7 +510,7 @@ public class ContractEvent001 extends JsonRpcBase {
 
     logger.info("txidNum:" + txidNum);
 
-    // 扫块
+    // Scan blocks.
     long sumLogs = 0;
     long totalTransactionsSize = 0;
     logger.info("blockBefore:" + blockBefore);

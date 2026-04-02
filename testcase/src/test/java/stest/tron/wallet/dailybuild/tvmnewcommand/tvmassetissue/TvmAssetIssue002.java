@@ -162,7 +162,7 @@ public class TvmAssetIssue002 {
         .getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
 
-    // assetName is chinese
+    // Asset name is non-ASCII.
     tokenName = PublicMethed.stringToHexString("名字");
     tokenAbbr = PublicMethed.stringToHexString(abbr);
     param =
@@ -202,7 +202,7 @@ public class TvmAssetIssue002 {
         .getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
 
-    // assetAbbr is chinese
+    // Asset abbreviation is non-ASCII.
     tokenName = PublicMethed.stringToHexString(name);
     tokenAbbr = PublicMethed.stringToHexString("简称");
     param =

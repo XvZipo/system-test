@@ -131,7 +131,7 @@ public class MutisignOperationerGodicTest {
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     Assert.assertTrue(PublicMethed.sendcoin(mutisignAccountAddress, 1000_000_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    //updatepermission权限，账户交易所需钱等前置条件写在这
+    // AccountPermissionUpdate prerequisites (fees, etc.) are prepared here.
     permissionKeyString[0] = manager1Key;
     permissionKeyString[1] = manager2Key;
     ownerKeyString[0] = manager1Key;

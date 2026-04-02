@@ -42,15 +42,15 @@ public class CreateAddressAndKey {
    */
   public static boolean createFile(String fileName, String filecontent) {
     Boolean bool = false;
-    filenameTemp = fileName;//文件路径+名称+文件类型
+    filenameTemp = fileName; // file path + name + file type
     File file = new File(filenameTemp);
     try {
-      //如果文件不存在，则创建新的文件
+      // If the file does not exist, create a new one.
       if (!file.exists()) {
         file.createNewFile();
         bool = true;
         System.out.println("success create file,the file is " + filenameTemp);
-        //创建文件成功后，写入内容到文件里
+        // After creating the file, write content to it.
         writeFileContent(filenameTemp, filecontent);
       } else {
         clearInfoForFile(filenameTemp);

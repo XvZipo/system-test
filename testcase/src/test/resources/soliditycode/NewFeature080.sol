@@ -33,7 +33,6 @@ contract C {
     }
 
     function typeConvert() public pure returns(uint16) {
-        // 	 return uint16(int8(-1)); //0.8.0报错 之前不报错
         return uint16(int16(int8(-1)));  //0xffff
         //   return uint16(uint8(int8(-1)));  // 0xff
     }

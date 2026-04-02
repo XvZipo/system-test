@@ -78,7 +78,7 @@ contract tryTest {
     function getData(errorContract inter, string memory functionStr, string memory argsStr) public payable returns(string memory) {
         try inter.callFun(functionStr,argsStr) {
             return "123";
-        } catch Error(string memory errorMsg/* 出错原因 */) {
+        } catch Error(string memory errorMsg/* error reason */) {
             return errorMsg;
         } catch (bytes memory) {
             return "3";
@@ -88,7 +88,7 @@ contract tryTest {
     function getErrorSwitch(errorContract add, uint256 errorType ) public payable returns(string memory) {
         try add.errorSwitch(errorType) returns (string memory Msg) {
             return Msg;
-        } catch Error(string memory errorMsg/* 出错原因 */) {
+        } catch Error(string memory errorMsg/* error reason */) {
             return errorMsg;
         } catch (bytes memory) {
             return "NoErrorMsg";

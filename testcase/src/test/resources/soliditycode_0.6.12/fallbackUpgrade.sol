@@ -11,7 +11,6 @@ contract Test1 {
     }
     string x;
 }
-//含有payable的fallback，无receice
 contract Test2 {
 
     event FuncCalled(string data);
