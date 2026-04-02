@@ -18,12 +18,9 @@ public abstract class AbstractGrpcDualFullAndSolidityTest {
   protected WalletGrpc.WalletBlockingStub blockingStubFull = null;
   protected WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
   protected WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-  protected String fullnode =
-      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
-  protected String fullnode1 =
-      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
-  protected String soliditynode =
-      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
+  protected String fullnode = GrpcNodeList.full(0);
+  protected String fullnode1 = GrpcNodeList.full(1);
+  protected String soliditynode = GrpcNodeList.solidity(0);
 
   @BeforeClass
   public void initGrpcDualFullAndSolidityChannels() {

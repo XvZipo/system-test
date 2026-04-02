@@ -9,7 +9,7 @@ import java.util.List;
  * <p>This keeps base classes small and avoids repeating long config lookup expressions, while
  * preserving the existing values and indices used by tests.
  */
-final class HttpNodeList {
+public final class HttpNodeList {
 
   private static final String CONF_PATH = "testng.conf";
   private static final String KEY = "httpnode.ip.list";
@@ -18,11 +18,11 @@ final class HttpNodeList {
 
   private HttpNodeList() {}
 
-  static String get(int index) {
+  public static String get(int index) {
     return list().get(index);
   }
 
-  static List<String> list() {
+  public static List<String> list() {
     List<String> current = cached;
     if (current != null) {
       return current;

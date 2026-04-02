@@ -16,10 +16,8 @@ public abstract class AbstractGrpcFullSolidityTest {
   protected ManagedChannel channelSolidity = null;
   protected WalletGrpc.WalletBlockingStub blockingStubFull = null;
   protected WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-  protected String fullnode =
-      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
-  protected String soliditynode =
-      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
+  protected String fullnode = GrpcNodeList.full(0);
+  protected String soliditynode = GrpcNodeList.solidity(0);
 
   @BeforeClass
   public void initGrpcFullAndSolidityChannels() {
