@@ -215,17 +215,6 @@ public class DailyBuildReport extends TestListenerAdapter {
     }
 
 
-    try {
-      logger.info("Send slack begin caseName: "+ result.getMethod().getMethodName());
-      PublicMethod.exec(cmd);
-      logger.info("Send slack end caseName: "+ result.getMethod().getMethodName());
-    } catch (InterruptedException e) {
-      logger.info("Slack notification delivery failed. Please verify slack integration "
-          + "configuration. If slack notifications are not needed, this can be safely ignored.");
-    }
-
-
-
     boolean sr3Status = checkSRStatus();
     try {
       if(!sr3Status){
