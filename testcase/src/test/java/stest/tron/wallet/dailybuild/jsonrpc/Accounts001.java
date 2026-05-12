@@ -488,7 +488,7 @@ public class Accounts001 extends JsonRpcBase {
     }
 
     Assert.assertEquals(jsonrpcResult.get("gas").toString(), "0x" + Long.toHexString(gas));
-    Assert.assertEquals("0x0000000000000000", jsonrpcResult.get("nonce"));
+    Assert.assertEquals("0x0", jsonrpcResult.get("nonce"));
     Assert.assertEquals(
         jsonrpcResult.get("hash").toString(), "0x" + getBlockByNumResult.getString("txID"));
     Assert.assertEquals(jsonrpcResult.get("blockHash").toString(), "0x" + bid);
