@@ -76,7 +76,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
   }
 
   /** constructor. */
-  @Test(enabled = false, description = "Rate limit QpsStrategy for ListWitness interface")
+  @Test(enabled = true, description = "Rate limit QpsStrategy for ListWitness interface")
   public void test01QpsStrategyForListWitnessInterface() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -89,7 +89,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
   }
 
   /** constructor. */
-  @Test(enabled = false, description = "Rate limit IpQpsStrategy for ListNodes interface")
+  @Test(enabled = true, description = "Rate limit IpQpsStrategy for ListNodes interface")
   public void test02IpQpsStrategyForListNodesInterface() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -103,7 +103,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
 
   /** constructor. */
   @Test(
-      enabled = false,
+      enabled = true,
       description =
           "Rate limit IpQpsStrategy for GetBlockByLatestNumOnSolidity "
               + "interface on fullnode's solidity service")
@@ -121,7 +121,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
 
   /** constructor. */
   @Test(
-      enabled = false,
+      enabled = true,
       description =
           "Rate limit QpsStrategy for getBlockByNum " + "interface on fullnode's solidity service")
   public void test04QpsStrategyForgetBlockByNumResourceInterfaceOnFullnodeSolidityService() {
@@ -166,7 +166,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
 
 
   /** constructor. */
-  @Test(enabled = false, description = "Rate limit global qps for all jsonrpc api")
+  @Test(enabled = true, description = "Rate limit global qps for all jsonrpc api")
   public void test08GlobalQpsRate() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -187,7 +187,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
 
 
   /** constructor. */
-  @Test(enabled = false, description = "Rate limit global qps for grpc api")
+  @Test(enabled = true, description = "Rate limit global qps for grpc api")
   public void test09GlobalQpsRateForGrpc() {
 
     Long startTimeStamp = System.currentTimeMillis();
@@ -203,7 +203,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
   }
 
   /** constructor. */
-  @Test(enabled = false, description = "Rate limit global qps for mix api")
+  @Test(enabled = true, description = "Rate limit global qps for mix api")
   public void test10GlobalQpsRateForMix() {
 
     Long startTimeStamp = System.currentTimeMillis();
@@ -236,7 +236,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
   }
 
   /** constructor. */
-  @Test(enabled = false, description
+  @Test(enabled = true, description
           = "Rate limit global qps with different blockingStubFull instance but same node")
   public void test11GlobalQpsRateForGrpcDifferentPort() {
 
@@ -257,7 +257,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
 
 
   /** constructor. */
-  @Test(enabled = false, description = "Rate limit global ip qps for mix api")
+  @Test(enabled = true, description = "Rate limit global ip qps for mix api")
   public void test12GlobalIpQpsRateForMix() {
 
     Long startTimeStamp = System.currentTimeMillis();
