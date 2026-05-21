@@ -192,7 +192,9 @@ public class TestValidatemultisign003 {
     infoById = PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
     logger.info("infoById" + infoById);
 
-    Assert.assertEquals(1, infoById.get().getResultValue());
+    Assert.assertEquals(0, infoById.get().getResultValue());
+    Assert.assertEquals("00000000000000000000000000000000",
+        PublicMethed.bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
   }
 
   @Test(enabled = true, description = "Trigger validatemultisign precompiled contract, "
