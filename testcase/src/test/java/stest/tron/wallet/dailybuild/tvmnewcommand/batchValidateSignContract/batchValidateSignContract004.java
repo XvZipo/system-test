@@ -176,12 +176,13 @@ public class batchValidateSignContract004 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-    if (infoById.get().getResMessage().toStringUtf8().contains("CPU timeout for")
-        || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8())) {
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
-    } else {
+    if (infoById.get().getResultValue() == 1) {
       Assert.assertEquals("REVERT opcode executed",
           infoById.get().getResMessage().toStringUtf8());
+    } else {
+      Assert.assertTrue(infoById.get().getResMessage().toStringUtf8().contains("CPU timeout for")
+          || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
@@ -243,12 +244,13 @@ public class batchValidateSignContract004 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-    if (infoById.get().getResMessage().toStringUtf8().contains("CPU timeout for")
-        || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8())) {
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
-    } else {
+    if (infoById.get().getResultValue() == 1) {
       Assert.assertEquals("REVERT opcode executed",
           infoById.get().getResMessage().toStringUtf8());
+    } else {
+      Assert.assertTrue(infoById.get().getResMessage().toStringUtf8().contains("CPU timeout for")
+          || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
@@ -310,12 +312,13 @@ public class batchValidateSignContract004 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-    if (infoById.get().getResMessage().toStringUtf8().contains("CPU timeout for")
-        || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8())) {
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
-    } else {
+    if (infoById.get().getResultValue() == 1) {
       Assert.assertEquals("REVERT opcode executed",
           infoById.get().getResMessage().toStringUtf8());
+    } else {
+      Assert.assertTrue(infoById.get().getResMessage().toStringUtf8().contains("CPU timeout for")
+          || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
@@ -378,12 +381,13 @@ public class batchValidateSignContract004 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-    if (infoById.get().getResMessage().toStringUtf8().contains("CPU timeout for")
-        || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8())) {
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
-    } else {
+    if (infoById.get().getResultValue() == 1) {
       Assert.assertEquals("REVERT opcode executed",
           infoById.get().getResMessage().toStringUtf8());
+    } else {
+      Assert.assertTrue(infoById.get().getResMessage().toStringUtf8().contains("CPU timeout for")
+          || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
@@ -447,12 +451,13 @@ public class batchValidateSignContract004 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-    if (infoById.get().getResMessage().toStringUtf8().contains("CPU timeout for")
-        || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8())) {
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
-    } else {
+    if (infoById.get().getResultValue() == 1) {
       Assert.assertEquals("REVERT opcode executed",
           infoById.get().getResMessage().toStringUtf8());
+    } else {
+      Assert.assertTrue(infoById.get().getResMessage().toStringUtf8().contains("CPU timeout for")
+          || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
