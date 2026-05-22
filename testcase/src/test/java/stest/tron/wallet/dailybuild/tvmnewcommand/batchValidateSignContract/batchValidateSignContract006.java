@@ -66,7 +66,7 @@ public class batchValidateSignContract006 {
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
 
     txid = PublicMethed
-        .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
+        .sendcoinGetTransactionId(contractExcAddress, 10000000000L, testNetAccountAddress,
             testNetAccountKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/batchvalidatesign001.sol";
