@@ -193,8 +193,10 @@ public class TestValidatemultisign003 {
     logger.info("infoById" + infoById);
 
     Assert.assertEquals(0, infoById.get().getResultValue());
-    Assert.assertEquals("00000000000000000000000000000000",
-        PublicMethed.bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+
+    byte[] result = infoById.get().getContractResult(0).toByteArray();
+    // (bool, bytes) first 32-byte word is bool,and false is 0
+    Assert.assertEquals(0, ByteArray.toInt(Arrays.copyOfRange(result, 0, 32)));
   }
 
   @Test(enabled = true, description = "Trigger validatemultisign precompiled contract, "
