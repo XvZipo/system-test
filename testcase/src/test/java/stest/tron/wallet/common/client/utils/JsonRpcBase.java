@@ -209,7 +209,7 @@ public class JsonRpcBase {
         HashMap<byte[], Long> witnessMap = new HashMap<>();
         witnessMap.put(Base58.decode58CheckForShield("TSPnBN6xLM16KWz7ZZBPAKhZrcQqfCPZ1n"), 100L);
         witnessMap.put(Base58.decode58CheckForShield("TLf1M163eRKjaRZ6oqRjByuyYPHq59Uehn"), 100L);
-        PublicMethed.voteWitness(ecKeyVoter.getAddress(),ecKeyVoter.toStringWithPrivate(),witnessMap,blockingStubFull);
+        PublicMethed.voteWitness(ecKeyVoter.getAddress(),ecKeyVoterPrivKey,witnessMap,blockingStubFull);
       }
       Thread.sleep(1000);
     }
