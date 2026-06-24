@@ -164,9 +164,19 @@ public class JsonRpcBase {
             foundationAccountAddress,
             foundationAccountKey,
             blockingStubFull));
+    ECKey ecKeyVoter = new ECKey(Utils.getRandom());
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            ecKeyVoter.getAddress(),
+            20480000000L,
+            foundationAccountAddress,
+            foundationAccountKey,
+            blockingStubFull));
+
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.freezeBalanceV2(ecKeyVoter.getAddress(), 2000000000L,0,ecKeyVoter.toStringWithPrivate(),blockingStubFull);
     freezeBeforeAllTest();
     Assert.assertTrue(
         PublicMethed.sendcoin(
@@ -189,6 +199,8 @@ public class JsonRpcBase {
     PublicMethed.broadcastTransaction(signedTx1,blockingStubFull);
     PublicMethed.broadcastTransaction(signedTx2,blockingStubFull);
 
+
+
     logger.info("wait next maintenance...");
     for(int i = 0; i<320;i++){
       int time = 320 - i;
@@ -197,7 +209,7 @@ public class JsonRpcBase {
         HashMap<byte[], Long> witnessMap = new HashMap<>();
         witnessMap.put(Base58.decode58CheckForShield("TSPnBN6xLM16KWz7ZZBPAKhZrcQqfCPZ1n"), 100L);
         witnessMap.put(Base58.decode58CheckForShield("TLf1M163eRKjaRZ6oqRjByuyYPHq59Uehn"), 100L);
-        PublicMethed.voteWitness(foundationAccountAddress,foundationAccountKey,witnessMap,blockingStubFull);
+        PublicMethed.voteWitness(ecKeyVoter.getAddress(),ecKeyVoter.toStringWithPrivate(),witnessMap,blockingStubFull);
       }
       Thread.sleep(1000);
     }
