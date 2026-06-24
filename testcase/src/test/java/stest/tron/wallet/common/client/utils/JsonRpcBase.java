@@ -23,7 +23,7 @@ import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.services.Util;
-
+import stest.tron.wallet.common.client.utils.PqSigner;
 // import java.util.*;
 
 @Slf4j
@@ -107,6 +107,19 @@ public class JsonRpcBase {
   public HashMap<Long, Long> secondProposalMap = new HashMap<>();
   public static long waitMaxTime = 610000L;
 
+  private static final String ML_DSA_KEY_JSON =
+      "ML_DSA_44__TLf1M163eRKjaRZ6oqRjByuyYPHq59Uehn.json";
+  private static final String FN_DSA_KEY_JSON =
+      "FN_DSA_512__TSPnBN6xLM16KWz7ZZBPAKhZrcQqfCPZ1n.json";
+
+  private static final PqSigner.PqKey keyML = PqSigner.loadKey(ML_DSA_KEY_JSON);
+  private static final PqSigner.PqKey keyFN = PqSigner.loadKey(FN_DSA_KEY_JSON);
+  private static final String ML_T_ADDRESS = "TLf1M163eRKjaRZ6oqRjByuyYPHq59Uehn";
+  private static final String FN_T_ADDRESS = "TSPnBN6xLM16KWz7ZZBPAKhZrcQqfCPZ1n";
+
+
+
+
   /** constructor. */
   @BeforeSuite(enabled = true, description = "Deploy json rpc test case resource")
   public void deployJsonRpcUseResource() throws Exception {
@@ -120,6 +133,24 @@ public class JsonRpcBase {
     channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
 
+    //transfer to PQ account
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            Base58.decode58CheckForShield("TLf1M163eRKjaRZ6oqRjByuyYPHq59Uehn"),
+            20480000000L,
+            foundationAccountAddress,
+            foundationAccountKey,
+            blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            Base58.decode58CheckForShield("TSPnBN6xLM16KWz7ZZBPAKhZrcQqfCPZ1n"),
+            20480000000L,
+            foundationAccountAddress,
+            foundationAccountKey,
+            blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     freezeBeforeAllTest();
     Assert.assertTrue(
         PublicMethed.sendcoin(
@@ -135,6 +166,20 @@ public class JsonRpcBase {
     waitProposalApprove(ProposalEnum.getMaxCpuTimeOfOneTx.getProposalName(), 80,  blockingStubFull);
     openProposal(1, secondProposalMap);
     waitProposalApprove(ProposalEnum.getAllowCancelAllUnfreezeV2.getProposalName(), 1,blockingStubFull);
+
+    //CreateWitness and Vote Witness
+    Protocol.Transaction signedTx1 = PqSigner.buildPqCreateWitness(Base58.decode58CheckForShield(ML_T_ADDRESS),"www.ml44.com", keyML, blockingStubFull);
+    Protocol.Transaction signedTx2 = PqSigner.buildPqCreateWitness(Base58.decode58CheckForShield(FN_T_ADDRESS),"www.fn512.com", keyFN, blockingStubFull);
+    PublicMethed.broadcastTransaction(signedTx1,blockingStubFull);
+    PublicMethed.broadcastTransaction(signedTx2,blockingStubFull);
+
+    logger.info("wait next maintenance...");
+    for(int i = 0; i<320;i++){
+      int time = 320 - i;
+      logger.info("Case will be start in "+ time + "seconds...");
+      Thread.sleep(1000);
+    }
+
     Assert.assertTrue(
         PublicMethed.sendcoin(
             jsonRpcOwnerAddress,
