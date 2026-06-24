@@ -76,7 +76,7 @@ public class UsdtTest002 {
     SmartContract smartContract = PublicMethed
         .getContract(usdtAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
-    logger.info(Base58.encode58Check(usdtAddress));
+    logger.info("usdt: " + Base58.encode58Check(usdtAddress));
   }
 
   /**
@@ -95,6 +95,7 @@ public class UsdtTest002 {
     String argsStr = "\"" + callerAddress58 + "\",100";
     String txid = PublicMethed.triggerContract(usdtAddress, methedStr, argsStr,
         false, 0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    logger.info("txid: " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, infoById.get().getReceipt().getResult());
