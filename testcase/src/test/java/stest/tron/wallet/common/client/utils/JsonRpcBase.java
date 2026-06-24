@@ -107,15 +107,31 @@ public class JsonRpcBase {
   public HashMap<Long, Long> secondProposalMap = new HashMap<>();
   public static long waitMaxTime = 610000L;
 
+  // PQ 密钥文件放在 testcase/src/test/resources 下：用 classloader 解析成真实文件路径，
+  // 这样无论 IDE 还是命令行跑、CWD 是什么都能找到（loadKey 走文件系统而非 classpath）。
   private static final String ML_DSA_KEY_JSON =
-      "ML_DSA_44__TLf1M163eRKjaRZ6oqRjByuyYPHq59Uehn.json";
+      res("ML_DSA_44__TLf1M163eRKjaRZ6oqRjByuyYPHq59Uehn.json");
   private static final String FN_DSA_KEY_JSON =
-      "FN_DSA_512__TSPnBN6xLM16KWz7ZZBPAKhZrcQqfCPZ1n.json";
+      res("FN_DSA_512__TSPnBN6xLM16KWz7ZZBPAKhZrcQqfCPZ1n.json");
 
   private static final PqSigner.PqKey keyML = PqSigner.loadKey(ML_DSA_KEY_JSON);
   private static final PqSigner.PqKey keyFN = PqSigner.loadKey(FN_DSA_KEY_JSON);
   private static final String ML_T_ADDRESS = "TLf1M163eRKjaRZ6oqRjByuyYPHq59Uehn";
   private static final String FN_T_ADDRESS = "TSPnBN6xLM16KWz7ZZBPAKhZrcQqfCPZ1n";
+
+  /** 把 src/test/resources 下的资源名解析成真实文件路径(供 PqSigner.loadKey 用)。 */
+  private static String res(String name) {
+    try {
+      java.net.URL u = JsonRpcBase.class.getClassLoader().getResource(name);
+      if (u == null) {
+        throw new IllegalStateException(
+            "classpath 找不到资源: " + name + "（确认已放在 testcase/src/test/resources 下并重新 build）");
+      }
+      return new java.io.File(u.toURI()).getAbsolutePath();
+    } catch (java.net.URISyntaxException e) {
+      throw new IllegalStateException(e);
+    }
+  }
 
 
 
