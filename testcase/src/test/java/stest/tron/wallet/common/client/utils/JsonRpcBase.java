@@ -165,6 +165,7 @@ public class JsonRpcBase {
             foundationAccountKey,
             blockingStubFull));
     ECKey ecKeyVoter = new ECKey(Utils.getRandom());
+    String ecKeyVoterPrivKey = ByteArray.toHexString(ecKeyVoter.getPrivKeyBytes());
     Assert.assertTrue(
         PublicMethed.sendcoin(
             ecKeyVoter.getAddress(),
@@ -176,7 +177,7 @@ public class JsonRpcBase {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.freezeBalanceV2(ecKeyVoter.getAddress(), 2000000000L,0,ecKeyVoter.toStringWithPrivate(),blockingStubFull);
+
     freezeBeforeAllTest();
     Assert.assertTrue(
         PublicMethed.sendcoin(
@@ -192,14 +193,13 @@ public class JsonRpcBase {
     waitProposalApprove(ProposalEnum.getMaxCpuTimeOfOneTx.getProposalName(), 80,  blockingStubFull);
     openProposal(1, secondProposalMap);
     waitProposalApprove(ProposalEnum.getAllowCancelAllUnfreezeV2.getProposalName(), 1,blockingStubFull);
+    PublicMethed.freezeBalanceV2(ecKeyVoter.getAddress(), 2000000000L,0,ecKeyVoterPrivKey,blockingStubFull);
 
     //CreateWitness and Vote Witness
     Protocol.Transaction signedTx1 = PqSigner.buildPqCreateWitness(Base58.decode58CheckForShield(ML_T_ADDRESS),"www.ml44.com", keyML, blockingStubFull);
     Protocol.Transaction signedTx2 = PqSigner.buildPqCreateWitness(Base58.decode58CheckForShield(FN_T_ADDRESS),"www.fn512.com", keyFN, blockingStubFull);
     PublicMethed.broadcastTransaction(signedTx1,blockingStubFull);
     PublicMethed.broadcastTransaction(signedTx2,blockingStubFull);
-
-
 
     logger.info("wait next maintenance...");
     for(int i = 0; i<320;i++){
