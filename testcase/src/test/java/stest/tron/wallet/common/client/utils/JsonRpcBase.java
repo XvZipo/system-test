@@ -193,6 +193,12 @@ public class JsonRpcBase {
     for(int i = 0; i<320;i++){
       int time = 320 - i;
       logger.info("Case will be start in "+ time + "seconds...");
+      if(time == 200){
+        HashMap<byte[], Long> witnessMap = new HashMap<>();
+        witnessMap.put(Base58.decode58CheckForShield("TSPnBN6xLM16KWz7ZZBPAKhZrcQqfCPZ1n"), 100L);
+        witnessMap.put(Base58.decode58CheckForShield("TLf1M163eRKjaRZ6oqRjByuyYPHq59Uehn"), 100L);
+        PublicMethed.voteWitness(foundationAccountAddress,foundationAccountKey,witnessMap,blockingStubFull);
+      }
       Thread.sleep(1000);
     }
 
