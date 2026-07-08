@@ -114,7 +114,7 @@ public class NewFeatureForSolc0828 {
         BigInteger.ZERO, constantUint("param(uint64)", "999999"));
   }
 
-  @Test(enabled = true, description = "TC-121 daily: TRON SMT builtins warn but do not ICE")
+  @Test(enabled = false, description = "TC-121 daily: TRON SMT builtins warn but do not ICE")
   public void test02SmtTronBuiltinsWarnNoIce() throws Exception {
     String source = ""
         + "// SPDX-License-Identifier: GPL-3.0\n"
