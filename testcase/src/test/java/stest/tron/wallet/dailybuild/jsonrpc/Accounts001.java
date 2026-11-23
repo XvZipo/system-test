@@ -201,7 +201,7 @@ public class Accounts001 extends JsonRpcBase {
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     JSONObject errorResult = responseContent.getJSONObject("error");
-    Assert.assertEquals(errorResult.getString("code"),"-32000");
+    Assert.assertEquals(errorResult.getString("code"),"3");
     Assert.assertEquals(errorResult.getString("message"),"REVERT opcode executed");
   }
 

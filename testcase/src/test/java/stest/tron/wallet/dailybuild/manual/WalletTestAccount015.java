@@ -3,6 +3,7 @@ package stest.tron.wallet.dailybuild.manual;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -150,7 +151,7 @@ public class WalletTestAccount015 {
 
   @Test(enabled = true, retryAnalyzer = Retry.class, description = "List witness realTime vote data")
   public void test09CheckVoteChangesRealtimeAfterVote(){
-    GrpcAPI.WitnessList witnessList = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
+    GrpcAPI.WitnessList witnessList = getPaginatedNowWitnessListAfterMaintenance();
     GrpcAPI.WitnessList witnessListSolidity = PublicMethed.getPaginatedNowWitnessListSolidity(0L,100L, blockingStubSolidity);
     Assert.assertTrue(witnessListSolidity.getWitnessesList().size() > 1);
 
@@ -163,31 +164,68 @@ public class WalletTestAccount015 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     HashMap<byte[], Long> voteMap = new HashMap<>();
     Long voteCount = 10000L;
+    String votedWitness = "TT1smsmhxype64boboU8xTuNZVCKP1w6qT";
     for(int i = 0; i< witnessList.getWitnessesCount(); i++){
       Protocol.Witness witness = witnessList.getWitnesses(i);
       String witnessTAddress = Base58.encode58Check(witness.getAddress().toByteArray());
-      if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+      if(witnessTAddress.equals(votedWitness)){
         voteMap.put(witness.getAddress().toByteArray(), voteCount);
       }
     }
     PublicMethed.voteWitness(voterAddress, ByteArray.toHexString(voter.getPrivateKey()),voteMap,blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    GrpcAPI.WitnessList witnessListAfterVote = PublicMethed.getPaginatedNowWitnessList(0L,100L, blockingStubFull);
+    GrpcAPI.WitnessList witnessListAfterVote = getPaginatedNowWitnessListAfterMaintenance();
+    boolean checkedVote = false;
     for(int i = 0; i< witnessList.getWitnessesCount(); i++){
       Protocol.Witness witness = witnessList.getWitnesses(i);
       String witnessTAddress = Base58.encode58Check(witness.getAddress().toByteArray());
-      if(witnessTAddress.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+      if(witnessTAddress.equals(votedWitness)){
         for(int j=0; j<witnessListAfterVote.getWitnessesCount();j++){
           Protocol.Witness witnessAfterVote = witnessListAfterVote.getWitnesses(j);
-          if(witnessAfterVote.equals("TT1smsmhxype64boboU8xTuNZVCKP1w6qT")){
+          String witnessAfterAddress = Base58.encode58Check(
+              witnessAfterVote.getAddress().toByteArray());
+          if(witnessAfterAddress.equals(votedWitness)){
             long voteDiff = witnessAfterVote.getVoteCount() - witness.getVoteCount();
             logger.info("voteDiff: " + voteDiff);
             Assert.assertTrue(voteDiff > 9500L);
             Assert.assertTrue(voteDiff < 10500L);
+            checkedVote = true;
           }
         }
       }
     }
+    Assert.assertTrue(checkedVote);
+  }
+
+  /**
+   * Fullnode getPaginatedNowWitnessList rejects the chain head during maintenance.
+   * This network's maintenance interval is 20 seconds, so wait across one interval.
+   */
+  private GrpcAPI.WitnessList getPaginatedNowWitnessListAfterMaintenance() {
+    StatusRuntimeException last = null;
+    for (int attempt = 1; attempt <= 12; attempt++) {
+      try {
+        return PublicMethed.getPaginatedNowWitnessList(0L, 100L, blockingStubFull);
+      } catch (StatusRuntimeException e) {
+        String message = e.getStatus().getDescription();
+        if (message == null) {
+          message = e.getMessage();
+        }
+        if (message == null || !message.contains(
+            "Service temporarily unavailable during maintenance period")) {
+          throw e;
+        }
+        last = e;
+        logger.info("getPaginatedNowWitnessList during maintenance, retry " + attempt);
+        try {
+          Thread.sleep(3000L);
+        } catch (InterruptedException interrupted) {
+          Thread.currentThread().interrupt();
+          throw e;
+        }
+      }
+    }
+    throw last;
   }
 
 

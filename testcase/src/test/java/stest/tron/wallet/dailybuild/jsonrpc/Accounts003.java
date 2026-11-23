@@ -312,13 +312,12 @@ public class Accounts003 extends JsonRpcBase {
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     logger.info("test14_eth_uninstallFilter_responseContentr_second " + responseContent);
-    Assert.assertEquals(
-        responseContent.getJSONObject("error").getString("message"), "filter not found");
+    Assert.assertEquals(responseContent.get("result"), false);
 
     // query getFilterChanges to verify ID has invalid
     params = new JsonArray();
     params.add(ethNewFilterResult);
-    requestBody = getJsonRpcBody("getFilterChanges", params);
+    requestBody = getJsonRpcBody("eth_getFilterChanges", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     logger.info("test14EthUninstallFilter_responseContent" + responseContent);
@@ -358,12 +357,11 @@ public class Accounts003 extends JsonRpcBase {
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     logger.info("test15_eth_uninstallFilter_responseContentr_second" + responseContent);
-    Assert.assertEquals(
-        responseContent.getJSONObject("error").getString("message"), "filter not found");
+    Assert.assertEquals(responseContent.get("result"), false);
     // query getFilterChanges to verify ID has invalid
     params = new JsonArray();
     params.add(ethNewBlockFilterResult);
-    requestBody = getJsonRpcBody("getFilterChanges", params);
+    requestBody = getJsonRpcBody("eth_getFilterChanges", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     logger.info("test15EthUninstallFilter_responseContent" + responseContent);
