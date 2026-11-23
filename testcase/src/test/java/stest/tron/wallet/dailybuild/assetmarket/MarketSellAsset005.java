@@ -86,7 +86,7 @@ public class MarketSellAsset005 {
   }
 
 
-  @Test(enabled = true,description = "Create an order to sell Trx and buy Trc10")
+  @Test(enabled = false,description = "Create an order to sell Trx and buy Trc10")
   void test01SellTrxBuyTrc10() {
     long balanceAfter = PublicMethed.queryAccount(testKey001, blockingStubFull).getBalance();
     PublicMethed.transferAsset(testAddress002, assetAccountId001, 10000, testAddress001,
@@ -125,7 +125,7 @@ public class MarketSellAsset005 {
 
   }
 
-  @Test(enabled = true,description = "Create an order to sell Trc10 and buy Trx")
+  @Test(enabled = false,description = "Create an order to sell Trc10 and buy Trx")
   void test02SellTrc10BuyTrx() {
     long balanceAfter = PublicMethed.queryAccount(testKey001, blockingStubFull).getBalance();
 

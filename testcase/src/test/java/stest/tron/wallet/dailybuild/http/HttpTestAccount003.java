@@ -4,12 +4,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import java.util.HashMap;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI;
+import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -216,6 +220,99 @@ public class HttpTestAccount003 {
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
   }
+
+
+  @Test(enabled = true, description = "List witness realTime vote data")
+  public void test12CheckVoteChangesRealtimeAfterVote(){
+    HttpResponse resWitnessList  = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
+    JSONArray witnessList = HttpMethed.parseResponseContent(resWitnessList).getJSONArray("witnesses");
+    while (witnessList == null){
+      resWitnessList  = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
+      witnessList = HttpMethed.parseResponseContent(resWitnessList).getJSONArray("witnesses");
+    }
+
+    Assert.assertNotNull(witnessList);
+    Assert.assertNotEquals(0, witnessList.size());
+    HttpResponse resWitnessListSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,false);
+    JSONArray witnessListSolidity = HttpMethed.parseResponseContent(resWitnessListSolidity).getJSONArray("witnesses");
+    Assert.assertNotNull(witnessListSolidity);
+    Assert.assertNotEquals(0, witnessListSolidity.size());
+
+    ECKey voter = new ECKey(Utils.getRandom());
+    byte[] voterAddress = voter.getAddress();
+    Long freezeBalance = 30500_000000L;
+    HttpMethed.sendCoin(httpnode, fromAddress, voterAddress, freezeBalance, testKey002);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    HttpMethed.freezeBalanceV2(httpnode, voterAddress, freezeBalance, 0,null,ByteArray.toHexString(voter.getPrivateKey()));
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    Long voteCount = 10000L;
+    JsonArray voteKeys = new JsonArray();
+    JsonObject voteElement = new JsonObject();
+    voteElement.addProperty("vote_address", "410be88a918d74d0dfd71dc84bd4abf036d0562991");
+    voteElement.addProperty("vote_count", voteCount);
+    voteKeys.add(voteElement);
+
+    HttpMethed.voteWitnessAccount(httpnode, voterAddress, voteKeys, ByteArray.toHexString(voter.getPrivateKey()));
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
+
+    HttpResponse resWitnessListAfterVote = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
+    JSONArray witnessListAfterVote = HttpMethed.parseResponseContent(resWitnessListAfterVote).getJSONArray("witnesses");
+    while (witnessListAfterVote == null){
+      resWitnessListAfterVote = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, false);
+      witnessListAfterVote = HttpMethed.parseResponseContent(resWitnessListAfterVote).getJSONArray("witnesses");
+    }
+    Assert.assertNotEquals(0, witnessListAfterVote.size());
+    HttpResponse resWitnessListAfterVoteSolidity = HttpMethed.getPaginatedNowWitnessListSolidity(httpSoliditynode,0L,100L,false);
+    JSONArray witnessListAfterVoteSolidity = HttpMethed.parseResponseContent(resWitnessListAfterVoteSolidity).getJSONArray("witnesses");
+    Assert.assertNotNull(witnessListAfterVoteSolidity);
+    Assert.assertNotEquals(0, witnessListAfterVoteSolidity.size());
+
+    logger.info("witnessList: " + witnessList.toJSONString());
+    logger.info("witnessListAfterVote: " + witnessListAfterVote.toJSONString());
+    for(int i = 0; i< witnessListAfterVote.size(); i++){
+
+      JSONObject witness = witnessList.getJSONObject(i);
+      if (witness.getString("address").equals("410be88a918d74d0dfd71dc84bd4abf036d0562991")){
+        JSONObject witnessAfterVote = witnessListAfterVote.getJSONObject(i);
+        long voteDiff = witnessAfterVote.getLong("voteCount") - witness.getLong("voteCount");
+        Assert.assertTrue(voteDiff > 9500L);
+        Assert.assertTrue(voteDiff < 10500L);
+      }
+    }
+
+    JsonArray voteKeysDecrease = new JsonArray();
+    for(int i = 0; i< witnessList.size(); i++){
+      JSONObject witness = witnessList.getJSONObject(i);
+      if(witness.getString("address").equals("410be88a918d74d0dfd71dc84bd4abf036d0562991")){
+        voteElement.addProperty("vote_address", witness.getString("address"));
+        voteElement.addProperty("vote_count", voteCount - 5000L);
+        voteKeysDecrease.add(voteElement);
+      }
+    }
+    HttpMethed.voteWitnessAccount(httpnode, voterAddress, voteKeysDecrease, ByteArray.toHexString(voter.getPrivateKey()));
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
+
+    HttpResponse resWitnessListAfterDecrease = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, true);
+    JSONArray witnessListAfterDecrease = HttpMethed.parseResponseContent(resWitnessListAfterDecrease).getJSONArray("witnesses");
+    while (witnessListAfterDecrease == null){
+      resWitnessListAfterDecrease = HttpMethed.getPaginatedNowWitnessList(httpnode,0L,100L, true);
+      witnessListAfterDecrease = HttpMethed.parseResponseContent(resWitnessListAfterDecrease).getJSONArray("witnesses");
+    }
+    logger.info("witnessListAfterVote: " + witnessListAfterVote.toJSONString());
+    logger.info("witnessListAfterDecrease: " + witnessListAfterDecrease.toJSONString());
+    for(int i = 0; i< witnessListAfterDecrease.size(); i++){
+      JSONObject witness = witnessListAfterVote.getJSONObject(i);
+      if(witness.getString("address").equals("TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes")){
+        JSONObject witnessAfterDecrease = witnessListAfterDecrease.getJSONObject(i);
+        long voteDiff = witness.getLong("voteCount") - witnessAfterDecrease.getLong("voteCount");
+        Assert.assertTrue(voteDiff > 4500L);
+        Assert.assertTrue(voteDiff < 5500L);
+      }
+    }
+  }
+
 
   /** constructor. */
   @AfterClass

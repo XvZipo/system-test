@@ -88,15 +88,11 @@ public class EventQuery004 {
             event001Key,
             event001Address,
             blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     String filePath2 = "src/test/resources/soliditycode/contractTestLog.sol";
     String contractName1 = "C";
     HashMap retMap2 = PublicMethed.getBycodeAbi(filePath2, contractName1);
     String code1 = retMap2.get("byteCode").toString();
     String abi1 = retMap2.get("abI").toString();
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     contractAddress1 =
         PublicMethed.deployContract(
             contractName,

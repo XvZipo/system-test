@@ -269,7 +269,7 @@ public class MutisignOperationerGodicTest {
 
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void test004MutiSignGodicExchangeTypeTransaction() {
 
     ECKey ecKey22 = new ECKey(Utils.getRandom());

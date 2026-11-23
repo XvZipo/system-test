@@ -126,9 +126,9 @@ public class batchValidateSignContract005 {
       Assert.assertTrue(transactionExtention.getResult().getMessage().toStringUtf8().contains(
           "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
     } else {
-      Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
-      Assert.assertEquals("SUCESS",
+      Assert.assertEquals("REVERT opcode executed",
+          transactionExtention.getResult().getMessage().toStringUtf8());
+      Assert.assertEquals("FAILED",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
   }
@@ -154,9 +154,9 @@ public class batchValidateSignContract005 {
       Assert.assertTrue(transactionExtention.getResult().getMessage().toStringUtf8().contains(
           "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
     } else {
-      Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
-      Assert.assertEquals("SUCESS",
+      Assert.assertEquals("REVERT opcode executed",
+          transactionExtention.getResult().getMessage().toStringUtf8());
+      Assert.assertEquals("FAILED",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
   }
@@ -177,9 +177,9 @@ public class batchValidateSignContract005 {
       Assert.assertTrue(transactionExtention.getResult().getMessage().toStringUtf8().contains(
           "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
     } else {
-      Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
-      Assert.assertEquals("SUCESS",
+      Assert.assertEquals("REVERT opcode executed",
+          transactionExtention.getResult().getMessage().toStringUtf8());
+      Assert.assertEquals("FAILED",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
   }
@@ -200,9 +200,9 @@ public class batchValidateSignContract005 {
       Assert.assertTrue(transactionExtention.getResult().getMessage().toStringUtf8().contains(
           "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
     } else {
-      Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
-      Assert.assertEquals("SUCESS",
+      Assert.assertEquals("REVERT opcode executed",
+          transactionExtention.getResult().getMessage().toStringUtf8());
+      Assert.assertEquals("FAILED",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
   }

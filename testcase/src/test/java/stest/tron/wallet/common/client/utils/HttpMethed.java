@@ -6127,6 +6127,40 @@ public class HttpMethed {
     return  response;
   }
 
+  public static HttpResponse getPaginatedNowWitnessList(String httpNode, Long offset, Long limit, boolean visible){
+    HttpResponse response = null;
+    final String requestUrl = "http://" + httpNode + "/wallet/getpaginatednowwitnesslist";
+    JsonObject requestParam = new JsonObject();
+    requestParam.addProperty("offset", offset);
+    requestParam.addProperty("limit", limit);
+    requestParam.addProperty("visible", visible);
+    try {
+    response = createConnect(requestUrl, requestParam);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return  response;
+
+  }
+
+  public static HttpResponse getPaginatedNowWitnessListSolidity(String httpNodeSolidity, Long offset, Long limit, boolean visible){
+    HttpResponse response = null;
+    final String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getpaginatednowwitnesslist";
+    JsonObject requestParam = new JsonObject();
+    requestParam.addProperty("offset", offset);
+    requestParam.addProperty("limit", limit);
+    requestParam.addProperty("visible", visible);
+    try {
+      response = createConnect(requestUrl, requestParam);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return  response;
+  }
+
+
 
 
 }

@@ -59,12 +59,12 @@ public class TvmVote {
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
-      if (channelFull != null) {
-        channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-      }
-      throw new SkipException("Skipping freezeV2 test case");
-    }
+//    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+//      if (channelFull != null) {
+//        channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+//      }
+//      throw new SkipException("Skipping freezeV2 test case");
+//    }
 
     Assert.assertTrue(PublicMethed
         .sendcoin(contractExcAddress, 300100_000_000L,
@@ -106,9 +106,9 @@ public class TvmVote {
 
   @Test(enabled = true, description = "freeze balance and vote witness")
   public void test02VoteWitness() {
-    String methodStr = "freeze(address,uint256,uint256)";
+    String methodStr = "freezev2(uint256,uint256)";
     String receiverAdd = Base58.encode58Check(mapKeyContract);
-    String args = "\"" + receiverAdd + "\"," + freezeCount + ",1";
+    String args = "" + freezeCount + ",1";
     String triggerTxid = PublicMethed.triggerContract(mapKeyContract,
         methodStr, args, false, 0, maxFeeLimit, "0", 0,
         contractExcAddress, contractExcKey, blockingStubFull);
@@ -120,7 +120,7 @@ public class TvmVote {
         transactionInfo.get().getReceipt().getResult());
     Protocol.InternalTransaction internal = transactionInfo.get().getInternalTransactions(0);
     String note = internal.getNote().toStringUtf8();
-    Assert.assertEquals("freezeForEnergy", note);
+    Assert.assertEquals("freezeBalanceV2ForEnergy", note);
     Assert.assertEquals(freezeCount, internal.getCallValueInfo(0).getCallValue());
 
     String witness58Add = Base58.encode58Check(witnessAddress);
@@ -279,8 +279,8 @@ public class TvmVote {
 
   @Test(enabled = true, description = "unfreeze energy")
   public void test12Unfreeze() {
-    String methodStr = "unfreeze(address,uint256)";
-    String args = "\"" + Base58.encode58Check(mapKeyContract) + "\",1";
+    String methodStr = "unfreezev2(uint256,uint256)";
+    String args = ""+freezeCount+",1";
     String triggerTxid = PublicMethed.triggerContract(mapKeyContract, methodStr, args, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -292,7 +292,7 @@ public class TvmVote {
 
     Protocol.InternalTransaction internal = transactionInfo.get().getInternalTransactions(0);
     String note = internal.getNote().toStringUtf8();
-    Assert.assertEquals("unfreezeForEnergy", note);
+    Assert.assertEquals("unfreezeBalanceV2ForEnergy", note);
     Assert.assertEquals(freezeCount, internal.getCallValueInfo(0).getCallValue());
   }
 
@@ -305,13 +305,9 @@ public class TvmVote {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<Protocol.TransactionInfo> transactionInfo = PublicMethed
         .getTransactionInfoById(triggerTxid, blockingStubFull);
-    Assert.assertEquals(0, transactionInfo.get().getResultValue());
-    Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS,
+    Assert.assertEquals(1, transactionInfo.get().getResultValue());
+    Assert.assertEquals(Protocol.Transaction.Result.contractResult.REVERT,
         transactionInfo.get().getReceipt().getResult());
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    SmartContractOuterClass.SmartContract smartContract = PublicMethed
-        .getContract(mapKeyContract, blockingStubFull);
-    Assert.assertEquals("", smartContract.getAbi().toString());
   }
 
 

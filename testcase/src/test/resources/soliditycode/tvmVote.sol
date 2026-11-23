@@ -9,8 +9,9 @@ contract TestVote {
    * @dev Freeze `amount` balance of contract to get resource for `receiver`
    * which type is `res` (0 for bandwidth, 1 for energy).
    */
-  function freeze(address payable receiver, uint amount, uint res) external {
-    receiver.freeze(amount, res);
+  function freezev2(uint amount, uint res) external {
+    freezebalancev2(amount, res);
+//    emit BalanceFreezedV2(amount, res);
   }
 
   /**
@@ -18,8 +19,9 @@ contract TestVote {
    * `receiver' and 'res'  (0 for bandwidth, 1 for energy) parameters to
    * unfreeze specific balance.
    */
-  function unfreeze(address payable receiver, uint res) external {
-    receiver.unfreeze(res);
+  function unfreezev2(uint amount, uint resourceType) external {
+    unfreezebalancev2(amount, resourceType);
+//    emit BalanceUnfreezedV2(amount, resourceType);
   }
 
   /**

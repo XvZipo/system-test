@@ -506,7 +506,6 @@ public class NewFreezeContractTest {
     String argsStr = "\"" + Base58.encode58Check(testAddress002) + "\"";
     String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
         false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("kill me revert WithDelegate txid: " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
@@ -599,8 +598,16 @@ public class NewFreezeContractTest {
     List<Protocol.Vote> li = receiverAccount.getVotesList();
     Assert.assertEquals(0, li.size());
 
-    String str = PublicMethed.queryAccount(create2AddBytes, blockingStubFull).toString();
-    Assert.assertEquals("", str);
+    Account killCreate2 = PublicMethed.queryAccount(create2AddBytes, blockingStubFull);
+    if(PublicMethed.allowTvmSelfdestructRestrictionIsActive(blockingStubFull)) {
+      Assert.assertEquals(0L, killCreate2.getBalance());
+      Assert.assertEquals(0L, killCreate2.getFrozenV2(0).getAmount());
+      Assert.assertEquals(0L, killCreate2.getFrozenV2(1).getAmount());
+      Assert.assertEquals(0L, killCreate2.getFrozenV2(2).getAmount());
+    }else {
+      String str = killCreate2.toString();
+      Assert.assertEquals("", str);
+    }
     Assert.assertEquals(frozenAmountCreate2 * 2, receiverAccount.getFrozenV2(0).getAmount());
     Assert.assertEquals(frozenAmountCreate2 * 2, receiverAccount.getFrozenV2(1).getAmount());
     Assert.assertTrue(receiverAccount.getNetUsage() > 0);
@@ -636,6 +643,7 @@ public class NewFreezeContractTest {
     String witnessTB4 = "TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes";
     String args = "[\"" + witnessTT1 + "\",\"" + witnessTB4 + "\"],[200,200]";
     voteWitness(contractAddress, args);
+    withdrawReward(contractAddress);
     String methedStr = "unfreezeBalanceV2(uint256,uint256)";
     String argsStr = "10000000,0";
     String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
@@ -682,7 +690,6 @@ public class NewFreezeContractTest {
     String argsStr = "\"" + Base58.encode58Check(testAddress002) + "\"";
     String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
         false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("kill me revert WithUnfreeze txid: " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
@@ -803,6 +810,21 @@ public class NewFreezeContractTest {
         transactionInfo.getReceipt().getResult());
     Assert.assertEquals("voteWitness", transactionInfo.getInternalTransactions(0).getNote().toStringUtf8());
     logger.info("transactionInfo:  " + transactionInfo.toString());
+  }
+
+  public void withdrawReward(byte[] con) {
+    String methodStr = "withdrawReward()";
+
+    String triggerTxid = PublicMethed.triggerContract(con, methodStr, "#", false,
+            0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    TransactionInfo transactionInfo = PublicMethed
+            .getTransactionInfoById(triggerTxid, blockingStubFull).get();
+    Assert.assertEquals(0, transactionInfo.getResultValue());
+    Assert.assertEquals(contractResult.SUCCESS,
+            transactionInfo.getReceipt().getResult());
+
   }
 
 

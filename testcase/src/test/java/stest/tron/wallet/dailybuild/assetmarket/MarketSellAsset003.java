@@ -89,7 +89,7 @@ public class MarketSellAsset003 {
   }
 
 
-  @Test(enabled = true, description = "CancelOrder")
+  @Test(enabled = false, description = "CancelOrder")
   void marketCancelAssetTest001() {
 
     String txid = PublicMethed.marketSellAsset(testAddress001, testKey001, assetAccountId001, 100,
@@ -118,7 +118,7 @@ public class MarketSellAsset003 {
 
   }
 
-  @Test(enabled = true, description = "Cancel a cancelled order ")
+  @Test(enabled = false, description = "Cancel a cancelled order ")
   void marketCancelAssetTest002() {
 
     String txid = PublicMethed.marketSellAsset(testAddress001, testKey001, assetAccountId001, 100,

@@ -93,8 +93,6 @@ public class RequireException {
         0L, 100, null, testKeyForAssetIssue016,
         asset016Address, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
     AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(asset016Address,
         blockingStubFull);
@@ -112,8 +110,6 @@ public class RequireException {
     final String txid = PublicMethed.triggerContract(contractAddress,
         "testRequire()", "#", false,
         0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
 
@@ -159,8 +155,6 @@ public class RequireException {
         0L, 100, null, testKeyForAssetIssue016,
         asset016Address, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
     AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(asset016Address,
         blockingStubFull);
@@ -178,8 +172,6 @@ public class RequireException {
     final String txid = PublicMethed.triggerContract(contractAddress,
         "testThrow()", "#", false,
         0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -225,8 +217,6 @@ public class RequireException {
         0L, 100, null, testKeyForAssetIssue016,
         asset016Address, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
     AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(asset016Address,
         blockingStubFull);
@@ -244,8 +234,6 @@ public class RequireException {
     final String txid = PublicMethed.triggerContract(contractAddress,
         "testRevert()", "#", false,
         0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
 
@@ -291,8 +279,6 @@ public class RequireException {
         0L, 100, null, testKeyForAssetIssue016,
         asset016Address, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
 
     AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(asset016Address,
@@ -311,8 +297,6 @@ public class RequireException {
     final String txid = PublicMethed.triggerContract(contractAddress,
         "noPayable()", "#", false,
         22, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
 
@@ -371,8 +355,6 @@ public class RequireException {
             22L, 100, null,
             testKeyForAssetIssue016, asset016Address, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
@@ -418,7 +400,6 @@ public class RequireException {
         asset016Address, blockingStubFull);
     final Account info;
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingStubFull);
     AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(asset016Address,
         blockingStubFull);
     info = PublicMethed.queryAccount(testKeyForAssetIssue016, blockingStubFull);
@@ -437,8 +418,6 @@ public class RequireException {
     final String txid = PublicMethed.triggerContract(contractAddress,
         "tranferTest(address) ", newCxoAddress, false,
         5, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
 
@@ -485,8 +464,6 @@ public class RequireException {
         0L, 100, null, testKeyForAssetIssue016,
         asset016Address, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Integer times = 0;
     String contractName1 = "Test";
     HashMap retMap1 = PublicMethed.getBycodeAbi(filePath, contractName1);
@@ -497,8 +474,6 @@ public class RequireException {
         .deployContract(contractName1, abi1, code1, "", maxFeeLimit, 0L,
             100, null, testKeyForAssetIssue016,
             asset016Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(asset016Address,
         blockingStubFull);
@@ -518,8 +493,6 @@ public class RequireException {
     final String txid = PublicMethed.triggerContract(contractAddress1,
         "callTest(address)", saleContractString, false,
         5, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -564,8 +537,6 @@ public class RequireException {
         0L, 100, null, testKeyForAssetIssue016,
         asset016Address, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     String contractName1 = "Initialize";
     HashMap retMap1 = PublicMethed.getBycodeAbi(filePath, contractName1);
@@ -576,8 +547,6 @@ public class RequireException {
         .deployContract(contractName1, abi1, code1, "", maxFeeLimit,
             0L, 100, null,
             testKeyForAssetIssue016, asset016Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
     AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(asset016Address,
@@ -595,8 +564,6 @@ public class RequireException {
     final String txid = PublicMethed.triggerContract(contractAddress1,
         "newAccount()", "#", false,
         0, 5226000, asset016Address, testKeyForAssetIssue016, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -641,8 +608,6 @@ public class RequireException {
         0L, 100, null, testKeyForAssetIssue016,
         asset016Address, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     final String saleContractString = "\"" + Base58.encode58Check(contractAddress) + "\"";
     String contractName1 = "MathedUseContract";
@@ -654,8 +619,6 @@ public class RequireException {
         .deployContract(contractName1, abi1, code1, "", maxFeeLimit,
             0L, 100, null,
             testKeyForAssetIssue016, asset016Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
     AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(asset016Address,
@@ -673,8 +636,6 @@ public class RequireException {
     final String txid = PublicMethed.triggerContract(contractAddress1,
         "messageUse(address)", saleContractString, false,
         0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -717,10 +678,6 @@ public class RequireException {
     contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, testKeyForAssetIssue016,
         asset016Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     final String saleContractString = "\"" + Base58.encode58Check(contractAddress) + "\"";
 
     String contractName1 = "MessageUseContract";
@@ -732,8 +689,8 @@ public class RequireException {
             100, null, testKeyForAssetIssue016,
             asset016Address, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
     Account info;
     AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(asset016Address,
         blockingStubFull);
@@ -750,8 +707,6 @@ public class RequireException {
     final String txid = PublicMethed.triggerContract(contractAddress1,
         "messageUse(address)", saleContractString, false,
         0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
 

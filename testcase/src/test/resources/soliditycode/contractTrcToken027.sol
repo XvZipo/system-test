@@ -17,6 +17,8 @@ contract B{
     constructor() public payable{}
     fallback() external payable{}
     function  transC(address callCAddress,address toAddress,uint256 amount, trcToken id) payable public{
+         require(msg.tokenid == 0);
+         require(msg.tokenvalue == 0);
          callCAddress.call(abi.encodeWithSignature("trans(address,uint256,trcToken)",toAddress,amount,id));
     }
 }

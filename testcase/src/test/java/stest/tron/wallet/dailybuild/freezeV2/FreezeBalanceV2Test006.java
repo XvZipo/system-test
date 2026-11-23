@@ -320,14 +320,15 @@ public class FreezeBalanceV2Test006 {
         delegateBalance, 1, true, 0L, receiverAddress, fromKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txId, blockingStubFull).get();
-    Long currentTime = info.getBlockTimeStamp() - 3000L;
+    long lastBlockNumber = info.getBlockNumber() - 1;
+    Long lockStartTime = PublicMethed.getBlock2(lastBlockNumber, blockingStubFull).getBlockHeader().getRawData().getTimestamp();
     Optional<DelegatedResourceList> delegatedResourceList
         = PublicMethed.getDelegatedResourceV2(fromAddress, receiverAddress, blockingStubFull);
     Long unlockTimeStamp
         = delegatedResourceList.get().getDelegatedResource(0).getExpireTimeForEnergy();
-    logger.info("beforeLockTrueTime: " + currentTime);
+    logger.info("beforeLockTrueTime: " + lockStartTime);
     logger.info("unlockTimeStamp: " + unlockTimeStamp);
-    Assert.assertEquals(unlockTimeStamp - currentTime, delegateLockTime.longValue());
+    Assert.assertEquals(unlockTimeStamp - lockStartTime, delegateLockTime.longValue());
   }
 
   @Test(enabled = true, description = "Period boundary test")
@@ -389,10 +390,10 @@ public class FreezeBalanceV2Test006 {
     Long beforeUnlockTimeStamp
         = beforeDelegatedResourceList.get().getDelegatedResource(0).getExpireTimeForEnergy();
     Assert.assertTrue(
-        Math.abs((beforeUnlockTimeStamp - beforeDelegateTime) - (lockPeriod * 3 * 1000)) < 5000L);
+        Math.abs((beforeUnlockTimeStamp - beforeDelegateTime) - (lockPeriod * 3 * 1000)) < lockPeriod);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.TransactionExtention ext = PublicMethed.delegateResourceV2AndGetTransactionExtention(
-        fromAddress, delegateBalance, 1, true, lockPeriod - 5,
+        fromAddress, delegateBalance, 1, true, lockPeriod - 10,
         receiverAddress, fromKey, blockingStubFull);
     logger.info("ext.toString(): " + ext);
     Assert.assertTrue(ext.toString().contains("CONTRACT_VALIDATE_ERROR"));

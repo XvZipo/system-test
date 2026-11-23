@@ -108,7 +108,6 @@ public class StakeSuicideTest004 {
             false, 0, maxFeeLimit,
             testAddress001, testKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> ex = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(ex.get().getResult(), TransactionInfo.code.SUCESS);
     Assert.assertEquals(ByteArray.toInt(ex.get().getContractResult(0).toByteArray()),1);
@@ -170,7 +169,6 @@ public class StakeSuicideTest004 {
         .triggerContract(contractAddress, methodStr, argsStr,
             false, 0, maxFeeLimit,
             testAddress001, testKey001, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> ex = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(ex.get().getResult(), TransactionInfo.code.SUCESS);

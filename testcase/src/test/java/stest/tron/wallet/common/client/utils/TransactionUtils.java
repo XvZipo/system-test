@@ -447,7 +447,7 @@ public class TransactionUtils {
    */
 
   public static Transaction setTimestamp(Transaction transaction) {
-    long currentTime = System.currentTimeMillis();//*1000000 + System.nanoTime()%1000000;
+    long currentTime = System.currentTimeMillis() + PublicMethed.randomTimeOffset.getAndAdd(1);//*1000000 + System.nanoTime()%1000000;
     Transaction.Builder builder = transaction.toBuilder();
     org.tron.protos.Protocol.Transaction.raw.Builder rowBuilder = transaction.getRawData()
         .toBuilder();
